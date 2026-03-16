@@ -6,12 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
-import logo from "@/assets/logo.png";
 import type { User as SupaUser } from "@supabase/supabase-js";
 
 const navLinks = [
   { label: "Home", to: "/" },
   { label: "Shop", to: "/shop" },
+  { label: "Crocs", to: "/shop?category=crocs" },
+  { label: "Sports Shoes", to: "/shop?category=sports-shoes" },
   { label: "About", to: "/about" },
   { label: "Contact", to: "/contact" },
 ];
@@ -22,7 +23,14 @@ const Navbar = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
@@ -41,31 +49,52 @@ const Navbar = () => {
   };
 
   const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+  const isHome = location.pathname === "/";
 
   return (
     <>
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border">
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled || !isHome
+            ? "bg-background/98 backdrop-blur-md border-b border-border shadow-sm"
+            : "bg-transparent border-b border-transparent"
+        }`}
+      >
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
             <button
-              className="md:hidden p-2 text-foreground"
+              className="md:hidden p-2"
               onClick={() => setMobileOpen(!mobileOpen)}
               aria-label="Toggle menu"
             >
-              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              {mobileOpen ? (
+                <X size={22} className={scrolled || !isHome ? "text-foreground" : "text-background"} />
+              ) : (
+                <Menu size={22} className={scrolled || !isHome ? "text-foreground" : "text-background"} />
+              )}
             </button>
 
-            <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="Putul Fashions" className="h-10 md:h-12 w-auto" />
+            <Link to="/" className="flex items-center">
+              <span
+                className={`font-heading text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-500 ${
+                  scrolled || !isHome ? "text-foreground" : "text-background"
+                }`}
+              >
+                PUTUL
+              </span>
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              {navLinks.map(link => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.to}
                   to={link.to}
-                  className={`text-sm tracking-widest uppercase font-medium transition-colors duration-300 hover:text-secondary ${
-                    location.pathname === link.to ? "text-secondary" : "text-foreground"
+                  className={`text-[11px] tracking-[0.2em] uppercase font-medium transition-colors duration-300 hover:text-secondary ${
+                    location.pathname === link.to
+                      ? "text-secondary"
+                      : scrolled || !isHome
+                      ? "text-foreground"
+                      : "text-background/90"
                   }`}
                 >
                   {link.label}
@@ -73,20 +102,38 @@ const Navbar = () => {
               ))}
             </div>
 
-            <div className="flex items-center gap-4">
-              <Link to="/shop" className="p-2 text-foreground hover:text-secondary transition-colors" aria-label="Search">
-                <Search size={20} />
+            <div className="flex items-center gap-3">
+              <Link
+                to="/shop"
+                className={`p-2 transition-colors ${
+                  scrolled || !isHome ? "text-foreground hover:text-secondary" : "text-background hover:text-secondary"
+                }`}
+                aria-label="Search"
+              >
+                <Search size={19} />
               </Link>
-              <Link to="/wishlist" className="p-2 text-foreground hover:text-secondary transition-colors relative" aria-label="Wishlist">
-                <Heart size={20} />
+              <Link
+                to="/wishlist"
+                className={`p-2 transition-colors relative ${
+                  scrolled || !isHome ? "text-foreground hover:text-secondary" : "text-background hover:text-secondary"
+                }`}
+                aria-label="Wishlist"
+              >
+                <Heart size={19} />
                 {wishlist.length > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {wishlist.length}
                   </span>
                 )}
               </Link>
-              <Link to="/cart" className="p-2 text-foreground hover:text-secondary transition-colors relative" aria-label="Cart">
-                <ShoppingBag size={20} />
+              <Link
+                to="/cart"
+                className={`p-2 transition-colors relative ${
+                  scrolled || !isHome ? "text-foreground hover:text-secondary" : "text-background hover:text-secondary"
+                }`}
+                aria-label="Cart"
+              >
+                <ShoppingBag size={19} />
                 {cartCount > 0 && (
                   <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-secondary text-secondary-foreground text-[10px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}
@@ -94,12 +141,13 @@ const Navbar = () => {
                 )}
               </Link>
 
-              {/* Auth button */}
               {user ? (
                 <div className="relative hidden md:block">
                   <button
                     onClick={() => setShowUserMenu(!showUserMenu)}
-                    className="flex items-center gap-2 p-2 text-foreground hover:text-secondary transition-colors"
+                    className={`flex items-center gap-2 p-2 transition-colors ${
+                      scrolled || !isHome ? "text-foreground hover:text-secondary" : "text-background hover:text-secondary"
+                    }`}
                   >
                     <div className="w-7 h-7 bg-secondary text-secondary-foreground rounded-full flex items-center justify-center text-xs font-bold">
                       {displayName.charAt(0).toUpperCase()}
@@ -131,10 +179,12 @@ const Navbar = () => {
               ) : (
                 <button
                   onClick={() => setAuthOpen(true)}
-                  className="p-2 text-foreground hover:text-secondary transition-colors hidden md:block"
+                  className={`p-2 transition-colors hidden md:block ${
+                    scrolled || !isHome ? "text-foreground hover:text-secondary" : "text-background hover:text-secondary"
+                  }`}
                   aria-label="Account"
                 >
-                  <User size={20} />
+                  <User size={19} />
                 </button>
               )}
             </div>
@@ -150,7 +200,7 @@ const Navbar = () => {
               className="md:hidden bg-background border-t border-border overflow-hidden"
             >
               <div className="flex flex-col py-4 px-6 gap-4">
-                {navLinks.map(link => (
+                {navLinks.map((link) => (
                   <Link
                     key={link.to}
                     to={link.to}
