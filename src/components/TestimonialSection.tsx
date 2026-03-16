@@ -31,9 +31,12 @@ const TestimonialSection = () => {
                 "{t.text}"
               </p>
               <div className="flex items-center justify-between pt-6 border-t border-border">
-                <div>
-                  <p className="text-[13px] font-medium text-foreground tracking-wide">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground tracking-wider uppercase mt-1">{t.date}</p>
+                <div className="flex items-center gap-3">
+                  <img src={t.image} alt={t.name} className="w-10 h-10 rounded-full object-cover" />
+                  <div>
+                    <p className="text-[13px] font-medium text-foreground tracking-wide">{t.name}</p>
+                    <p className="text-[10px] text-muted-foreground tracking-wider uppercase mt-1">{t.date}</p>
+                  </div>
                 </div>
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, j) => (
