@@ -53,6 +53,7 @@ export const categories: Category[] = [
   { name: "Jackets", image: catJackets, slug: "jackets" },
   { name: "Hoodies", image: catHoodies, slug: "hoodies" },
   { name: "Casual Wear", image: catCasual, slug: "casual-wear" },
+  { name: "Shoes", image: catShoes, slug: "shoes" },
 ];
 
 export const products: Product[] = [
