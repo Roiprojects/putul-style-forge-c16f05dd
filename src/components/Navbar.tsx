@@ -76,13 +76,13 @@ const Navbar = () => {
             </button>
 
             <Link to="/" className="flex items-center">
-              <span
-                className={`font-heading text-2xl md:text-3xl font-bold tracking-tight transition-colors duration-500 ${
-                  scrolled || !isHome ? "text-foreground" : "text-background"
+              <img
+                src={logo}
+                alt="PUTUL"
+                className={`h-8 md:h-10 w-auto object-contain transition-all duration-500 ${
+                  scrolled || !isHome ? "invert" : ""
                 }`}
-              >
-                PUTUL
-              </span>
+              />
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
