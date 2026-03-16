@@ -16,6 +16,11 @@ import catJeans from "@/assets/cat-jeans.jpg";
 import catJackets from "@/assets/cat-jackets.jpg";
 import catHoodies from "@/assets/cat-hoodies.jpg";
 import catCasual from "@/assets/cat-casual.jpg";
+import catShoes from "@/assets/cat-shoes.jpg";
+
+import productWhiteSneakers from "@/assets/product-white-sneakers.jpg";
+import productLeatherLoafers from "@/assets/product-leather-loafers.jpg";
+import productSportShoes from "@/assets/product-sport-shoes.jpg";
 
 export interface Product {
   id: string;
