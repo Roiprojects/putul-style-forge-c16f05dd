@@ -17,7 +17,7 @@ const HeroSlider = () => {
   }, [next]);
 
   return (
-    <section className="relative w-full min-h-[85svh] overflow-hidden bg-foreground">
+    <section className="relative w-full min-h-[85svh] mt-[calc(2rem+4rem)] md:mt-[calc(2rem+5rem)] overflow-hidden bg-foreground">
       {/* Full-screen image */}
       <AnimatePresence mode="wait">
         <motion.img
