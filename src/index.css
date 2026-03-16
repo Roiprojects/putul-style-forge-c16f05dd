@@ -7,30 +7,30 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 0 0% 6.7%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 6.7%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 6.7%;
-    --primary: 0 0% 6.7%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 7%;
     --primary-foreground: 0 0% 100%;
     --secondary: 42 47% 54%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 6.7%;
-    --destructive: 0 84.2% 60.2%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 7%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --border: 0 0% 91%;
+    --input: 0 0% 91%;
     --ring: 42 47% 54%;
-    --radius: 0.125rem;
+    --radius: 0rem;
 
     --gold: 42 47% 54%;
     --gold-light: 42 50% 70%;
     --gold-dark: 42 50% 40%;
-    --surface: 0 0% 96.1%;
+    --surface: 0 0% 96%;
     --surface-hover: 0 0% 93%;
 
     --font-heading: 'Playfair Display', serif;
@@ -62,14 +62,14 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-primary text-primary-foreground px-8 py-3 tracking-widest uppercase text-sm font-medium transition-all duration-300;
+    @apply bg-foreground text-background px-8 py-3 tracking-[0.2em] uppercase text-[11px] font-medium transition-all duration-300;
   }
   .btn-primary:hover {
     @apply bg-secondary text-secondary-foreground;
   }
 
   .btn-outline-gold {
-    @apply border border-secondary text-secondary px-8 py-3 tracking-widest uppercase text-sm font-medium transition-all duration-300;
+    @apply border border-secondary text-secondary px-8 py-3 tracking-[0.2em] uppercase text-[11px] font-medium transition-all duration-300;
   }
   .btn-outline-gold:hover {
     @apply bg-secondary text-secondary-foreground;
@@ -99,19 +99,27 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Reduce border radius on all images */
+/* Sharp edges - no border radius */
 img {
   border-radius: 0;
 }
 
+/* Hide scrollbar on category pills */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: hsl(var(--muted));
 }
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--muted-foreground));
-  border-radius: 3px;
 }
