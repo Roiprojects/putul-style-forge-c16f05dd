@@ -445,7 +445,7 @@ import testimonial5 from "@/assets/testimonial-5.jpg";
 import testimonial6 from "@/assets/testimonial-6.jpg";
 
 export const testimonials = [
-  { name: "Sandeep Reddy", date: "20/11/25", image: testimonial1, text: "I bought this recently and I must say it exceeded my expectations. The finishing is impressive and gives a very classy feel when worn. It is very comfortable for daily use." },
+  { name: "Sandeep Reddy", date: "20/11/25", image: testimonial1, text: "I bought this recently and I must say it exceeded my expectations. The finishing is impressive and gives a very classy feel when worn." },
   { name: "Ankit Verma", date: "21/11/25", image: testimonial2, text: "This has become my go to choice for daily wear since the day it arrived. The comfort level is really amazing and it supports my feet properly." },
   { name: "Rohit Sharma", date: "24/10/25", image: testimonial3, text: "I recently purchased this from Putul and I am genuinely impressed with the comfort it provides throughout the day. The material feels very premium." },
   { name: "Prashant Mishra", date: "05/02/26", image: testimonial4, text: "This turned out to be a really good purchase for me. The comfort level is excellent throughout the day. The fitting is perfect and gives proper support." },
