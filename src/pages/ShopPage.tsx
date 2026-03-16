@@ -4,7 +4,9 @@ import { SlidersHorizontal, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { products, categories } from "@/data/products";
 
-const sizes = ["S", "M", "L", "XL", "XXL", "28", "30", "32", "34", "36"];
+const sizes = ["S", "M", "L", "XL", "XXL", "28", "30", "32", "34", "36", "7", "8", "9", "10", "11"];
+const colorOptions = ["Black", "White", "Blue", "Grey", "Navy", "Olive", "Beige", "Brown", "Pink"];
+const materialOptions = ["Cotton", "Linen", "Denim", "Polyester", "Nylon", "Leather", "Mesh"];
 const sortOptions = [
   { label: "Newest", value: "newest" },
   { label: "Price: Low to High", value: "price-asc" },
@@ -15,14 +17,22 @@ const sortOptions = [
 const ShopPage = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSize, setSelectedSize] = useState<string>("");
+  const [selectedColors, setSelectedColors] = useState<string[]>([]);
+  const [selectedMaterials, setSelectedMaterials] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(7000);
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
+
+  const toggleFilter = (arr: string[], val: string, setter: (v: string[]) => void) => {
+    setter(arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val]);
+  };
 
   const filtered = useMemo(() => {
     let items = [...products];
     if (selectedCategory !== "all") items = items.filter(p => p.category === selectedCategory);
     if (selectedSize) items = items.filter(p => p.sizes.includes(selectedSize));
+    if (selectedColors.length > 0) items = items.filter(p => p.colors.some(c => selectedColors.some(sc => c.toLowerCase().includes(sc.toLowerCase()))));
+    if (selectedMaterials.length > 0) items = items.filter(p => selectedMaterials.some(m => p.fabric.toLowerCase().includes(m.toLowerCase())));
     items = items.filter(p => p.price <= maxPrice);
     switch (sortBy) {
       case "price-asc": items.sort((a, b) => a.price - b.price); break;
@@ -30,7 +40,9 @@ const ShopPage = () => {
       case "rating": items.sort((a, b) => b.rating - a.rating); break;
     }
     return items;
-  }, [selectedCategory, selectedSize, maxPrice, sortBy]);
+  }, [selectedCategory, selectedSize, selectedColors, selectedMaterials, maxPrice, sortBy]);
+
+  const hasActiveFilters = selectedCategory !== "all" || selectedSize || selectedColors.length > 0 || selectedMaterials.length > 0 || maxPrice < 7000;
 
   return (
     <div className="pt-20 md:pt-24 min-h-screen">
@@ -51,6 +63,7 @@ const ShopPage = () => {
           >
             <SlidersHorizontal size={16} />
             Filters
+            {hasActiveFilters && <span className="w-2 h-2 rounded-full bg-secondary" />}
           </button>
           <p className="text-sm text-muted-foreground">{filtered.length} Products</p>
           <select
@@ -112,6 +125,57 @@ const ShopPage = () => {
                 </div>
               </div>
 
+              {/* Color */}
+              <div>
+                <h3 className="text-xs tracking-widest uppercase font-semibold mb-3">Color</h3>
+                <div className="space-y-2">
+                  {colorOptions.map(color => (
+                    <button
+                      key={color}
+                      onClick={() => toggleFilter(selectedColors, color, setSelectedColors)}
+                      className={`flex items-center gap-2 text-sm transition-colors ${
+                        selectedColors.includes(color) ? "text-secondary font-medium" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      <span
+                        className="w-4 h-4 rounded-full border border-border"
+                        style={{
+                          backgroundColor:
+                            color === "Black" ? "#111" :
+                            color === "White" ? "#fff" :
+                            color === "Blue" ? "#2563eb" :
+                            color === "Grey" ? "#6b7280" :
+                            color === "Navy" ? "#1e3a5f" :
+                            color === "Olive" ? "#556b2f" :
+                            color === "Beige" ? "#d4b896" :
+                            color === "Brown" ? "#8b4513" :
+                            color === "Pink" ? "#ec4899" : "#ccc",
+                        }}
+                      />
+                      {color}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Material */}
+              <div>
+                <h3 className="text-xs tracking-widest uppercase font-semibold mb-3">Material</h3>
+                <div className="space-y-2">
+                  {materialOptions.map(mat => (
+                    <button
+                      key={mat}
+                      onClick={() => toggleFilter(selectedMaterials, mat, setSelectedMaterials)}
+                      className={`block text-sm transition-colors ${
+                        selectedMaterials.includes(mat) ? "text-secondary font-medium" : "text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {mat}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               {/* Price */}
               <div>
                 <h3 className="text-xs tracking-widest uppercase font-semibold mb-3">Max Price</h3>
@@ -128,17 +192,49 @@ const ShopPage = () => {
               </div>
 
               {/* Clear */}
-              <button
-                onClick={() => { setSelectedCategory("all"); setSelectedSize(""); setMaxPrice(7000); }}
-                className="flex items-center gap-1 text-xs tracking-widest uppercase text-muted-foreground hover:text-destructive transition-colors"
-              >
-                <X size={12} /> Clear Filters
-              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={() => { setSelectedCategory("all"); setSelectedSize(""); setSelectedColors([]); setSelectedMaterials([]); setMaxPrice(7000); }}
+                  className="flex items-center gap-1 text-xs tracking-widest uppercase text-muted-foreground hover:text-destructive transition-colors"
+                >
+                  <X size={12} /> Clear All Filters
+                </button>
+              )}
             </div>
           </motion.aside>
 
           {/* Products Grid */}
           <div className="flex-1">
+            {/* Active filter tags */}
+            {hasActiveFilters && (
+              <div className="flex flex-wrap gap-2 mb-6">
+                {selectedCategory !== "all" && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-border bg-accent">
+                    {categories.find(c => c.slug === selectedCategory)?.name}
+                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
+                  </span>
+                )}
+                {selectedColors.map(c => (
+                  <span key={c} className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-border bg-accent">
+                    {c}
+                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => toggleFilter(selectedColors, c, setSelectedColors)} />
+                  </span>
+                ))}
+                {selectedMaterials.map(m => (
+                  <span key={m} className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-border bg-accent">
+                    {m}
+                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => toggleFilter(selectedMaterials, m, setSelectedMaterials)} />
+                  </span>
+                ))}
+                {selectedSize && (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 text-xs border border-border bg-accent">
+                    Size: {selectedSize}
+                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
+                  </span>
+                )}
+              </div>
+            )}
+
             {filtered.length === 0 ? (
               <div className="text-center py-20">
                 <p className="text-muted-foreground">No products found. Try adjusting your filters.</p>
