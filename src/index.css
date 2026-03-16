@@ -99,6 +99,11 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Reduce border radius on all images */
+img {
+  border-radius: 0;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
