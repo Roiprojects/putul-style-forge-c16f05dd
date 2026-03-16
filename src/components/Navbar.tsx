@@ -79,9 +79,7 @@ const Navbar = () => {
               <img
                 src={logo}
                 alt="PUTUL"
-                className={`h-8 md:h-10 w-auto object-contain transition-all duration-500 ${
-                  scrolled || !isHome ? "invert" : ""
-                }`}
+                className="h-10 md:h-14 w-auto object-contain drop-shadow-sm brightness-0"
               />
             </Link>
 
