@@ -33,6 +33,7 @@ export interface Product {
   rating: number;
   reviews: number;
   sizes: string[];
+  colors: string[];
   description: string;
   fabric: string;
   trending?: boolean;
