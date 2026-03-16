@@ -10,27 +10,23 @@ import { products } from "@/data/products";
 
 const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
 const trending = products.filter((p) => p.trending).slice(0, 4);
-const newArrivals = products.filter((p) => p.newArrival).slice(0, 4);
 
 const features = [
-  { icon: Truck, title: "Free Shipping", desc: "Free shipping on all orders across India" },
-  { icon: Shield, title: "Premium Quality", desc: "Only the finest materials and craftsmanship" },
-  { icon: RefreshCcw, title: "Easy Returns", desc: "Hassle-free returns within 7 days" },
-  { icon: Headphones, title: "24/7 Support", desc: "Dedicated customer support always available" },
+  { icon: Truck, title: "Free Shipping", desc: "On all orders across India" },
+  { icon: Shield, title: "Premium Quality", desc: "Finest materials & craft" },
+  { icon: RefreshCcw, title: "Easy Returns", desc: "7-day hassle-free returns" },
+  { icon: Headphones, title: "24/7 Support", desc: "Always here to help" },
 ];
 
 const HomePage = () => (
   <div>
-    {/* Promo bar */}
     <PromoBar />
-
-    {/* Hero Slider */}
     <HeroSlider />
 
     {/* Features strip */}
     <section className="border-b border-border">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4">
           {features.map((f, i) => (
             <motion.div
               key={f.title}
@@ -38,10 +34,10 @@ const HomePage = () => (
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
-              className="py-8 px-6 text-center"
+              className="py-10 md:py-14 px-6 text-center border-r border-border last:border-r-0"
             >
-              <f.icon size={24} className="mx-auto mb-3 text-secondary" strokeWidth={1.5} />
-              <h3 className="text-xs tracking-[0.2em] uppercase font-semibold mb-1">{f.title}</h3>
+              <f.icon size={22} className="mx-auto mb-4 text-secondary" strokeWidth={1.5} />
+              <h3 className="text-[10px] tracking-[0.25em] uppercase font-semibold mb-1">{f.title}</h3>
               <p className="text-[11px] text-muted-foreground">{f.desc}</p>
             </motion.div>
           ))}
@@ -49,102 +45,141 @@ const HomePage = () => (
       </div>
     </section>
 
+    {/* Editorial statement */}
+    <section className="py-32 md:py-44">
+      <div className="container mx-auto px-6 md:px-12">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="max-w-4xl mx-auto text-center"
+        >
+          <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-8 font-body">
+            The Edit
+          </p>
+          <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-semibold leading-[1.05] tracking-tight mb-8">
+            Where Comfort Meets
+            <span className="italic font-normal text-secondary"> Contemporary</span>
+            <br />Design
+          </h2>
+          <p className="text-muted-foreground text-base md:text-lg max-w-2xl mx-auto leading-relaxed font-light">
+            Curated collections of premium men's footwear, designed for those who believe
+            style should never compromise comfort.
+          </p>
+        </motion.div>
+      </div>
+    </section>
+
     {/* Categories */}
     <CategoryShowcase />
 
-    {/* Best Sellers */}
-    <section className="py-24 md:py-32 bg-accent">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex items-end justify-between mb-14">
+    {/* Best Sellers — editorial grid */}
+    <section className="py-32 md:py-44 bg-accent">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 md:mb-20">
           <div>
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3 font-body">
-              Most Popular
+            <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-4 font-body">
+              Most Loved
             </p>
-            <h2 className="font-heading text-4xl md:text-5xl font-semibold">Best Sellers</h2>
+            <h2 className="font-heading text-4xl md:text-6xl font-semibold tracking-tight">
+              Best Sellers
+            </h2>
           </div>
           <Link
             to="/shop"
-            className="hidden md:flex items-center gap-2 text-sm tracking-widest uppercase text-foreground hover:text-secondary transition-colors"
+            className="hidden md:flex items-center gap-3 text-[11px] tracking-[0.2em] uppercase text-foreground hover:text-secondary transition-colors group mt-6 md:mt-0"
           >
-            View All <ArrowRight size={16} />
+            View All
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 md:gap-8">
           {bestSellers.map((product, i) => (
-            <ProductCard key={product.id} product={product} index={i} />
+            <ProductCard key={product.id} product={product} index={i} variant="large" />
           ))}
         </div>
         <Link
           to="/shop"
-          className="md:hidden flex items-center justify-center gap-2 mt-10 text-sm tracking-widest uppercase text-foreground hover:text-secondary transition-colors"
+          className="md:hidden flex items-center justify-center gap-2 mt-12 text-[11px] tracking-[0.2em] uppercase text-foreground hover:text-secondary transition-colors"
         >
-          View All <ArrowRight size={16} />
+          View All <ArrowRight size={14} />
         </Link>
       </div>
     </section>
 
-    {/* Split banner */}
-    <section className="grid md:grid-cols-2 min-h-[60vh]">
-      <div className="relative overflow-hidden">
-        <img
+    {/* Cinematic split banner */}
+    <section className="grid md:grid-cols-2 min-h-[80vh]">
+      <div className="relative overflow-hidden group">
+        <motion.img
           src={products[0]?.image}
           alt="New arrivals"
-          className="w-full h-full object-cover min-h-[400px]"
+          className="w-full h-full object-cover min-h-[50vh]"
           loading="lazy"
+          whileInView={{ scale: 1.05 }}
+          transition={{ duration: 1.5 }}
+          viewport={{ once: true }}
         />
-        <div className="absolute inset-0 bg-foreground/40" />
-        <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+        <div className="absolute inset-0 bg-foreground/50 group-hover:bg-foreground/40 transition-colors duration-700" />
+        <div className="absolute inset-0 flex items-center justify-center text-center p-12">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
           >
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3">New Season</p>
-            <h2 className="font-heading text-3xl md:text-5xl font-semibold text-background mb-6">
-              New Arrivals
+            <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-6">New Season</p>
+            <h2 className="font-heading text-4xl md:text-6xl font-semibold text-background mb-8 tracking-tight">
+              New<br />Arrivals
             </h2>
-            <Link to="/shop" className="btn-primary">
-              Shop New In
+            <Link to="/shop" className="inline-flex items-center gap-3 bg-background text-foreground px-10 py-4 tracking-[0.2em] uppercase text-[11px] font-semibold hover:bg-secondary hover:text-secondary-foreground transition-all duration-500">
+              Shop New In <ArrowRight size={13} />
             </Link>
           </motion.div>
         </div>
       </div>
-      <div className="relative overflow-hidden">
-        <img
+      <div className="relative overflow-hidden group">
+        <motion.img
           src={products[3]?.image}
           alt="Sale"
-          className="w-full h-full object-cover min-h-[400px]"
+          className="w-full h-full object-cover min-h-[50vh]"
           loading="lazy"
+          whileInView={{ scale: 1.05 }}
+          transition={{ duration: 1.5 }}
+          viewport={{ once: true }}
         />
-        <div className="absolute inset-0 bg-foreground/40" />
-        <div className="absolute inset-0 flex items-center justify-center text-center p-8">
+        <div className="absolute inset-0 bg-foreground/50 group-hover:bg-foreground/40 transition-colors duration-700" />
+        <div className="absolute inset-0 flex items-center justify-center text-center p-12">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.7, delay: 0.1 }}
           >
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3">Up to 71% Off</p>
-            <h2 className="font-heading text-3xl md:text-5xl font-semibold text-background mb-6">
-              Amazing Deals
+            <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-6">Up to 71% Off</p>
+            <h2 className="font-heading text-4xl md:text-6xl font-semibold text-background mb-8 tracking-tight">
+              Amazing<br />Deals
             </h2>
-            <Link to="/shop" className="btn-outline-gold border-background/40 text-background hover:bg-background/10 hover:text-background">
-              Shop Sale
+            <Link to="/shop" className="inline-flex items-center gap-3 border border-background/50 text-background px-10 py-4 tracking-[0.2em] uppercase text-[11px] font-semibold hover:bg-background hover:text-foreground transition-all duration-500">
+              Shop Sale <ArrowRight size={13} />
             </Link>
           </motion.div>
         </div>
       </div>
     </section>
 
-    {/* Trending */}
-    <section className="py-24 md:py-32">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="text-center mb-14">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3 font-body">
-            What's Hot
+    {/* Trending — large editorial */}
+    <section className="py-32 md:py-44">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="text-center mb-16 md:mb-20">
+          <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-4 font-body">
+            What's Hot Right Now
           </p>
-          <h2 className="font-heading text-4xl md:text-5xl font-semibold">Trending Now</h2>
+          <h2 className="font-heading text-4xl md:text-6xl lg:text-7xl font-semibold tracking-tight">
+            Trending
+          </h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-8">
           {trending.map((product, i) => (
             <ProductCard key={product.id} product={product} index={i} variant="large" />
           ))}
@@ -155,43 +190,48 @@ const HomePage = () => (
     {/* Testimonials */}
     <TestimonialSection />
 
-    {/* Why Choose Us */}
-    <section className="py-24 md:py-32 bg-foreground text-background">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="grid md:grid-cols-2 gap-16 items-center">
+    {/* Why Choose Us — editorial with larger image */}
+    <section className="py-32 md:py-44 bg-foreground text-background">
+      <div className="container mx-auto px-6 md:px-12">
+        <div className="grid md:grid-cols-2 gap-16 md:gap-24 items-center">
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
           >
-            <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3">The Putul Promise</p>
-            <h2 className="font-heading text-4xl md:text-5xl font-semibold mb-6">
-              Why Choose<br />Putul Fashions
+            <div className="w-10 h-[2px] bg-secondary mb-8" />
+            <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-4">Our Promise</p>
+            <h2 className="font-heading text-4xl md:text-5xl lg:text-6xl font-semibold mb-8 leading-[1.05] tracking-tight">
+              Why Choose
+              <br />
+              <span className="italic font-normal">Putul</span> Fashions
             </h2>
-            <p className="text-background/60 mb-8 leading-relaxed">
-              At Putul Fashions, we believe that premium quality shouldn't come with a premium price tag.
-              Every product is crafted with attention to detail, using carefully selected materials for
-              unmatched comfort and durability.
+            <p className="text-background/50 mb-10 leading-relaxed text-base">
+              We believe premium quality shouldn't come with a premium price tag.
+              Every product is crafted with meticulous attention to detail, using
+              carefully selected materials for unmatched comfort and durability.
             </p>
-            <div className="space-y-4">
+            <div className="space-y-5 mb-12">
               {["Premium Materials", "Handpicked Designs", "Comfort Guaranteed", "Affordable Luxury"].map((item) => (
-                <div key={item} className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 bg-secondary" />
-                  <span className="text-sm tracking-wide">{item}</span>
+                <div key={item} className="flex items-center gap-4">
+                  <div className="w-6 h-[1px] bg-secondary" />
+                  <span className="text-sm tracking-[0.1em]">{item}</span>
                 </div>
               ))}
             </div>
-            <Link to="/about" className="btn-outline-gold mt-10 inline-block">
+            <Link to="/about" className="btn-outline-gold">
               Learn More
             </Link>
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 40 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             className="relative"
           >
-            <div className="aspect-[4/5] overflow-hidden">
+            <div className="aspect-[3/4] overflow-hidden">
               <img
                 src={products[0]?.images[1] || products[0]?.image}
                 alt="Putul Fashions quality"
@@ -199,32 +239,39 @@ const HomePage = () => (
                 loading="lazy"
               />
             </div>
-            <div className="absolute -bottom-6 -left-6 bg-secondary text-secondary-foreground p-6 md:p-8">
-              <p className="font-heading text-3xl md:text-4xl font-bold">50%</p>
-              <p className="text-xs tracking-wider uppercase mt-1">Min Savings</p>
+            <div className="absolute -bottom-8 -left-8 bg-secondary text-secondary-foreground p-8 md:p-10">
+              <p className="font-heading text-4xl md:text-5xl font-bold tracking-tight">50%</p>
+              <p className="text-[10px] tracking-[0.25em] uppercase mt-2">Min Savings</p>
             </div>
           </motion.div>
         </div>
       </div>
     </section>
 
-    {/* CTA */}
-    <section className="py-24 md:py-32 bg-accent">
-      <div className="container mx-auto px-4 md:px-8 text-center">
+    {/* CTA — cinematic */}
+    <section className="py-36 md:py-48">
+      <div className="container mx-auto px-6 md:px-12 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
         >
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3">Don't Miss Out</p>
-          <h2 className="font-heading text-4xl md:text-6xl font-semibold mb-4">
-            Step Into Style
+          <p className="text-secondary tracking-[0.4em] uppercase text-[10px] mb-6">Don't Miss Out</p>
+          <h2 className="font-heading text-5xl md:text-7xl lg:text-8xl font-semibold mb-6 tracking-tight">
+            Step Into
+            <span className="italic font-normal"> Style</span>
           </h2>
-          <p className="text-muted-foreground mb-10 max-w-lg mx-auto">
-            Join thousands of men who trust Putul Fashions for premium comfort footwear at unbeatable prices.
+          <p className="text-muted-foreground mb-14 max-w-lg mx-auto leading-relaxed">
+            Join thousands of men who trust Putul Fashions for premium comfort
+            footwear at unbeatable prices.
           </p>
-          <Link to="/shop" className="btn-primary inline-block text-base px-12 py-4">
+          <Link
+            to="/shop"
+            className="group inline-flex items-center gap-3 bg-foreground text-background px-14 py-5 tracking-[0.25em] uppercase text-[11px] font-semibold hover:bg-secondary transition-all duration-500"
+          >
             Shop Now
+            <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
           </Link>
         </motion.div>
       </div>
