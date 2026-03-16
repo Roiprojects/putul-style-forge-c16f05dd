@@ -54,10 +54,10 @@ const Navbar = () => {
   return (
     <>
       <nav
-        className={`fixed top-8 left-0 right-0 z-50 transition-all duration-500 ${
+        className={`fixed top-8 left-0 right-0 z-50 transition-all duration-500 backdrop-blur-md ${
           scrolled || !isHome
-            ? "bg-background/98 backdrop-blur-md border-b border-border shadow-sm"
-            : "bg-transparent border-b border-transparent"
+            ? "bg-background/90 border-b border-border shadow-sm"
+            : "bg-foreground/30 border-b border-transparent"
         }`}
       >
         <div className="container mx-auto px-4 md:px-8">
