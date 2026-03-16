@@ -21,7 +21,7 @@ const HeroSlider = () => {
   const slide = heroBanners[current];
 
   return (
-    <section className="relative h-[100svh] w-full overflow-hidden bg-foreground">
+    <section className="relative h-[100svh] w-full overflow-hidden bg-foreground pt-8">
       {/* Background image with Ken Burns effect */}
       <AnimatePresence mode="wait">
         <motion.div
