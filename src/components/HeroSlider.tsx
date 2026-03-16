@@ -24,18 +24,16 @@ const HeroSlider = () => {
 
   return (
     <section className="relative w-full min-h-[85svh] mt-[calc(2rem+4rem)] md:mt-[calc(2rem+5rem)] overflow-hidden bg-foreground">
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={current}
-          src={slides[current]}
-          alt={`Putul Fashions Collection ${current + 1}`}
-          className="absolute inset-0 h-full w-full object-cover object-center"
-          initial={{ opacity: 0, scale: 1.05 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+      {slides.map((slide, i) => (
+        <img
+          key={i}
+          src={slide}
+          alt={`Putul Fashions Collection ${i + 1}`}
+          className={`absolute inset-0 h-full w-full object-cover object-center transition-opacity duration-1000 ${
+            i === current ? "opacity-100" : "opacity-0"
+          }`}
         />
-      </AnimatePresence>
+      ))}
 
       {/* Bottom gradient */}
       <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-foreground/60 to-transparent pointer-events-none" />
