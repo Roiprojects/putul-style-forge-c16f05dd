@@ -35,54 +35,57 @@ const HeroSlider = () => {
           <motion.img
             src={slide.image}
             alt={slide.title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover object-[78%_center] md:object-[82%_center]"
             animate={{ scale: [1, 1.06] }}
             transition={{ duration: 8, ease: "linear" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-foreground/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/88 via-foreground/50 to-foreground/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/72 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
       {/* Content — bottom-aligned editorial style */}
-      <div className="relative h-full container mx-auto px-6 md:px-12 flex flex-col justify-end pb-20 md:pb-28 z-10">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={current}
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -30 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="max-w-4xl"
-          >
+      <div className="relative z-10 flex h-full flex-col justify-end pb-16 md:pb-24">
+        <div className="container mx-auto px-6 md:px-12">
+          <AnimatePresence mode="wait">
             <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: 60 }}
-              transition={{ delay: 0.6, duration: 0.5 }}
-              className="h-[2px] bg-secondary mb-8"
-            />
-            <h1 className="text-5xl md:text-7xl lg:text-[6.5rem] font-heading font-bold text-background leading-[0.9] tracking-tight mb-6">
-              {slide.title}
-            </h1>
-            <p className="text-background/50 text-base md:text-xl mb-12 font-body max-w-xl font-light leading-relaxed">
-              {slide.subtitle}
-            </p>
-            <div className="flex flex-wrap items-center gap-6">
-              <Link
-                to="/shop"
-                className="group inline-flex items-center gap-3 bg-background text-foreground px-10 py-5 tracking-[0.25em] uppercase text-[11px] font-semibold transition-all duration-500 hover:bg-secondary hover:text-secondary-foreground"
-              >
-                {slide.cta}
-                <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
-              </Link>
-              <Link
-                to="/shop"
-                className="text-background/60 tracking-[0.2em] uppercase text-[11px] font-medium hover:text-secondary transition-colors duration-300 border-b border-background/20 pb-1"
-              >
-                Explore All
-              </Link>
-            </div>
-          </motion.div>
-        </AnimatePresence>
+              key={current}
+              initial={{ opacity: 0, y: 60 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -30 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="max-w-[32rem] md:max-w-[38rem] border border-background/10 bg-foreground/28 p-6 backdrop-blur-sm md:p-8 lg:p-10"
+            >
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: 60 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="mb-6 h-[2px] bg-secondary md:mb-8"
+              />
+              <h1 className="mb-4 font-heading text-[clamp(3.2rem,8vw,6rem)] font-bold leading-[0.92] tracking-tight text-background md:mb-5">
+                {slide.title}
+              </h1>
+              <p className="mb-8 max-w-lg font-body text-sm font-light leading-relaxed text-background/75 md:mb-10 md:text-lg">
+                {slide.subtitle}
+              </p>
+              <div className="flex flex-wrap items-center gap-5 md:gap-6">
+                <Link
+                  to="/shop"
+                  className="group inline-flex items-center gap-3 bg-background px-8 py-4 text-[11px] font-semibold uppercase tracking-[0.25em] text-foreground transition-all duration-500 hover:bg-secondary hover:text-secondary-foreground md:px-10 md:py-5"
+                >
+                  {slide.cta}
+                  <ArrowRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+                <Link
+                  to="/shop"
+                  className="border-b border-background/20 pb-1 text-[11px] font-medium uppercase tracking-[0.2em] text-background/70 transition-colors duration-300 hover:text-secondary"
+                >
+                  Explore All
+                </Link>
+              </div>
+            </motion.div>
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Minimal slide counter */}
