@@ -35,11 +35,12 @@ const HeroSlider = () => {
           <motion.img
             src={slide.image}
             alt={slide.title}
-            className="w-full h-full object-cover"
+            className="h-full w-full object-cover object-[78%_center] md:object-[82%_center]"
             animate={{ scale: [1, 1.06] }}
             transition={{ duration: 8, ease: "linear" }}
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-foreground/20 to-foreground/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-foreground/88 via-foreground/50 to-foreground/10" />
+          <div className="absolute inset-0 bg-gradient-to-t from-foreground/72 via-transparent to-transparent" />
         </motion.div>
       </AnimatePresence>
 
