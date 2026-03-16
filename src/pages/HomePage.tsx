@@ -64,7 +64,7 @@ const HomePage = () => (
           <p className="section-subheading mb-2">Browse By</p>
           <h2 className="section-heading gold-underline pb-4">Shop Categories</h2>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4">
           {categories.map((cat, i) => (
             <motion.div
               key={cat.slug}
