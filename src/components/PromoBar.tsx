@@ -9,7 +9,7 @@ const promos = [
 
 const PromoBar = () => {
   return (
-    <div className="bg-secondary text-secondary-foreground overflow-hidden h-8 flex items-center">
+    <div className="fixed top-0 left-0 right-0 z-[60] bg-secondary text-secondary-foreground overflow-hidden h-8 flex items-center">
       <motion.div
         className="flex whitespace-nowrap gap-16"
         animate={{ x: [0, -1200] }}
