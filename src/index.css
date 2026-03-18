@@ -59,6 +59,16 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Hide default cursor on desktop when custom cursor is active */
+  @media (hover: hover) and (pointer: fine) {
+    body {
+      cursor: none !important;
+    }
+    a, button, [role="button"], input, select, textarea {
+      cursor: none !important;
+    }
+  }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }

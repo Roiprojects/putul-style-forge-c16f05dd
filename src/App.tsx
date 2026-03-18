@@ -6,6 +6,7 @@ import { StoreProvider } from "@/contexts/StoreContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
+import CustomCursor from "@/components/CustomCursor";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -24,6 +25,7 @@ const App = () => (
       <StoreProvider>
         <Sonner />
         <BrowserRouter>
+          <CustomCursor />
           <Navbar />
           <Routes>
             <Route path="/" element={<HomePage />} />

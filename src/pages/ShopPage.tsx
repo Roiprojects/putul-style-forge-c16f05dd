@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, ArrowRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { products, categories } from "@/data/products";
 
@@ -57,31 +57,34 @@ const ShopPage = () => {
   return (
     <div className="min-h-screen">
       {/* Cinematic header */}
-      <div className="bg-foreground text-background py-28 md:py-36 grain-overlay">
-        <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
+      <div className="bg-foreground text-background min-h-[50vh] flex items-center justify-center grain-overlay relative">
+        <div className="relative z-10 text-center px-8">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <p className="text-secondary tracking-[0.5em] uppercase text-[9px] mb-4">Putul Fashions</p>
-            <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-light tracking-tight">
-              Our Collection
+            <p className="text-secondary tracking-[0.5em] uppercase text-[9px] mb-6">Putul Fashions</p>
+            <h1 className="font-heading text-5xl md:text-8xl lg:text-9xl font-light tracking-tight leading-[0.9]">
+              Our<br />Collection
             </h1>
-            <p className="text-background/30 mt-6 text-sm max-w-md mx-auto font-light leading-[2]">
+            <p className="text-background/25 mt-8 text-sm max-w-sm mx-auto font-light leading-[2]">
               Premium quality footwear at unbeatable prices
             </p>
           </motion.div>
         </div>
+
+        {/* Decorative bottom border */}
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent" />
       </div>
 
-      {/* Category pills — minimal */}
-      <div className="border-b border-border bg-background">
-        <div className="container mx-auto px-6 md:px-12">
-          <div className="flex items-center gap-6 overflow-x-auto py-5 scrollbar-none">
+      {/* Category strip — interactive */}
+      <div className="border-b border-border bg-background sticky top-0 z-40">
+        <div className="container mx-auto px-8 md:px-16">
+          <div className="flex items-center gap-8 overflow-x-auto py-5 scrollbar-none">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-colors pb-1 border-b ${
+              className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-all pb-1 border-b-2 ${
                 selectedCategory === "all"
                   ? "border-foreground text-foreground"
                   : "border-transparent text-muted-foreground hover:text-foreground"
@@ -93,7 +96,7 @@ const ShopPage = () => {
               <button
                 key={c.slug}
                 onClick={() => setSelectedCategory(c.slug)}
-                className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-colors pb-1 border-b ${
+                className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-all pb-1 border-b-2 ${
                   selectedCategory === c.slug
                     ? "border-foreground text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground"
@@ -106,9 +109,9 @@ const ShopPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 md:px-12 py-10 md:py-14">
-        {/* Toolbar — minimal */}
-        <div className="flex items-center justify-between mb-10 pb-4 border-b border-border">
+      <div className="container mx-auto px-8 md:px-16 py-10 md:py-16">
+        {/* Toolbar */}
+        <div className="flex items-center justify-between mb-12">
           <div className="flex items-center gap-6">
             <button
               onClick={() => setShowFilters(!showFilters)}
@@ -116,14 +119,16 @@ const ShopPage = () => {
             >
               <SlidersHorizontal size={14} />
               Filters
-              {hasActiveFilters && <span className="w-1 h-1 rounded-full bg-secondary" />}
+              {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-secondary" />}
             </button>
-            <span className="text-[10px] text-muted-foreground tracking-wider">{filtered.length} Products</span>
+            <span className="text-[10px] text-muted-foreground tracking-wider">
+              {filtered.length} Product{filtered.length !== 1 ? "s" : ""}
+            </span>
           </div>
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="text-[10px] tracking-wider uppercase bg-transparent border-0 text-muted-foreground focus:outline-none cursor-pointer"
+            className="text-[10px] tracking-wider uppercase bg-transparent border-0 text-muted-foreground focus:outline-none"
           >
             {sortOptions.map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
@@ -132,17 +137,17 @@ const ShopPage = () => {
         </div>
 
         <div className="flex gap-12">
-          {/* Filters sidebar — sleek */}
+          {/* Filter sidebar */}
           <AnimatePresence>
             {showFilters && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
                 animate={{ width: 220, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className="hidden md:block overflow-hidden flex-shrink-0"
               >
                 <div className="w-[220px] space-y-10">
-                  {/* Size */}
                   <div>
                     <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Size</h3>
                     <div className="flex flex-wrap gap-2">
@@ -150,7 +155,7 @@ const ShopPage = () => {
                         <button
                           key={s}
                           onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
-                          className={`w-10 h-10 text-[10px] border transition-colors ${
+                          className={`w-10 h-10 text-[10px] border transition-all duration-300 ${
                             selectedSize === s
                               ? "bg-foreground text-background border-foreground"
                               : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
@@ -162,7 +167,6 @@ const ShopPage = () => {
                     </div>
                   </div>
 
-                  {/* Color */}
                   <div>
                     <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Color</h3>
                     <div className="space-y-3">
@@ -182,7 +186,6 @@ const ShopPage = () => {
                     </div>
                   </div>
 
-                  {/* Price */}
                   <div>
                     <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Max Price</h3>
                     <input
@@ -215,24 +218,24 @@ const ShopPage = () => {
             )}
           </AnimatePresence>
 
-          {/* Products — masonry-inspired irregular grid */}
+          {/* Products */}
           <div className="flex-1">
             {hasActiveFilters && (
               <div className="flex flex-wrap gap-2 mb-8">
                 {selectedCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     {categories.find((c) => c.slug === selectedCategory)?.name}
                     <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
                   </span>
                 )}
                 {selectedColors.map((c) => (
-                  <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
+                  <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     {c}
                     <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => toggleColor(c)} />
                   </span>
                 ))}
                 {selectedSize && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     Size: {selectedSize}
                     <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
                   </span>
@@ -245,7 +248,7 @@ const ShopPage = () => {
                 <p className="text-muted-foreground font-light">No products found. Try adjusting your filters.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
                 {filtered.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}
