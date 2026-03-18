@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, ArrowRight } from "lucide-react";
 import { products } from "@/data/products";
 import { useStore } from "@/contexts/StoreContext";
 import ProductCard from "@/components/ProductCard";
@@ -17,11 +17,14 @@ const ProductPage = () => {
 
   if (!product) {
     return (
-      <div className="pt-32 text-center min-h-screen">
-        <h1 className="font-heading text-3xl font-light">Product not found</h1>
-        <Link to="/shop" className="text-secondary text-sm mt-4 inline-block tracking-wider uppercase">
-          Back to shop
-        </Link>
+      <div className="pt-32 text-center min-h-screen flex items-center justify-center">
+        <div>
+          <h1 className="font-heading text-4xl font-light mb-4">Product not found</h1>
+          <Link to="/shop" className="group inline-flex items-center gap-3 text-[10px] tracking-[0.3em] uppercase text-muted-foreground hover:text-foreground">
+            <ArrowRight size={12} className="rotate-180" />
+            Back to shop
+          </Link>
+        </div>
       </div>
     );
   }
@@ -47,53 +50,58 @@ const ProductPage = () => {
     <div className="min-h-screen">
       {/* Fullscreen product hero */}
       <div className="grid md:grid-cols-2 min-h-screen">
-        {/* Image gallery */}
+        {/* Image gallery — sticky with zoom */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1 }}
           className="relative bg-accent"
         >
-          <div className="sticky top-0 h-screen overflow-hidden cursor-zoom-in group">
-            <img
+          <div className="md:sticky md:top-0 md:h-screen overflow-hidden cursor-zoom-in group">
+            <motion.img
+              key={selectedImage}
               src={product.images[selectedImage]}
               alt={product.name}
-              className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
+              className="w-full h-full object-cover"
+              initial={{ opacity: 0, scale: 1.05 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6 }}
+              whileHover={{ scale: 1.08 }}
             />
             {product.badge && (
               <span className="absolute top-8 left-8 bg-secondary text-secondary-foreground text-[9px] font-medium px-3 py-1.5 tracking-[0.2em] uppercase z-10">
                 {product.badge}
               </span>
             )}
-          </div>
 
-          {/* Image thumbnails — bottom overlay */}
-          {product.images.length > 1 && (
-            <div className="absolute bottom-8 left-8 flex gap-2 z-10">
-              {product.images.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => setSelectedImage(i)}
-                  className={`w-14 h-14 overflow-hidden border transition-colors ${
-                    selectedImage === i ? "border-secondary" : "border-transparent hover:border-background/50"
-                  }`}
-                >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          )}
+            {/* Image thumbnails — vertical on left side */}
+            {product.images.length > 1 && (
+              <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-2 z-10">
+                {product.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`w-12 h-12 md:w-14 md:h-14 overflow-hidden border-2 transition-all duration-300 ${
+                      selectedImage === i ? "border-secondary scale-110" : "border-transparent opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </motion.div>
 
-        {/* Sticky product info */}
+        {/* Product info — immersive */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
+          initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="flex flex-col justify-center px-8 md:px-16 lg:px-24 py-20 md:py-32"
+          transition={{ delay: 0.3, duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="flex flex-col justify-center px-8 md:px-14 lg:px-20 py-20 md:py-24"
         >
           {/* Breadcrumb */}
-          <div className="flex items-center gap-2 text-[10px] text-muted-foreground tracking-[0.2em] uppercase mb-10">
+          <div className="flex items-center gap-2 text-[10px] text-muted-foreground tracking-[0.2em] uppercase mb-12">
             <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
             <ChevronRight size={9} />
             <Link to="/shop" className="hover:text-foreground transition-colors">Shop</Link>
@@ -101,8 +109,8 @@ const ProductPage = () => {
             <span className="text-foreground">{product.category}</span>
           </div>
 
-          <p className="text-secondary tracking-[0.4em] uppercase text-[9px] mb-4">Putul Fashions</p>
-          <h1 className="font-heading text-3xl md:text-5xl font-light mb-6 tracking-tight leading-[1.1]">{product.name}</h1>
+          <p className="text-secondary tracking-[0.4em] uppercase text-[9px] mb-3">Putul Fashions</p>
+          <h1 className="font-heading text-3xl md:text-5xl lg:text-6xl font-light mb-6 tracking-tight leading-[1.05]">{product.name}</h1>
 
           {/* Rating */}
           <div className="flex items-center gap-3 mb-8">
@@ -118,7 +126,7 @@ const ProductPage = () => {
 
           {/* Price */}
           <div className="flex items-baseline gap-3 mb-10">
-            <span className="font-heading text-3xl font-light">₹{product.price.toLocaleString()}</span>
+            <span className="font-heading text-4xl font-light">₹{product.price.toLocaleString()}</span>
             {product.originalPrice && (
               <>
                 <span className="text-sm text-muted-foreground line-through">
@@ -131,12 +139,12 @@ const ProductPage = () => {
             )}
           </div>
 
-          <div className="w-12 h-px bg-border mb-10" />
+          <div className="w-16 h-px bg-border mb-10" />
 
           {/* Product Story */}
           <div className="mb-10">
-            <p className="text-[10px] tracking-[0.3em] uppercase text-muted-foreground mb-3">The Story</p>
-            <p className="text-sm text-muted-foreground leading-[2] font-light">{product.description}</p>
+            <p className="text-[10px] tracking-[0.3em] uppercase text-secondary mb-3">The Story</p>
+            <p className="text-sm text-muted-foreground leading-[2.2] font-light">{product.description}</p>
           </div>
 
           {/* Size */}
@@ -228,21 +236,30 @@ const ProductPage = () => {
         </motion.div>
       </div>
 
-      {/* Related products */}
+      {/* Related products — horizontal scroll */}
       {related.length > 0 && (
-        <section className="py-24 md:py-36 bg-accent grain-overlay">
-          <div className="container mx-auto px-6 md:px-12 relative z-10">
-            <div className="text-center mb-16">
-              <p className="section-subheading mb-3">You May Also Like</p>
-              <h2 className="section-heading">
-                Related <span className="italic">Products</span>
-              </h2>
+        <section className="py-24 md:py-32 bg-accent grain-overlay overflow-hidden">
+          <div className="px-8 md:px-16 mb-14 relative z-10">
+            <div className="flex items-end justify-between">
+              <div>
+                <p className="section-subheading mb-3">You May Also Like</p>
+                <h2 className="section-heading">
+                  Related <span className="italic">Products</span>
+                </h2>
+              </div>
+              <Link
+                to="/shop"
+                className="hidden md:flex items-center gap-3 text-[10px] tracking-[0.25em] uppercase text-muted-foreground hover:text-foreground transition-colors group"
+              >
+                View All
+                <ArrowRight size={12} className="transition-transform group-hover:translate-x-1" />
+              </Link>
             </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-              {related.map((p, i) => (
-                <ProductCard key={p.id} product={p} index={i} />
-              ))}
-            </div>
+          </div>
+          <div className="horizontal-scroll gap-5 md:gap-8 px-8 md:px-16 pb-4 scrollbar-none relative z-10">
+            {related.map((p, i) => (
+              <ProductCard key={p.id} product={p} index={i} variant="editorial" />
+            ))}
           </div>
         </section>
       )}

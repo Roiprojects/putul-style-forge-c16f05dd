@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, ArrowRight } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import type { Product } from "@/data/products";
 import { motion } from "framer-motion";
@@ -37,11 +37,11 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
   if (variant === "editorial") {
     return (
       <motion.div
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ delay: index * 0.1, duration: 0.8 }}
-        className="flex-shrink-0 w-[75vw] md:w-[40vw] lg:w-[30vw]"
+        transition={{ delay: index * 0.1, duration: 0.6 }}
+        className="flex-shrink-0 w-[80vw] md:w-[42vw] lg:w-[32vw]"
       >
         <Link
           to={`/product/${product.id}`}
@@ -50,53 +50,67 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
           onMouseLeave={() => setIsHovered(false)}
         >
           <div className="relative overflow-hidden aspect-[3/4]">
-            <img
+            <motion.img
               src={product.image}
               alt={product.name}
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-out ${
-                isHovered ? "opacity-0 scale-105" : "opacity-100 scale-100"
-              }`}
+              className="absolute inset-0 w-full h-full object-cover"
+              animate={{ scale: isHovered ? 1.08 : 1 }}
+              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
               loading="lazy"
             />
             <img
               src={product.hoverImage}
               alt={product.name}
-              className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-out ${
-                isHovered ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                isHovered ? "opacity-100" : "opacity-0"
               }`}
               loading="lazy"
             />
 
-            {/* Subtle bottom gradient */}
-            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-foreground/40 to-transparent pointer-events-none" />
+            {/* Gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent transition-opacity duration-700 ${isHovered ? "opacity-100" : "opacity-0"}`} />
+
+            {/* Badge */}
+            {product.badge && (
+              <span className="absolute top-4 left-4 bg-secondary text-secondary-foreground text-[8px] font-medium px-2.5 py-1 tracking-[0.15em] uppercase z-10">
+                {product.badge}
+              </span>
+            )}
 
             {/* Wishlist */}
             <motion.button
               onClick={handleWishlist}
               whileTap={{ scale: 0.85 }}
-              className="absolute top-4 right-4 p-2.5 bg-background/80 backdrop-blur-sm hover:bg-background transition-all z-10"
+              className={`absolute top-4 right-4 p-2.5 backdrop-blur-sm transition-all z-10 ${
+                isHovered ? "bg-background/90" : "bg-background/60"
+              }`}
             >
               <Heart size={13} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
             </motion.button>
 
-            {/* Quick add */}
-            <motion.button
-              onClick={handleQuickAdd}
+            {/* Quick add — slides up */}
+            <motion.div
               initial={false}
-              animate={{ y: isHovered ? 0 : "100%" }}
-              transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="absolute bottom-0 left-0 right-0 bg-foreground/90 backdrop-blur-sm text-background py-3.5 text-[9px] tracking-[0.25em] uppercase font-medium flex items-center justify-center gap-2 z-10"
+              animate={{ y: isHovered ? 0 : "100%", opacity: isHovered ? 1 : 0 }}
+              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className="absolute bottom-0 left-0 right-0 p-6 z-10"
             >
-              <ShoppingBag size={11} />
-              Add to Bag
-            </motion.button>
+              <button
+                onClick={handleQuickAdd}
+                className="w-full bg-background/95 backdrop-blur-sm text-foreground py-3 text-[9px] tracking-[0.25em] uppercase font-medium flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors duration-500"
+              >
+                <ShoppingBag size={11} />
+                Add to Bag
+              </button>
+            </motion.div>
           </div>
 
-          <div className="mt-4 space-y-1.5 px-1">
-            <h3 className="font-heading text-lg font-light text-foreground tracking-wide">
+          {/* Info */}
+          <div className="mt-5 space-y-1.5">
+            <h3 className="font-heading text-lg md:text-xl font-light text-foreground tracking-wide leading-tight">
               {product.name}
             </h3>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <span className="text-sm font-medium text-foreground">₹{product.price.toLocaleString()}</span>
               {product.originalPrice && (
                 <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
@@ -115,10 +129,10 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ delay: index * 0.04, duration: 0.5 }}
+      transition={{ delay: index * 0.05, duration: 0.5 }}
     >
       <Link
         to={`/product/${product.id}`}
@@ -127,19 +141,19 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
         onMouseLeave={() => setIsHovered(false)}
       >
         <div className={`relative overflow-hidden bg-accent ${aspectClass}`}>
-          <img
+          <motion.img
             src={product.image}
             alt={product.name}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-out ${
-              isHovered ? "opacity-0 scale-105" : "opacity-100 scale-100"
-            }`}
+            className="absolute inset-0 w-full h-full object-cover"
+            animate={{ scale: isHovered ? 1.06 : 1 }}
+            transition={{ duration: 0.8 }}
             loading="lazy"
           />
           <img
             src={product.hoverImage}
             alt={product.name}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-1000 ease-out ${
-              isHovered ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              isHovered ? "opacity-100" : "opacity-0"
             }`}
             loading="lazy"
           />
@@ -155,7 +169,9 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
           <motion.button
             onClick={handleWishlist}
             whileTap={{ scale: 0.85 }}
-            className="absolute top-3 right-3 p-2 bg-background/80 backdrop-blur-sm hover:bg-background transition-all duration-300 z-10"
+            className={`absolute top-3 right-3 p-2 backdrop-blur-sm transition-all duration-300 z-10 ${
+              isHovered ? "bg-background/90 opacity-100" : "bg-background/60 opacity-0"
+            }`}
           >
             <Heart size={12} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
           </motion.button>
@@ -164,9 +180,9 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
           <motion.button
             onClick={handleQuickAdd}
             initial={false}
-            animate={{ y: isHovered ? 0 : "100%" }}
-            transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="absolute bottom-0 left-0 right-0 bg-foreground/90 backdrop-blur-sm text-background py-2.5 text-[9px] tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-2 z-10"
+            animate={{ y: isHovered ? 0 : "100%", opacity: isHovered ? 1 : 0 }}
+            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+            className="absolute bottom-0 left-0 right-0 bg-foreground/90 backdrop-blur-sm text-background py-3 text-[9px] tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-2 z-10"
           >
             <ShoppingBag size={11} />
             Add to Bag
