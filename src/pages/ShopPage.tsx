@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { SlidersHorizontal, X, Grid3X3, LayoutGrid } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { products, categories } from "@/data/products";
 
@@ -24,10 +24,11 @@ const ShopPage = () => {
   const [maxPrice, setMaxPrice] = useState<number>(3000);
   const [sortBy, setSortBy] = useState("popularity");
   const [showFilters, setShowFilters] = useState(false);
-  const [gridCols, setGridCols] = useState<3 | 4>(4);
 
-  const toggleFilter = (arr: string[], val: string, setter: (v: string[]) => void) => {
-    setter(arr.includes(val) ? arr.filter((v) => v !== val) : [...arr, val]);
+  const toggleColor = (color: string) => {
+    setSelectedColors((prev) =>
+      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
+    );
   };
 
   const filtered = useMemo(() => {
@@ -54,40 +55,48 @@ const ShopPage = () => {
   const hasActiveFilters = selectedCategory !== "all" || selectedSize || selectedColors.length > 0 || maxPrice < 3000;
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
-      {/* Header */}
-      <div className="bg-foreground text-background py-16 md:py-20">
-        <div className="container mx-auto px-4 md:px-8 text-center">
-          <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-3">Putul Fashions</p>
-          <h1 className="font-heading text-4xl md:text-6xl font-semibold">Our Collection</h1>
-          <p className="text-background/50 mt-4 text-sm max-w-md mx-auto">
-            Premium quality footwear at unbeatable prices. Save minimum 50% on every purchase.
-          </p>
+    <div className="min-h-screen">
+      {/* Cinematic header */}
+      <div className="bg-foreground text-background py-28 md:py-36 grain-overlay">
+        <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <p className="text-secondary tracking-[0.5em] uppercase text-[9px] mb-4">Putul Fashions</p>
+            <h1 className="font-heading text-5xl md:text-7xl lg:text-8xl font-light tracking-tight">
+              Our Collection
+            </h1>
+            <p className="text-background/30 mt-6 text-sm max-w-md mx-auto font-light leading-[2]">
+              Premium quality footwear at unbeatable prices
+            </p>
+          </motion.div>
         </div>
       </div>
 
-      {/* Category pills */}
-      <div className="border-b border-border">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center gap-2 overflow-x-auto py-4 scrollbar-none">
+      {/* Category pills — minimal */}
+      <div className="border-b border-border bg-background">
+        <div className="container mx-auto px-6 md:px-12">
+          <div className="flex items-center gap-6 overflow-x-auto py-5 scrollbar-none">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`px-5 py-2 text-[11px] tracking-[0.15em] uppercase font-medium whitespace-nowrap transition-colors border ${
+              className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-colors pb-1 border-b ${
                 selectedCategory === "all"
-                  ? "bg-foreground text-background border-foreground"
-                  : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                  ? "border-foreground text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
               }`}
             >
-              All Products
+              All
             </button>
             {categories.map((c) => (
               <button
                 key={c.slug}
                 onClick={() => setSelectedCategory(c.slug)}
-                className={`px-5 py-2 text-[11px] tracking-[0.15em] uppercase font-medium whitespace-nowrap transition-colors border ${
+                className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-colors pb-1 border-b ${
                   selectedCategory === c.slug
-                    ? "bg-foreground text-background border-foreground"
-                    : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                    ? "border-foreground text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {c.name}
@@ -97,70 +106,54 @@ const ShopPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 md:px-8 py-8">
-        {/* Toolbar */}
-        <div className="flex items-center justify-between mb-8 pb-4 border-b border-border">
-          <div className="flex items-center gap-4">
+      <div className="container mx-auto px-6 md:px-12 py-10 md:py-14">
+        {/* Toolbar — minimal */}
+        <div className="flex items-center justify-between mb-10 pb-4 border-b border-border">
+          <div className="flex items-center gap-6">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 text-[11px] tracking-[0.15em] uppercase font-medium hover:text-secondary transition-colors"
+              className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              <SlidersHorizontal size={15} />
+              <SlidersHorizontal size={14} />
               Filters
-              {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-secondary" />}
+              {hasActiveFilters && <span className="w-1 h-1 rounded-full bg-secondary" />}
             </button>
-            <span className="text-xs text-muted-foreground">{filtered.length} Products</span>
+            <span className="text-[10px] text-muted-foreground tracking-wider">{filtered.length} Products</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex gap-1">
-              <button
-                onClick={() => setGridCols(3)}
-                className={`p-1.5 ${gridCols === 3 ? "text-foreground" : "text-muted-foreground"}`}
-              >
-                <LayoutGrid size={16} />
-              </button>
-              <button
-                onClick={() => setGridCols(4)}
-                className={`p-1.5 ${gridCols === 4 ? "text-foreground" : "text-muted-foreground"}`}
-              >
-                <Grid3X3 size={16} />
-              </button>
-            </div>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="text-xs bg-transparent border border-border px-3 py-2 focus:outline-none focus:ring-1 focus:ring-secondary"
-            >
-              {sortOptions.map((o) => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            className="text-[10px] tracking-wider uppercase bg-transparent border-0 text-muted-foreground focus:outline-none cursor-pointer"
+          >
+            {sortOptions.map((o) => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
         </div>
 
-        <div className="flex gap-8">
-          {/* Filters sidebar */}
+        <div className="flex gap-12">
+          {/* Filters sidebar — sleek */}
           <AnimatePresence>
             {showFilters && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 240, opacity: 1 }}
+                animate={{ width: 220, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
                 className="hidden md:block overflow-hidden flex-shrink-0"
               >
-                <div className="w-60 space-y-8">
+                <div className="w-[220px] space-y-10">
                   {/* Size */}
                   <div>
-                    <h3 className="text-[11px] tracking-[0.15em] uppercase font-semibold mb-4">Size</h3>
+                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Size</h3>
                     <div className="flex flex-wrap gap-2">
                       {sizes.map((s) => (
                         <button
                           key={s}
                           onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
-                          className={`w-11 h-11 text-xs border transition-colors ${
+                          className={`w-10 h-10 text-[10px] border transition-colors ${
                             selectedSize === s
                               ? "bg-foreground text-background border-foreground"
-                              : "border-border hover:border-foreground"
+                              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
                           }`}
                         >
                           {s}
@@ -171,15 +164,15 @@ const ShopPage = () => {
 
                   {/* Color */}
                   <div>
-                    <h3 className="text-[11px] tracking-[0.15em] uppercase font-semibold mb-4">Color</h3>
-                    <div className="space-y-2">
+                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Color</h3>
+                    <div className="space-y-3">
                       {colorOptions.map((color) => (
                         <button
                           key={color}
-                          onClick={() => toggleFilter(selectedColors, color, setSelectedColors)}
-                          className={`flex items-center gap-2 text-sm transition-colors ${
+                          onClick={() => toggleColor(color)}
+                          className={`block text-xs transition-colors font-light ${
                             selectedColors.includes(color)
-                              ? "text-secondary font-medium"
+                              ? "text-secondary"
                               : "text-muted-foreground hover:text-foreground"
                           }`}
                         >
@@ -191,7 +184,7 @@ const ShopPage = () => {
 
                   {/* Price */}
                   <div>
-                    <h3 className="text-[11px] tracking-[0.15em] uppercase font-semibold mb-4">Max Price</h3>
+                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Max Price</h3>
                     <input
                       type="range"
                       min={200}
@@ -201,7 +194,7 @@ const ShopPage = () => {
                       onChange={(e) => setMaxPrice(Number(e.target.value))}
                       className="w-full accent-secondary"
                     />
-                    <p className="text-xs text-muted-foreground mt-2">Up to ₹{maxPrice.toLocaleString()}</p>
+                    <p className="text-[10px] text-muted-foreground mt-2">Up to ₹{maxPrice.toLocaleString()}</p>
                   </div>
 
                   {hasActiveFilters && (
@@ -212,9 +205,9 @@ const ShopPage = () => {
                         setSelectedColors([]);
                         setMaxPrice(3000);
                       }}
-                      className="flex items-center gap-1 text-[11px] tracking-[0.15em] uppercase text-muted-foreground hover:text-destructive transition-colors"
+                      className="flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase text-muted-foreground hover:text-destructive transition-colors"
                     >
-                      <X size={12} /> Clear All
+                      <X size={11} /> Clear All
                     </button>
                   )}
                 </div>
@@ -222,37 +215,37 @@ const ShopPage = () => {
             )}
           </AnimatePresence>
 
-          {/* Products */}
+          {/* Products — masonry-inspired irregular grid */}
           <div className="flex-1">
             {hasActiveFilters && (
-              <div className="flex flex-wrap gap-2 mb-6">
+              <div className="flex flex-wrap gap-2 mb-8">
                 {selectedCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 text-[11px] border border-border bg-accent tracking-wide uppercase">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     {categories.find((c) => c.slug === selectedCategory)?.name}
-                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
+                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
                   </span>
                 )}
                 {selectedColors.map((c) => (
-                  <span key={c} className="inline-flex items-center gap-1 px-3 py-1 text-[11px] border border-border bg-accent tracking-wide uppercase">
+                  <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     {c}
-                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => toggleFilter(selectedColors, c, setSelectedColors)} />
+                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => toggleColor(c)} />
                   </span>
                 ))}
                 {selectedSize && (
-                  <span className="inline-flex items-center gap-1 px-3 py-1 text-[11px] border border-border bg-accent tracking-wide uppercase">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
                     Size: {selectedSize}
-                    <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
+                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
                   </span>
                 )}
               </div>
             )}
 
             {filtered.length === 0 ? (
-              <div className="text-center py-20">
-                <p className="text-muted-foreground">No products found. Try adjusting your filters.</p>
+              <div className="text-center py-32">
+                <p className="text-muted-foreground font-light">No products found. Try adjusting your filters.</p>
               </div>
             ) : (
-              <div className={`grid grid-cols-2 ${gridCols === 3 ? "md:grid-cols-3 lg:grid-cols-4" : "md:grid-cols-4 lg:grid-cols-5"} gap-3 md:gap-4`}>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
                 {filtered.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}

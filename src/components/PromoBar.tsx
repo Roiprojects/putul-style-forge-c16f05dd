@@ -1,27 +1,21 @@
-import { motion } from "framer-motion";
-
 const promos = [
-  "Save Min 50% on all orders",
-  "Free Shipping on All Orders",
-  "GET 10% off on Orders above ₹799 | Use GET10",
-  "GET 15% off on Orders above ₹1299 | Use GET15",
+  "Save Min 50% on All Orders",
+  "Free Shipping Across India",
+  "Use GET10 for 10% off above ₹799",
+  "Use GET15 for 15% off above ₹1299",
 ];
 
 const PromoBar = () => {
   return (
-    <div className="fixed top-0 left-0 right-0 z-[60] bg-secondary text-secondary-foreground overflow-hidden h-8 flex items-center">
-      <motion.div
-        className="flex whitespace-nowrap gap-16"
-        animate={{ x: [0, -1200] }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      >
-        {[...promos, ...promos, ...promos].map((p, i) => (
-          <span key={i} className="text-[11px] tracking-wider uppercase font-medium">
+    <div className="fixed top-0 left-0 right-0 z-[60] bg-foreground text-background/70 overflow-hidden h-7 flex items-center">
+      <div className="flex whitespace-nowrap gap-16 animate-marquee">
+        {[...promos, ...promos, ...promos, ...promos].map((p, i) => (
+          <span key={i} className="text-[9px] tracking-[0.3em] uppercase font-light">
             {p}
-            <span className="mx-8 opacity-40">✦</span>
+            <span className="mx-10 text-secondary/40">◆</span>
           </span>
         ))}
-      </motion.div>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300;1,9..40,400&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,34 +6,36 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 7%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 7%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
-    --primary: 0 0% 7%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 42 47% 54%;
+    --background: 40 20% 96%;
+    --foreground: 0 0% 5%;
+    --card: 40 20% 96%;
+    --card-foreground: 0 0% 5%;
+    --popover: 40 20% 96%;
+    --popover-foreground: 0 0% 5%;
+    --primary: 0 0% 5%;
+    --primary-foreground: 40 20% 96%;
+    --secondary: 40 35% 55%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 40 7% 97%;
-    --muted-foreground: 0 0% 45%;
-    --accent: 40 7% 97%;
-    --accent-foreground: 0 0% 7%;
+    --muted: 40 15% 92%;
+    --muted-foreground: 0 0% 40%;
+    --accent: 40 15% 92%;
+    --accent-foreground: 0 0% 5%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 92%;
-    --input: 0 0% 92%;
-    --ring: 42 47% 54%;
+    --border: 40 10% 88%;
+    --input: 40 10% 88%;
+    --ring: 40 35% 55%;
     --radius: 0rem;
 
-    --gold: 42 47% 54%;
-    --gold-light: 42 50% 70%;
-    --gold-dark: 42 50% 40%;
-    --surface: 40 7% 97%;
-    --surface-hover: 0 0% 94%;
+    --gold: 40 35% 55%;
+    --gold-light: 40 40% 70%;
+    --gold-dark: 40 40% 38%;
+    --cream: 40 30% 95%;
+    --cream-dark: 40 18% 88%;
+    --surface: 40 15% 92%;
+    --surface-hover: 40 10% 88%;
 
-    --font-heading: 'Playfair Display', serif;
+    --font-heading: 'Cormorant Garamond', serif;
     --font-body: 'DM Sans', sans-serif;
 
     --sidebar-background: 0 0% 98%;
@@ -64,26 +66,28 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-foreground text-background px-8 py-3.5 tracking-[0.2em] uppercase text-[10px] font-semibold transition-all duration-500;
+    @apply bg-foreground text-background px-10 py-4 tracking-[0.25em] uppercase text-[10px] font-semibold transition-all duration-700;
+    font-family: var(--font-body);
   }
   .btn-primary:hover {
     @apply bg-secondary text-secondary-foreground;
   }
 
   .btn-outline-gold {
-    @apply border border-secondary text-secondary px-8 py-3.5 tracking-[0.2em] uppercase text-[10px] font-semibold transition-all duration-500;
+    @apply border border-secondary text-secondary px-10 py-4 tracking-[0.25em] uppercase text-[10px] font-semibold transition-all duration-700;
+    font-family: var(--font-body);
   }
   .btn-outline-gold:hover {
     @apply bg-secondary text-secondary-foreground;
   }
 
   .section-heading {
-    @apply text-3xl md:text-5xl font-semibold tracking-tight;
+    @apply text-4xl md:text-6xl lg:text-7xl font-light tracking-tight;
     font-family: var(--font-heading);
   }
 
   .section-subheading {
-    @apply text-muted-foreground text-sm md:text-base tracking-wide uppercase;
+    @apply text-muted-foreground text-xs tracking-[0.4em] uppercase;
     font-family: var(--font-body);
   }
 
@@ -92,7 +96,20 @@
   }
   .gold-underline::after {
     content: '';
-    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-12 h-0.5 bg-secondary;
+    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-px bg-secondary;
+  }
+
+  /* Grain texture overlay */
+  .grain-overlay {
+    position: relative;
+  }
+  .grain-overlay::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 1;
   }
 }
 
@@ -117,7 +134,7 @@ img {
 
 /* Minimal scrollbar */
 ::-webkit-scrollbar {
-  width: 3px;
+  width: 2px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -131,6 +148,18 @@ img {
 
 /* Selection color */
 ::selection {
-  background: hsl(var(--secondary) / 0.2);
+  background: hsl(var(--secondary) / 0.15);
   color: hsl(var(--foreground));
+}
+
+/* Horizontal scroll showcase */
+.horizontal-scroll {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.horizontal-scroll > * {
+  scroll-snap-align: start;
+  flex-shrink: 0;
 }
