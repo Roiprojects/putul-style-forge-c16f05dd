@@ -388,7 +388,7 @@ const CartPage = () => {
                     <div className="bg-accent p-4 space-y-1.5">
                       <p className="text-sm font-semibold">{form.name}</p>
                       <p className="text-xs text-muted-foreground">{form.phone}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{form.address}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{fullAddress}</p>
                       {addressSaved && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-secondary font-medium mt-1">
                           <Check size={10} /> Address saved
