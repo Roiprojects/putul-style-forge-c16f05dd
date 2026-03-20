@@ -1,9 +1,16 @@
 import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
-import { testimonials } from "@/data/products";
-import { motion } from "framer-motion";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import ProductCard from "@/components/ProductCard";
+import type { Product } from "@/data/products";
 
-const TestimonialSection = () => {
+interface ProductCarouselProps {
+  title: string;
+  subtitle?: string;
+  products: Product[];
+  viewAllLink?: string;
+}
+
+const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCarouselProps) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
@@ -24,21 +31,29 @@ const TestimonialSection = () => {
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.7;
+    const amount = scrollRef.current.clientWidth * 0.75;
     scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
   };
 
   return (
     <section className="py-10 md:py-14">
       <div className="container mx-auto px-4 md:px-8">
+        {/* Header */}
         <div className="flex items-end justify-between mb-6 md:mb-8">
           <div>
             <h2 className="text-xl md:text-2xl font-heading font-semibold tracking-wide uppercase text-foreground">
-              Customer Reviews
+              {title}
             </h2>
-            <p className="text-sm text-muted-foreground mt-1">Real reviews from real people</p>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
+            )}
           </div>
           <div className="flex items-center gap-2">
+            {viewAllLink && (
+              <a href={viewAllLink} className="text-xs tracking-wide text-secondary font-medium hover:underline mr-3 hidden md:block">
+                View All
+              </a>
+            )}
             <button
               onClick={() => scroll("left")}
               disabled={!canScrollLeft}
@@ -59,50 +74,21 @@ const TestimonialSection = () => {
             </button>
           </div>
         </div>
-      </div>
 
-      <div
-        ref={scrollRef}
-        className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth px-4 md:px-8 pb-2"
-      >
-        {testimonials.map((t, i) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08, duration: 0.5 }}
-            className="flex-shrink-0 w-[80vw] sm:w-[50vw] md:w-[35vw] lg:w-[28vw] bg-background border border-border rounded-lg overflow-hidden"
-          >
-            {/* Image */}
-            <div className="aspect-square overflow-hidden bg-accent">
-              <img src={t.image} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
+        {/* Scrollable row */}
+        <div
+          ref={scrollRef}
+          className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth pb-2"
+        >
+          {products.map((product, i) => (
+            <div key={product.id} className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]">
+              <ProductCard product={product} index={i} />
             </div>
-            {/* Content */}
-            <div className="p-5">
-              <div className="flex gap-0.5 mb-3">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} size={12} className="fill-secondary text-secondary" />
-                ))}
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-3">
-                "{t.text}"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-semibold">
-                  {t.name.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-xs font-medium text-foreground">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{t.date}</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
 };
 
-export default TestimonialSection;
+export default ProductCarousel;
