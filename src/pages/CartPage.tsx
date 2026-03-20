@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, X, ShoppingBag, MapPin, Check } from "lucide-react";
+import { Minus, Plus, X, ShoppingBag, MapPin, Check, LogIn } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import AuthModal from "@/components/AuthModal";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
