@@ -77,32 +77,7 @@ const Navbar = () => {
           Free Shipping Sitewide on Every Order — <span className="text-secondary font-medium">Don't Miss Out!!</span>
         </p>
         {/* Auth link on right */}
-        <div className="absolute right-4 md:right-8 top-1/2 -translate-y-1/2">
-          {user ? (
-            <div className="relative">
-              <button onClick={() => setShowUserMenu(!showUserMenu)} className="text-[10px] tracking-wide text-background/70 hover:text-background flex items-center gap-1">
-                Hi, {displayName} <ChevronDown size={10} />
-              </button>
-              <AnimatePresence>
-                {showUserMenu && (
-                  <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="absolute right-0 top-full mt-2 w-44 bg-background border border-border shadow-lg rounded-md z-50">
-                    <div className="px-4 py-3 border-b border-border">
-                      <p className="text-xs font-medium truncate text-foreground">{displayName}</p>
-                      <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-                    </div>
-                    <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors">
-                      <LogOut size={13} /> Sign Out
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          ) : (
-            <button onClick={() => setAuthOpen(true)} className="text-[10px] tracking-wide text-background/70 hover:text-background">
-              Log In / Sign Up
-            </button>
-          )}
-        </div>
+        
       </div>
 
       {/* Main navbar */}
