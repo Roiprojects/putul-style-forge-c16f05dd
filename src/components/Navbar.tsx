@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ShoppingBag, Heart, User, Search, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
@@ -24,7 +24,17 @@ const Navbar = () => {
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
 
   useEffect(() => { setMobileOpen(false); }, [location.pathname]);
 
@@ -118,6 +128,20 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
+
+            {/* Search bar */}
+            <form onSubmit={handleSearch} className="hidden lg:flex items-center flex-1 max-w-[320px] mx-4">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products, brands and more"
+                  className="w-full h-9 pl-10 pr-4 text-[12px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                />
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              </div>
+            </form>
 
             {/* Icons */}
             <div className="flex items-center gap-1">
