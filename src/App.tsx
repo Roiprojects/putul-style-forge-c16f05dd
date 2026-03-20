@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
 import CustomCursor from "@/components/CustomCursor";
+import ScrollToTop from "@/components/ScrollToTop";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -45,6 +46,7 @@ const App = () => (
       <StoreProvider>
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* Admin routes - no Navbar/Footer */}
             <Route path="/admin" element={<AdminLayout />}>
