@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, X, ShoppingBag, MapPin, Check } from "lucide-react";
+import { Minus, Plus, X, ShoppingBag, MapPin, Check, LogIn } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import AuthModal from "@/components/AuthModal";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
@@ -63,6 +65,18 @@ const CartPage = () => {
   const [addressSaved, setAddressSaved] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+
+  // Listen for auth state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fullAddress = useMemo(() => {
     const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
@@ -113,19 +127,42 @@ const CartPage = () => {
     return Object.keys(e).length === 0;
   };
 
-  const handleProceedToDetails = () => {
-    setStep("details");
-  };
-
   const handleAddressSubmit = () => {
     if (!validate()) return;
     setShowSavePopup(true);
   };
 
-  const handleSaveAddress = () => {
-    setAddressSaved(true);
+  const handleProceedToDetails = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      toast.error("Please sign in to continue checkout");
+      return;
+    }
+    setStep("details");
+  };
+
+  const handleSaveAddress = async () => {
+    if (!user) return;
+    setSavingAddress(true);
+    const { error } = await supabase.from("saved_addresses").insert({
+      user_id: user.id,
+      name: form.name,
+      phone: form.phone,
+      house_no: form.houseNo,
+      street: form.street,
+      landmark: form.landmark || null,
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+    });
+    setSavingAddress(false);
+    if (error) {
+      toast.error("Failed to save address");
+    } else {
+      setAddressSaved(true);
+      toast.success("Address saved!");
+    }
     setShowSavePopup(false);
-    toast.success("Address saved for future orders");
     setStep("pay");
   };
 
@@ -496,6 +533,7 @@ const CartPage = () => {
           </div>
         </div>
       </div>
+      <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
 };

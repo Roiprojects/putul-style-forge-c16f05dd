@@ -630,6 +630,51 @@ export type Database = {
           },
         ]
       }
+      saved_addresses: {
+        Row: {
+          city: string
+          created_at: string
+          house_no: string
+          id: string
+          is_default: boolean
+          landmark: string | null
+          name: string
+          phone: string
+          pincode: string
+          state: string
+          street: string
+          user_id: string
+        }
+        Insert: {
+          city: string
+          created_at?: string
+          house_no: string
+          id?: string
+          is_default?: boolean
+          landmark?: string | null
+          name: string
+          phone: string
+          pincode: string
+          state: string
+          street: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          house_no?: string
+          id?: string
+          is_default?: boolean
+          landmark?: string | null
+          name?: string
+          phone?: string
+          pincode?: string
+          state?: string
+          street?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       shipping_zones: {
         Row: {
           base_charge: number
