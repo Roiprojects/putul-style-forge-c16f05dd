@@ -129,6 +129,20 @@ const Navbar = () => {
               ))}
             </div>
 
+            {/* Search bar */}
+            <form onSubmit={handleSearch} className="hidden lg:flex items-center flex-1 max-w-[320px] mx-4">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for products, brands and more"
+                  className="w-full h-9 pl-10 pr-4 text-[12px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                />
+                <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              </div>
+            </form>
+
             {/* Icons */}
             <div className="flex items-center gap-1">
               <Link to="/wishlist" className="p-2.5 text-foreground hover:text-secondary transition-colors relative">
