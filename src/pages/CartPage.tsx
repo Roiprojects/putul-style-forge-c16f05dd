@@ -65,6 +65,18 @@ const CartPage = () => {
   const [addressSaved, setAddressSaved] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+
+  // Listen for auth state
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
+    return () => subscription.unsubscribe();
+  }, []);
 
   const fullAddress = useMemo(() => {
     const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
