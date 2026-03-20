@@ -120,6 +120,31 @@ const Navbar = () => {
 
             {/* Icons */}
             <div className="flex items-center gap-1">
+              {/* User icon */}
+              <div className="relative">
+                <button
+                  onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
+                  className="p-2.5 text-foreground hover:text-secondary transition-colors"
+                  aria-label={user ? "Account menu" : "Sign in"}
+                >
+                  <User size={20} strokeWidth={1.5} />
+                </button>
+                {user && (
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="absolute right-0 top-full mt-2 w-44 bg-background border border-border shadow-lg rounded-md z-50">
+                        <div className="px-4 py-3 border-b border-border">
+                          <p className="text-xs font-medium truncate text-foreground">{displayName}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                        </div>
+                        <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors">
+                          <LogOut size={13} /> Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+              </div>
               <Link to="/wishlist" className="p-2.5 text-foreground hover:text-secondary transition-colors relative">
                 <Heart size={20} strokeWidth={1.5} />
                 {wishlist.length > 0 && (
