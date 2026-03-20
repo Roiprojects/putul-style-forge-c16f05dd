@@ -7,6 +7,10 @@ import {
   BarChart3,
   ChevronLeft,
   LogOut,
+  Users,
+  Tag,
+  Truck,
+  CreditCard,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -18,7 +22,11 @@ const navItems = [
   { label: "Products", icon: Package, to: "/admin/products" },
   { label: "Categories", icon: FolderTree, to: "/admin/categories" },
   { label: "Orders", icon: ShoppingCart, to: "/admin/orders" },
+  { label: "Customers", icon: Users, to: "/admin/customers" },
   { label: "Inventory", icon: BarChart3, to: "/admin/inventory" },
+  { label: "Coupons", icon: Tag, to: "/admin/coupons" },
+  { label: "Shipping", icon: Truck, to: "/admin/shipping" },
+  { label: "Payments", icon: CreditCard, to: "/admin/payments" },
 ];
 
 const AdminSidebar = () => {

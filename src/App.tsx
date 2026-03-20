@@ -48,6 +48,10 @@ const App = () => (
               <Route path="categories" element={<AdminCategories />} />
               <Route path="orders" element={<AdminOrders />} />
               <Route path="inventory" element={<AdminInventory />} />
+              <Route path="customers" element={<AdminCustomers />} />
+              <Route path="coupons" element={<AdminCoupons />} />
+              <Route path="shipping" element={<AdminShipping />} />
+              <Route path="payments" element={<AdminPayments />} />
             </Route>
 
             {/* Store routes */}
