@@ -1,5 +1,5 @@
 import { useParams, Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
 import { products } from "@/data/products";
@@ -14,6 +14,18 @@ const ProductPage = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  // Auto-slide images every 5 seconds
+  const imageCount = product?.images?.length || 0;
+  const advanceImage = useCallback(() => {
+    setSelectedImage(prev => (prev + 1) % imageCount);
+  }, [imageCount]);
+
+  useEffect(() => {
+    if (imageCount <= 1) return;
+    const timer = setInterval(advanceImage, 5000);
+    return () => clearInterval(timer);
+  }, [imageCount, advanceImage]);
 
   if (!product) {
     return (
