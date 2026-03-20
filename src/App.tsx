@@ -46,6 +46,7 @@ const App = () => (
       <StoreProvider>
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             {/* Admin routes - no Navbar/Footer */}
             <Route path="/admin" element={<AdminLayout />}>
