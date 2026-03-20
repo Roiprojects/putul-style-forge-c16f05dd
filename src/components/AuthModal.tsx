@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { X, Eye, EyeOff, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +14,7 @@ interface AuthModalProps {
 type AuthView = "login" | "signup" | "forgot";
 
 const AuthModal = ({ open, onClose }: AuthModalProps) => {
+  const navigate = useNavigate();
   const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,10 +39,27 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
+      setLoading(false);
       toast.error(error.message);
+      return;
+    }
+
+    // Check if the user is an admin
+    const { data: role } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", data.user.id)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    setLoading(false);
+
+    if (role) {
+      toast.success("Welcome, Admin!");
+      handleClose();
+      navigate("/admin");
     } else {
       toast.success("Welcome back!");
       handleClose();
