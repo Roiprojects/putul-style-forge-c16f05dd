@@ -15,6 +15,18 @@ const ProductPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Auto-slide images every 5 seconds
+  const imageCount = product?.images?.length || 0;
+  const advanceImage = useCallback(() => {
+    setSelectedImage(prev => (prev + 1) % imageCount);
+  }, [imageCount]);
+
+  useEffect(() => {
+    if (imageCount <= 1) return;
+    const timer = setInterval(advanceImage, 5000);
+    return () => clearInterval(timer);
+  }, [imageCount, advanceImage]);
+
   if (!product) {
     return (
       <div className="pt-32 text-center min-h-screen flex items-center justify-center">
