@@ -32,7 +32,7 @@ const FloatingButtons = () => {
         </a>
         <a
           href="tel:+919999999999"
-          className="w-10 h-10 bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="Call us"
         >
           <Phone size={16} strokeWidth={1.5} />
