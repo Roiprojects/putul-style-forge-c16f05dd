@@ -26,14 +26,21 @@ import { useState } from "react";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
+  { label: "Homepage", icon: Layout, to: "/admin/homepage" },
   { label: "Products", icon: Package, to: "/admin/products" },
   { label: "Categories", icon: FolderTree, to: "/admin/categories" },
   { label: "Orders", icon: ShoppingCart, to: "/admin/orders" },
   { label: "Customers", icon: Users, to: "/admin/customers" },
   { label: "Inventory", icon: BarChart3, to: "/admin/inventory" },
   { label: "Coupons", icon: Tag, to: "/admin/coupons" },
+  { label: "Media", icon: Image, to: "/admin/media" },
+  { label: "CMS", icon: FileText, to: "/admin/cms" },
+  { label: "Reviews", icon: Star, to: "/admin/reviews" },
+  { label: "Analytics", icon: BarChart2, to: "/admin/analytics" },
   { label: "Shipping", icon: Truck, to: "/admin/shipping" },
   { label: "Payments", icon: CreditCard, to: "/admin/payments" },
+  { label: "Roles", icon: Shield, to: "/admin/roles" },
+  { label: "Settings", icon: Settings, to: "/admin/settings" },
 ];
 
 const AdminSidebar = () => {
