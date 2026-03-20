@@ -2,36 +2,113 @@ import { Link } from "react-router-dom";
 import { Minus, Plus, X, ShoppingBag, MapPin, Check } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
+// Indian city → state + pincode mapping
+const CITY_DATA: Record<string, { state: string; pincode: string }> = {
+  "Mumbai": { state: "Maharashtra", pincode: "400001" },
+  "Pune": { state: "Maharashtra", pincode: "411001" },
+  "Nagpur": { state: "Maharashtra", pincode: "440001" },
+  "Delhi": { state: "Delhi", pincode: "110001" },
+  "New Delhi": { state: "Delhi", pincode: "110001" },
+  "Bangalore": { state: "Karnataka", pincode: "560001" },
+  "Bengaluru": { state: "Karnataka", pincode: "560001" },
+  "Mysore": { state: "Karnataka", pincode: "570001" },
+  "Chennai": { state: "Tamil Nadu", pincode: "600001" },
+  "Coimbatore": { state: "Tamil Nadu", pincode: "641001" },
+  "Madurai": { state: "Tamil Nadu", pincode: "625001" },
+  "Hyderabad": { state: "Telangana", pincode: "500001" },
+  "Kolkata": { state: "West Bengal", pincode: "700001" },
+  "Ahmedabad": { state: "Gujarat", pincode: "380001" },
+  "Surat": { state: "Gujarat", pincode: "395001" },
+  "Jaipur": { state: "Rajasthan", pincode: "302001" },
+  "Lucknow": { state: "Uttar Pradesh", pincode: "226001" },
+  "Kanpur": { state: "Uttar Pradesh", pincode: "208001" },
+  "Bhopal": { state: "Madhya Pradesh", pincode: "462001" },
+  "Indore": { state: "Madhya Pradesh", pincode: "452001" },
+  "Patna": { state: "Bihar", pincode: "800001" },
+  "Kochi": { state: "Kerala", pincode: "682001" },
+  "Thiruvananthapuram": { state: "Kerala", pincode: "695001" },
+  "Chandigarh": { state: "Chandigarh", pincode: "160001" },
+  "Guwahati": { state: "Assam", pincode: "781001" },
+  "Bhubaneswar": { state: "Odisha", pincode: "751001" },
+  "Visakhapatnam": { state: "Andhra Pradesh", pincode: "530001" },
+  "Ranchi": { state: "Jharkhand", pincode: "834001" },
+  "Dehradun": { state: "Uttarakhand", pincode: "248001" },
+};
+
+type AddressForm = {
+  name: string;
+  phone: string;
+  houseNo: string;
+  street: string;
+  landmark: string;
+  city: string;
+  state: string;
+  pincode: string;
+};
+
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
   const [step, setStep] = useState<CheckoutStep>("cart");
-  const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  const [form, setForm] = useState<AddressForm>({
+    name: "", phone: "", houseNo: "", street: "", landmark: "", city: "", state: "", pincode: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [addressSaved, setAddressSaved] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
-  // Save address popup timer
+  const fullAddress = useMemo(() => {
+    const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
+    return parts.join(", ");
+  }, [form]);
+
+  // Auto-fill state & pincode when city matches
+  useEffect(() => {
+    const match = Object.entries(CITY_DATA).find(
+      ([city]) => city.toLowerCase() === form.city.trim().toLowerCase()
+    );
+    if (match) {
+      setForm(prev => ({ ...prev, state: match[1].state, pincode: match[1].pincode }));
+    }
+  }, [form.city]);
+
+  // City suggestions
+  useEffect(() => {
+    if (form.city.length < 2) { setCitySuggestions([]); return; }
+    const q = form.city.toLowerCase();
+    const matches = Object.keys(CITY_DATA).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+    setCitySuggestions(matches);
+  }, [form.city]);
+
   useEffect(() => {
     if (!showSavePopup) return;
     const timer = setTimeout(() => setShowSavePopup(false), 9000);
     return () => clearTimeout(timer);
   }, [showSavePopup]);
 
+  const updateField = (field: keyof AddressForm, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
+  };
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name is required";
-    else if (form.name.trim().length > 100) e.name = "Name too long";
     if (!form.phone.trim()) e.phone = "Phone number is required";
-    else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter a valid 10-digit phone number";
-    if (!form.address.trim()) e.address = "Address is required";
-    else if (form.address.trim().length < 10) e.address = "Please enter a complete address";
+    else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter valid 10-digit number";
+    if (!form.houseNo.trim()) e.houseNo = "House/flat no. is required";
+    if (!form.street.trim()) e.street = "Street is required";
+    if (!form.city.trim()) e.city = "City is required";
+    if (!form.state.trim()) e.state = "State is required";
+    if (!form.pincode.trim()) e.pincode = "PIN code is required";
+    else if (!/^\d{6}$/.test(form.pincode.trim())) e.pincode = "Enter valid 6-digit PIN";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -171,14 +248,65 @@ const CartPage = () => {
                         <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">2</div>
                         <p className="text-sm font-semibold uppercase tracking-wider">Delivery Address</p>
                       </div>
-                      <Textarea
-                        value={form.address}
-                        onChange={(e) => { setForm({ ...form, address: e.target.value }); setErrors({ ...errors, address: "" }); }}
-                        placeholder="House no., Street, Landmark, City, State, PIN code"
-                        className="border-border min-h-[100px]"
-                        maxLength={500}
-                      />
-                      {errors.address && <p className="text-[11px] text-destructive mt-1">{errors.address}</p>}
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="col-span-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">House / Flat No.</label>
+                          <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
+                          {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
+                        </div>
+                        <div className="col-span-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Area</label>
+                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="Street name, area" className="border-border" maxLength={100} />
+                          {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Landmark <span className="text-muted-foreground/50 normal-case">(optional)</span></label>
+                        <Input value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near temple, mall, etc." className="border-border" maxLength={100} />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3 mt-3">
+                        <div className="relative">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">City</label>
+                          <Input
+                            value={form.city}
+                            onChange={(e) => { updateField("city", e.target.value); setShowCitySuggestions(true); }}
+                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                            onFocus={() => form.city.length >= 2 && setShowCitySuggestions(true)}
+                            placeholder="Your city"
+                            className="border-border"
+                            maxLength={50}
+                          />
+                          {errors.city && <p className="text-[11px] text-destructive mt-1">{errors.city}</p>}
+                          {/* City suggestions dropdown */}
+                          {showCitySuggestions && citySuggestions.length > 0 && (
+                            <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-background border border-border shadow-lg max-h-40 overflow-auto">
+                              {citySuggestions.map(city => (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onMouseDown={(e) => { e.preventDefault(); updateField("city", city); setShowCitySuggestions(false); }}
+                                  className="w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors"
+                                >
+                                  {city}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">State</label>
+                          <Input value={form.state} onChange={(e) => updateField("state", e.target.value)} placeholder="State" className="border-border bg-accent/50" maxLength={50} />
+                          {errors.state && <p className="text-[11px] text-destructive mt-1">{errors.state}</p>}
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">PIN Code</label>
+                          <Input value={form.pincode} onChange={(e) => updateField("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit" className="border-border bg-accent/50" maxLength={6} />
+                          {errors.pincode && <p className="text-[11px] text-destructive mt-1">{errors.pincode}</p>}
+                        </div>
+                      </div>
                     </div>
 
                     <button
@@ -220,7 +348,7 @@ const CartPage = () => {
                             <div className="flex-1">
                               <p className="text-sm font-semibold mb-1">Save this address?</p>
                               <p className="text-xs text-background/60 leading-relaxed mb-3">
-                                Save "{form.address.slice(0, 40)}..." for faster checkout next time.
+                                Save "{fullAddress.slice(0, 40)}..." for faster checkout next time.
                               </p>
                               <div className="flex gap-2">
                                 <button
@@ -260,7 +388,7 @@ const CartPage = () => {
                     <div className="bg-accent p-4 space-y-1.5">
                       <p className="text-sm font-semibold">{form.name}</p>
                       <p className="text-xs text-muted-foreground">{form.phone}</p>
-                      <p className="text-xs text-muted-foreground leading-relaxed">{form.address}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{fullAddress}</p>
                       {addressSaved && (
                         <span className="inline-flex items-center gap-1 text-[10px] text-secondary font-medium mt-1">
                           <Check size={10} /> Address saved
