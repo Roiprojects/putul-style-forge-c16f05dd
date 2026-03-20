@@ -37,6 +37,7 @@ import AdminReviews from "@/pages/admin/AdminReviews";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminRoles from "@/pages/admin/AdminRoles";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,9 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <Routes>
+            {/* Admin login - separate route */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+
             {/* Admin routes - no Navbar/Footer */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
