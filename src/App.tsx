@@ -17,6 +17,15 @@ import ContactPage from "./pages/ContactPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import NotFound from "./pages/NotFound";
 
+// Admin
+import AdminLayout from "@/components/admin/AdminLayout";
+import AdminDashboard from "@/pages/admin/AdminDashboard";
+import AdminProducts from "@/pages/admin/AdminProducts";
+import AdminProductForm from "@/pages/admin/AdminProductForm";
+import AdminCategories from "@/pages/admin/AdminCategories";
+import AdminOrders from "@/pages/admin/AdminOrders";
+import AdminInventory from "@/pages/admin/AdminInventory";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -25,21 +34,42 @@ const App = () => (
       <StoreProvider>
         <Sonner />
         <BrowserRouter>
-          <CustomCursor />
-          <Navbar />
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/shop" element={<ShopPage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/wishlist" element={<WishlistPage />} />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="*" element={<NotFound />} />
+            {/* Admin routes - no Navbar/Footer */}
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminDashboard />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="products/new" element={<AdminProductForm />} />
+              <Route path="products/:id" element={<AdminProductForm />} />
+              <Route path="categories" element={<AdminCategories />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="inventory" element={<AdminInventory />} />
+            </Route>
+
+            {/* Store routes */}
+            <Route
+              path="*"
+              element={
+                <>
+                  <CustomCursor />
+                  <Navbar />
+                  <Routes>
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/shop" element={<ShopPage />} />
+                    <Route path="/product/:id" element={<ProductPage />} />
+                    <Route path="/cart" element={<CartPage />} />
+                    <Route path="/wishlist" element={<WishlistPage />} />
+                    <Route path="/about" element={<AboutPage />} />
+                    <Route path="/contact" element={<ContactPage />} />
+                    <Route path="/reset-password" element={<ResetPasswordPage />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                  <Footer />
+                  <FloatingButtons />
+                </>
+              }
+            />
           </Routes>
-          <Footer />
-          <FloatingButtons />
         </BrowserRouter>
       </StoreProvider>
     </TooltipProvider>
