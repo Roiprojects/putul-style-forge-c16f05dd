@@ -348,7 +348,7 @@ const CartPage = () => {
                             <div className="flex-1">
                               <p className="text-sm font-semibold mb-1">Save this address?</p>
                               <p className="text-xs text-background/60 leading-relaxed mb-3">
-                                Save "{form.address.slice(0, 40)}..." for faster checkout next time.
+                                Save "{fullAddress.slice(0, 40)}..." for faster checkout next time.
                               </p>
                               <div className="flex gap-2">
                                 <button
