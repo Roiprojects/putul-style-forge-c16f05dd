@@ -1,105 +1,50 @@
-import { useRef, useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { testimonials } from "@/data/products";
-import { motion } from "framer-motion";
 
 const TestimonialSection = () => {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
-  const checkScroll = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    setCanScrollLeft(scrollLeft > 10);
-    setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-  };
-
-  useEffect(() => {
-    checkScroll();
-    const el = scrollRef.current;
-    el?.addEventListener("scroll", checkScroll);
-    return () => el?.removeEventListener("scroll", checkScroll);
-  }, []);
-
-  const scroll = (dir: "left" | "right") => {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.clientWidth * 0.7;
-    scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
-  };
+  const doubled = [...testimonials, ...testimonials];
 
   return (
-    <section className="py-10 md:py-14">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex items-end justify-between mb-6 md:mb-8">
-          <div>
-            <h2 className="text-xl md:text-2xl font-heading font-semibold tracking-wide uppercase text-foreground">
-              Customer Reviews
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1">Real reviews from real people</p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                canScrollLeft ? "border-foreground/20 hover:bg-foreground hover:text-background" : "border-border text-muted-foreground/30 cursor-not-allowed"
-              }`}
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <button
-              onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                canScrollRight ? "border-foreground/20 hover:bg-foreground hover:text-background" : "border-border text-muted-foreground/30 cursor-not-allowed"
-              }`}
-            >
-              <ChevronRight size={18} />
-            </button>
-          </div>
-        </div>
+    <section className="py-8 md:py-10 overflow-hidden">
+      <div className="container mx-auto px-4 md:px-8 mb-5">
+        <h2 className="text-lg md:text-xl font-heading font-semibold tracking-wide uppercase text-foreground">
+          Customer Reviews
+        </h2>
+        <p className="text-xs text-muted-foreground mt-1">Real reviews from real people</p>
       </div>
 
-      <div
-        ref={scrollRef}
-        className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth px-4 md:px-8 pb-2"
-      >
-        {testimonials.map((t, i) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08, duration: 0.5 }}
-            className="flex-shrink-0 w-[80vw] sm:w-[50vw] md:w-[35vw] lg:w-[28vw] bg-background border border-border rounded-lg overflow-hidden"
-          >
-            {/* Image */}
-            <div className="aspect-square overflow-hidden bg-accent">
-              <img src={t.image} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
-            </div>
-            {/* Content */}
-            <div className="p-5">
-              <div className="flex gap-0.5 mb-3">
-                {Array.from({ length: 5 }).map((_, j) => (
-                  <Star key={j} size={12} className="fill-secondary text-secondary" />
-                ))}
+      <div className="relative">
+        <div className="flex gap-3 animate-marquee-testimonial hover:[animation-play-state:paused]">
+          {doubled.map((t, i) => (
+            <div
+              key={`${t.name}-${i}`}
+              className="flex-shrink-0 w-[260px] bg-background border border-border rounded-md overflow-hidden"
+            >
+              <div className="aspect-[4/3] overflow-hidden bg-accent">
+                <img src={t.image} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
               </div>
-              <p className="text-sm text-muted-foreground leading-relaxed mb-4 line-clamp-3">
-                "{t.text}"
-              </p>
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-xs font-semibold">
-                  {t.name.charAt(0)}
+              <div className="p-3">
+                <div className="flex gap-0.5 mb-2">
+                  {Array.from({ length: 5 }).map((_, j) => (
+                    <Star key={j} size={10} className="fill-secondary text-secondary" />
+                  ))}
                 </div>
-                <div>
-                  <p className="text-xs font-medium text-foreground">{t.name}</p>
-                  <p className="text-[10px] text-muted-foreground">{t.date}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed mb-3 line-clamp-2">
+                  "{t.text}"
+                </p>
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded-full bg-foreground text-background flex items-center justify-center text-[10px] font-semibold">
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-medium text-foreground">{t.name}</p>
+                    <p className="text-[9px] text-muted-foreground">{t.date}</p>
+                  </div>
                 </div>
               </div>
             </div>
-          </motion.div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );
