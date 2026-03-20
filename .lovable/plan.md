@@ -1,57 +1,93 @@
 
 
-# Plan: Extend Admin Panel with Business Operations
+# Plan: Advanced Admin Panel for Putul Fashions
 
 ## Overview
-Add 4 new modules to the existing admin panel: enhanced Order Management (with invoices & returns), Customer Management, Offers & Discounts, and Shipping & Payment Settings.
+Add 7 new admin modules: Homepage Content Builder, Media Library, CMS (pages + blog), Reviews Management, Analytics, Admin Roles, and Website Settings. This is a large scope — we'll build each as a standalone admin page with corresponding database tables.
 
 ## Database Changes (1 migration)
 
 New tables:
-- **coupons**: code, discount_type (percentage/flat), discount_value, min_order, max_discount, usage_limit, used_count, expiry_date, is_active
-- **shipping_zones**: name, states (text[]), base_charge, free_shipping_threshold, estimated_days_min, estimated_days_max, is_active
-- **payment_settings**: method (upi/cards/cod), is_enabled, display_name, sort_order
-- **returns**: order_id, reason, status (requested/approved/refunded/rejected), refund_amount, admin_notes, created_at
+- **homepage_sections**: id, section_type (hero/featured_collection/trending/editorial/banner), title, subtitle, content (jsonb), image_urls (text[]), sort_order, is_enabled, created_at, updated_at
+- **media_library**: id, file_url, file_name, file_type, file_size, folder, tags (text[]), uploaded_by (uuid), created_at
+- **cms_pages**: id, slug (unique), title, content (text - markdown/html), meta_description, is_published, created_at, updated_at
+- **blog_posts**: id, title, slug (unique), content (text), excerpt, cover_image, author_name, tags (text[]), is_published, published_at, created_at, updated_at
+- **reviews**: id, product_id (fk admin_products), user_id, author_name, rating (int), comment, status (pending/approved/rejected), is_featured, created_at
+- **site_settings**: id, setting_key (unique text), setting_value (jsonb), updated_at
 
-Add columns to existing tables:
-- **orders**: add `tracking_number` (text), `invoice_number` (text)
-- **profiles**: add `is_blocked` (boolean, default false)
+Storage bucket:
+- **media** (public) — for image/video uploads from Media Library and content builder
 
-All new tables get RLS policies restricted to admin role. The `profiles` table gets an admin SELECT ALL policy.
+RLS: All tables admin-only for write, public read for published content (cms_pages, blog_posts with is_published, reviews with approved status, site_settings, homepage_sections with is_enabled).
 
 ## New Admin Pages
 
-### 1. Enhanced Order Management (`AdminOrders.tsx` - update)
-- Add invoice generation (client-side PDF-like view with print)
-- Add returns/refunds tab showing return requests
-- Add tracking number field in order detail modal
+### 1. Homepage Content Builder (`AdminHomepage.tsx`)
+- List all homepage_sections ordered by sort_order
+- Each section: toggle enabled/disabled, edit content (title, subtitle, images, linked products)
+- Drag-and-drop reorder (update sort_order)
+- Section types: hero_banner, product_carousel, category_showcase, promo_banner, editorial, marquee
+- Frontend HomePage.tsx reads from this table instead of hardcoded data
 
-### 2. Customer Management (`AdminCustomers.tsx` - new)
-- List all profiles joined with order count and total spent
-- Customer detail view with order history
-- Block/unblock toggle
+### 2. Media Library (`AdminMedia.tsx`)
+- Upload images/videos to storage bucket
+- Grid view of all assets with search/filter by folder/type
+- Click to copy URL
+- Delete assets
+- Folder organization
 
-### 3. Coupons & Offers (`AdminCoupons.tsx` - new)
-- CRUD for coupon codes
-- Fields: code, type, value, min order, max discount, usage limit, expiry
-- Active/inactive toggle
+### 3. CMS Pages & Blog (`AdminCMS.tsx`)
+- Tabs: Pages | Blog
+- Pages: Edit About, Contact, Policies content (rich text via textarea + markdown preview)
+- Blog: CRUD for blog posts with title, content, cover image, tags, publish/draft toggle
+- New route needed: `/blog` and `/blog/:slug` on storefront
 
-### 4. Shipping Settings (`AdminShipping.tsx` - new)
-- CRUD for shipping zones with states, charges, free shipping threshold
-- Estimated delivery days
+### 4. Reviews Management (`AdminReviews.tsx`)
+- List all reviews with status filter (pending/approved/rejected)
+- Approve/reject actions
+- Toggle "featured" for homepage testimonials
+- Link to product
 
-### 5. Payment Settings (`AdminPayments.tsx` - new)
-- Toggle UPI, Cards, COD on/off
-- Reorder payment methods
+### 5. Analytics (`AdminAnalytics.tsx`)
+- Sales by date range (query orders table, aggregate by day/month)
+- Top products by revenue
+- Customer count over time
+- Charts using recharts (already in project via shadcn)
 
-## Sidebar Update
-Add new nav items: Customers, Coupons, Shipping, Payments (with appropriate icons).
+### 6. Admin Roles (`AdminRoles.tsx`)
+- List users with roles from user_roles table
+- Assign/remove roles (admin, moderator, user)
+- Add INSERT/UPDATE/DELETE policies for user_roles (currently missing — only admins can manage)
+- Display role-based access info
 
-## Routing Update
-Add routes in `App.tsx`: `/admin/customers`, `/admin/coupons`, `/admin/shipping`, `/admin/payments`.
+### 7. Website Settings (`AdminSettings.tsx`)
+- Logo URL (upload via media bucket)
+- Theme colors (primary, accent, background) stored as JSON
+- Font selections (heading font, body font)
+- Currency symbol, region
+- Settings stored as key-value pairs in site_settings table
 
-## File Changes Summary
-- **Migration**: 1 SQL migration for all new tables + column additions
-- **New files**: `AdminCustomers.tsx`, `AdminCoupons.tsx`, `AdminShipping.tsx`, `AdminPayments.tsx`
-- **Modified files**: `AdminOrders.tsx` (invoice + returns), `AdminSidebar.tsx` (new nav items), `App.tsx` (new routes)
+## Routing & Sidebar Updates
+
+New routes under `/admin`:
+- `/admin/homepage` — Content Builder
+- `/admin/media` — Media Library
+- `/admin/cms` — Pages & Blog
+- `/admin/reviews` — Reviews
+- `/admin/analytics` — Analytics
+- `/admin/roles` — Roles & Permissions
+- `/admin/settings` — Website Settings
+
+Sidebar gets 7 new nav items with appropriate icons (Layout, Image, FileText, Star, BarChart2, Shield, Settings).
+
+## Storefront Integration
+- HomePage.tsx will query `homepage_sections` table to render sections dynamically
+- TestimonialSection will query approved+featured reviews
+- Site settings (logo, colors) can be consumed via a React context
+
+## File Summary
+- **1 migration**: ~8 new tables + storage bucket + RLS policies
+- **7 new pages**: AdminHomepage, AdminMedia, AdminCMS, AdminReviews, AdminAnalytics, AdminRoles, AdminSettings
+- **2 new storefront pages**: BlogList, BlogPost
+- **Modified**: App.tsx (routes), AdminSidebar.tsx (nav), HomePage.tsx (dynamic sections)
 
