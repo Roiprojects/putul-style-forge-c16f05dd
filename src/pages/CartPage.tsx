@@ -248,14 +248,65 @@ const CartPage = () => {
                         <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">2</div>
                         <p className="text-sm font-semibold uppercase tracking-wider">Delivery Address</p>
                       </div>
-                      <Textarea
-                        value={form.address}
-                        onChange={(e) => { setForm({ ...form, address: e.target.value }); setErrors({ ...errors, address: "" }); }}
-                        placeholder="House no., Street, Landmark, City, State, PIN code"
-                        className="border-border min-h-[100px]"
-                        maxLength={500}
-                      />
-                      {errors.address && <p className="text-[11px] text-destructive mt-1">{errors.address}</p>}
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="col-span-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">House / Flat No.</label>
+                          <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
+                          {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
+                        </div>
+                        <div className="col-span-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Area</label>
+                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="Street name, area" className="border-border" maxLength={100} />
+                          {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
+                        </div>
+                      </div>
+
+                      <div className="mt-3">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Landmark <span className="text-muted-foreground/50 normal-case">(optional)</span></label>
+                        <Input value={form.landmark} onChange={(e) => updateField("landmark", e.target.value)} placeholder="Near temple, mall, etc." className="border-border" maxLength={100} />
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3 mt-3">
+                        <div className="relative">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">City</label>
+                          <Input
+                            value={form.city}
+                            onChange={(e) => { updateField("city", e.target.value); setShowCitySuggestions(true); }}
+                            onBlur={() => setTimeout(() => setShowCitySuggestions(false), 150)}
+                            onFocus={() => form.city.length >= 2 && setShowCitySuggestions(true)}
+                            placeholder="Your city"
+                            className="border-border"
+                            maxLength={50}
+                          />
+                          {errors.city && <p className="text-[11px] text-destructive mt-1">{errors.city}</p>}
+                          {/* City suggestions dropdown */}
+                          {showCitySuggestions && citySuggestions.length > 0 && (
+                            <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-background border border-border shadow-lg max-h-40 overflow-auto">
+                              {citySuggestions.map(city => (
+                                <button
+                                  key={city}
+                                  type="button"
+                                  onMouseDown={(e) => { e.preventDefault(); updateField("city", city); setShowCitySuggestions(false); }}
+                                  className="w-full text-left px-3 py-2 text-xs hover:bg-accent transition-colors"
+                                >
+                                  {city}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">State</label>
+                          <Input value={form.state} onChange={(e) => updateField("state", e.target.value)} placeholder="State" className="border-border bg-accent/50" maxLength={50} />
+                          {errors.state && <p className="text-[11px] text-destructive mt-1">{errors.state}</p>}
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">PIN Code</label>
+                          <Input value={form.pincode} onChange={(e) => updateField("pincode", e.target.value.replace(/\D/g, "").slice(0, 6))} placeholder="6-digit" className="border-border bg-accent/50" maxLength={6} />
+                          {errors.pincode && <p className="text-[11px] text-destructive mt-1">{errors.pincode}</p>}
+                        </div>
+                      </div>
                     </div>
 
                     <button
