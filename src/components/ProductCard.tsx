@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag, Star, Plus, Minus } from "lucide-react";
+import { Heart, ShoppingBag, Star, Plus, Minus, X } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import type { Product } from "@/data/products";
 import { motion, AnimatePresence } from "framer-motion";
@@ -12,17 +12,20 @@ interface ProductCardProps {
   variant?: "default" | "grid";
 }
 
+type CartEntry = { size: string; qty: number };
+
 const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
   const wishlisted = isInWishlist(product.id);
   const [isHovered, setIsHovered] = useState(false);
   const [showSizes, setShowSizes] = useState(false);
-  const [selectedSize, setSelectedSize] = useState<string | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [cartEntries, setCartEntries] = useState<CartEntry[]>([]);
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
+
+  const totalItems = cartEntries.reduce((sum, e) => sum + e.qty, 0);
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -33,29 +36,40 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
   const handleSizeSelect = (e: React.MouseEvent, size: string) => {
     e.preventDefault();
     e.stopPropagation();
-    setSelectedSize(size);
-    setQuantity(1);
-    addToCart(product, size);
-    toast.success(`${product.name} (${size}) added to cart`);
-  };
-
-  const handleIncrement = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setQuantity(q => q + 1);
-    if (selectedSize) addToCart(product, selectedSize);
-  };
-
-  const handleDecrement = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (quantity > 1) {
-      setQuantity(q => q - 1);
+    const existing = cartEntries.find(c => c.size === size);
+    if (existing) {
+      setCartEntries(cartEntries.map(c => c.size === size ? { ...c, qty: c.qty + 1 } : c));
     } else {
-      setSelectedSize(null);
-      setShowSizes(false);
-      setQuantity(1);
+      setCartEntries([...cartEntries, { size, qty: 1 }]);
     }
+    addToCart(product, size);
+    toast.success(`${product.name} (${size}) added`);
+  };
+
+  const handleIncrement = (e: React.MouseEvent, size: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCartEntries(cartEntries.map(c => c.size === size ? { ...c, qty: c.qty + 1 } : c));
+    addToCart(product, size);
+  };
+
+  const handleDecrement = (e: React.MouseEvent, size: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const entry = cartEntries.find(c => c.size === size);
+    if (!entry) return;
+    if (entry.qty <= 1) {
+      setCartEntries(cartEntries.filter(c => c.size !== size));
+    } else {
+      setCartEntries(cartEntries.map(c => c.size === size ? { ...c, qty: c.qty - 1 } : c));
+    }
+  };
+
+  const handleClearAll = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setCartEntries([]);
+    setShowSizes(false);
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -64,6 +78,8 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
     toggleWishlist(product.id);
     toast.success(wishlisted ? "Removed from wishlist" : "Added to wishlist");
   };
+
+  const hasItems = cartEntries.length > 0;
 
   return (
     <motion.div
@@ -76,7 +92,7 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
         to={`/product/${product.id}`}
         className="group block"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => { setIsHovered(false); if (!selectedSize) setShowSizes(false); }}
+        onMouseLeave={() => { setIsHovered(false); if (!hasItems) setShowSizes(false); }}
       >
         <div className="relative overflow-hidden bg-accent rounded-lg aspect-square">
           <img
@@ -98,6 +114,13 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             </span>
           )}
 
+          {/* Item count badge */}
+          {hasItems && (
+            <span className="absolute top-2.5 left-2.5 bg-foreground text-background text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center z-20">
+              {totalItems}
+            </span>
+          )}
+
           <button
             onClick={handleWishlist}
             className={`absolute top-2.5 right-2.5 p-2 bg-background/80 backdrop-blur-sm rounded-full transition-all z-10 hover:bg-background ${
@@ -109,69 +132,85 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
 
           {/* Bottom action area */}
           <div
-            className={`absolute bottom-0 left-0 right-0 p-3 transition-all duration-400 ${
-              isHovered || selectedSize ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            className={`absolute bottom-0 left-0 right-0 transition-all duration-300 ${
+              isHovered || hasItems ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
             }`}
           >
             <AnimatePresence mode="wait">
-              {selectedSize ? (
-                /* Quantity selector: − number + */
+              {(showSizes || hasItems) ? (
                 <motion.div
-                  key="qty"
-                  initial={{ opacity: 0, y: 8 }}
+                  key="panel"
+                  initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="flex items-center justify-between bg-foreground rounded overflow-hidden"
+                  exit={{ opacity: 0, y: 12 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="bg-foreground/95 backdrop-blur-sm rounded-t-xl p-2.5"
                 >
-                  <button
-                    onClick={handleDecrement}
-                    className="px-4 py-2.5 text-background hover:bg-secondary hover:text-secondary-foreground transition-colors"
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="text-background text-sm font-bold tabular-nums">{quantity}</span>
-                  <button
-                    onClick={handleIncrement}
-                    className="px-4 py-2.5 text-background hover:bg-secondary hover:text-secondary-foreground transition-colors"
-                  >
-                    <Plus size={14} />
-                  </button>
-                </motion.div>
-              ) : showSizes ? (
-                /* Size selector */
-                <motion.div
-                  key="sizes"
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="bg-foreground rounded p-2"
-                >
-                  <p className="text-background/60 text-[10px] uppercase tracking-wider text-center mb-1.5">Select Size</p>
-                  <div className="flex items-center justify-center gap-1.5">
-                    {product.sizes.map(size => (
-                      <button
-                        key={size}
-                        onClick={(e) => handleSizeSelect(e, size)}
-                        className="min-w-[32px] h-8 px-2 text-[11px] font-semibold text-background border border-background/20 rounded hover:bg-secondary hover:text-secondary-foreground hover:border-secondary transition-colors"
-                      >
-                        {size}
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-background/50 text-[9px] uppercase tracking-widest font-medium">
+                      {hasItems ? `${totalItems} in bag` : "Select size"}
+                    </p>
+                    {hasItems && (
+                      <button onClick={handleClearAll} className="text-background/40 hover:text-background transition-colors">
+                        <X size={12} />
                       </button>
-                    ))}
+                    )}
+                  </div>
+
+                  {/* Size buttons with inline qty */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {product.sizes.map(size => {
+                      const entry = cartEntries.find(c => c.size === size);
+                      return entry ? (
+                        <div
+                          key={size}
+                          className="flex items-center bg-secondary rounded overflow-hidden"
+                        >
+                          <button
+                            onClick={(e) => handleDecrement(e, size)}
+                            className="w-6 h-7 flex items-center justify-center text-secondary-foreground hover:bg-secondary/80 transition-colors active:scale-95"
+                          >
+                            <Minus size={10} />
+                          </button>
+                          <span className="text-[10px] font-bold text-secondary-foreground tabular-nums px-0.5 min-w-[24px] text-center">
+                            {size} ×{entry.qty}
+                          </span>
+                          <button
+                            onClick={(e) => handleIncrement(e, size)}
+                            className="w-6 h-7 flex items-center justify-center text-secondary-foreground hover:bg-secondary/80 transition-colors active:scale-95"
+                          >
+                            <Plus size={10} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          key={size}
+                          onClick={(e) => handleSizeSelect(e, size)}
+                          className="h-7 min-w-[34px] px-2 text-[10px] font-semibold text-background border border-background/15 rounded hover:bg-secondary hover:text-secondary-foreground hover:border-secondary transition-all active:scale-95"
+                        >
+                          {size}
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               ) : (
-                /* Add to Cart button */
-                <motion.button
+                <motion.div
                   key="add"
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 8 }}
-                  onClick={handleQuickAdd}
-                  className="w-full bg-foreground text-background py-2.5 text-[11px] font-semibold tracking-wide uppercase rounded flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                  className="p-3"
                 >
-                  <ShoppingBag size={13} />
-                  Add to Cart
-                </motion.button>
+                  <button
+                    onClick={handleQuickAdd}
+                    className="w-full bg-foreground text-background py-2.5 text-[11px] font-semibold tracking-wide uppercase rounded-lg flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors active:scale-[0.97]"
+                  >
+                    <ShoppingBag size={13} />
+                    Add to Cart
+                  </button>
+                </motion.div>
               )}
             </AnimatePresence>
           </div>
