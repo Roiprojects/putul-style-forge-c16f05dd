@@ -127,6 +127,11 @@ const CartPage = () => {
     return Object.keys(e).length === 0;
   };
 
+  const handleAddressSubmit = () => {
+    if (!validate()) return;
+    setShowSavePopup(true);
+  };
+
   const handleProceedToDetails = () => {
     if (!user) {
       setShowAuthModal(true);
