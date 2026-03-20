@@ -49,6 +49,7 @@ const App = () => (
             {/* Admin routes - no Navbar/Footer */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
+              <Route path="homepage" element={<AdminHomepage />} />
               <Route path="products" element={<AdminProducts />} />
               <Route path="products/new" element={<AdminProductForm />} />
               <Route path="products/:id" element={<AdminProductForm />} />
@@ -57,8 +58,14 @@ const App = () => (
               <Route path="inventory" element={<AdminInventory />} />
               <Route path="customers" element={<AdminCustomers />} />
               <Route path="coupons" element={<AdminCoupons />} />
+              <Route path="media" element={<AdminMedia />} />
+              <Route path="cms" element={<AdminCMS />} />
+              <Route path="reviews" element={<AdminReviews />} />
+              <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="shipping" element={<AdminShipping />} />
               <Route path="payments" element={<AdminPayments />} />
+              <Route path="roles" element={<AdminRoles />} />
+              <Route path="settings" element={<AdminSettings />} />
             </Route>
 
             {/* Store routes */}
