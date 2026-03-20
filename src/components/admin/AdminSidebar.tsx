@@ -11,6 +11,13 @@ import {
   Tag,
   Truck,
   CreditCard,
+  Layout,
+  Image,
+  FileText,
+  Star,
+  BarChart2,
+  Shield,
+  Settings,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
