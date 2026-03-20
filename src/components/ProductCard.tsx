@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag, Star } from "lucide-react";
+import { Heart, ShoppingBag, Star, Plus, Minus } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import type { Product } from "@/data/products";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -16,6 +16,10 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
   const wishlisted = isInWishlist(product.id);
   const [isHovered, setIsHovered] = useState(false);
+  const [showSizes, setShowSizes] = useState(false);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [quantity, setQuantity] = useState(1);
+
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
@@ -23,8 +27,35 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addToCart(product, product.sizes[1] || product.sizes[0]);
-    toast.success(`${product.name} added to cart`);
+    setShowSizes(true);
+  };
+
+  const handleSizeSelect = (e: React.MouseEvent, size: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedSize(size);
+    setQuantity(1);
+    addToCart(product, size);
+    toast.success(`${product.name} (${size}) added to cart`);
+  };
+
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setQuantity(q => q + 1);
+    if (selectedSize) addToCart(product, selectedSize);
+  };
+
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (quantity > 1) {
+      setQuantity(q => q - 1);
+    } else {
+      setSelectedSize(null);
+      setShowSizes(false);
+      setQuantity(1);
+    }
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -45,17 +76,15 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
         to={`/product/${product.id}`}
         className="group block"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseLeave={() => { setIsHovered(false); if (!selectedSize) setShowSizes(false); }}
       >
         <div className="relative overflow-hidden bg-accent rounded-lg aspect-square">
-          {/* Main image */}
           <img
             src={product.image}
             alt={product.name}
             className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${isHovered ? "opacity-0 scale-105" : "opacity-100 scale-100"}`}
             loading="lazy"
           />
-          {/* Hover image */}
           <img
             src={product.hoverImage}
             alt={product.name}
@@ -63,14 +92,12 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             loading="lazy"
           />
 
-          {/* Badge */}
           {product.badge && (
             <span className="absolute top-2.5 left-2.5 bg-secondary text-secondary-foreground text-[10px] font-semibold px-2 py-0.5 rounded z-10">
               {product.badge}
             </span>
           )}
 
-          {/* Wishlist */}
           <button
             onClick={handleWishlist}
             className={`absolute top-2.5 right-2.5 p-2 bg-background/80 backdrop-blur-sm rounded-full transition-all z-10 hover:bg-background ${
@@ -80,23 +107,76 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             <Heart size={14} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
           </button>
 
-          {/* Quick Add */}
+          {/* Bottom action area */}
           <div
             className={`absolute bottom-0 left-0 right-0 p-3 transition-all duration-400 ${
-              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+              isHovered || selectedSize ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
             }`}
           >
-            <button
-              onClick={handleQuickAdd}
-              className="w-full bg-foreground text-background py-2.5 text-[11px] font-semibold tracking-wide uppercase rounded flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors"
-            >
-              <ShoppingBag size={13} />
-              Add to Cart
-            </button>
+            <AnimatePresence mode="wait">
+              {selectedSize ? (
+                /* Quantity selector: − number + */
+                <motion.div
+                  key="qty"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="flex items-center justify-between bg-foreground rounded overflow-hidden"
+                >
+                  <button
+                    onClick={handleDecrement}
+                    className="px-4 py-2.5 text-background hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="text-background text-sm font-bold tabular-nums">{quantity}</span>
+                  <button
+                    onClick={handleIncrement}
+                    className="px-4 py-2.5 text-background hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </motion.div>
+              ) : showSizes ? (
+                /* Size selector */
+                <motion.div
+                  key="sizes"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="bg-foreground rounded p-2"
+                >
+                  <p className="text-background/60 text-[10px] uppercase tracking-wider text-center mb-1.5">Select Size</p>
+                  <div className="flex items-center justify-center gap-1.5">
+                    {product.sizes.map(size => (
+                      <button
+                        key={size}
+                        onClick={(e) => handleSizeSelect(e, size)}
+                        className="min-w-[32px] h-8 px-2 text-[11px] font-semibold text-background border border-background/20 rounded hover:bg-secondary hover:text-secondary-foreground hover:border-secondary transition-colors"
+                      >
+                        {size}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              ) : (
+                /* Add to Cart button */
+                <motion.button
+                  key="add"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  onClick={handleQuickAdd}
+                  className="w-full bg-foreground text-background py-2.5 text-[11px] font-semibold tracking-wide uppercase rounded flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors"
+                >
+                  <ShoppingBag size={13} />
+                  Add to Cart
+                </motion.button>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
-        {/* Product info */}
         <div className="mt-3 space-y-1">
           <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2 group-hover:text-secondary transition-colors">
             {product.name}
