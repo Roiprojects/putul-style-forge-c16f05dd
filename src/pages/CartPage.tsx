@@ -1,10 +1,65 @@
 import { Link } from "react-router-dom";
-import { Minus, Plus, X, ShoppingBag } from "lucide-react";
+import { Minus, Plus, X, ShoppingBag, MapPin, Check } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "sonner";
+
+type CheckoutStep = "cart" | "details" | "pay";
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
+  const [step, setStep] = useState<CheckoutStep>("cart");
+  const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSavePopup, setShowSavePopup] = useState(false);
+  const [addressSaved, setAddressSaved] = useState(false);
+
+  // Save address popup timer
+  useEffect(() => {
+    if (!showSavePopup) return;
+    const timer = setTimeout(() => setShowSavePopup(false), 9000);
+    return () => clearTimeout(timer);
+  }, [showSavePopup]);
+
+  const validate = () => {
+    const e: Record<string, string> = {};
+    if (!form.name.trim()) e.name = "Name is required";
+    else if (form.name.trim().length > 100) e.name = "Name too long";
+    if (!form.phone.trim()) e.phone = "Phone number is required";
+    else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter a valid 10-digit phone number";
+    if (!form.address.trim()) e.address = "Address is required";
+    else if (form.address.trim().length < 10) e.address = "Please enter a complete address";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleProceedToDetails = () => {
+    setStep("details");
+  };
+
+  const handleAddressSubmit = () => {
+    if (!validate()) return;
+    setShowSavePopup(true);
+  };
+
+  const handleSaveAddress = () => {
+    setAddressSaved(true);
+    setShowSavePopup(false);
+    toast.success("Address saved for future orders");
+    setStep("pay");
+  };
+
+  const handleSkipSave = () => {
+    setShowSavePopup(false);
+    setStep("pay");
+  };
+
+  const handleProceedToPay = () => {
+    toast.success("Redirecting to payment...");
+  };
 
   if (cart.length === 0) {
     return (
@@ -20,47 +75,249 @@ const CartPage = () => {
   return (
     <div className="pt-20 md:pt-24 min-h-screen">
       <div className="container mx-auto px-4 md:px-8 py-8">
-        <h1 className="font-heading text-3xl md:text-4xl font-semibold mb-8">Shopping Cart</h1>
+        <h1 className="font-heading text-3xl md:text-4xl font-semibold mb-8">
+          {step === "cart" && "Shopping Cart"}
+          {step === "details" && "Delivery Details"}
+          {step === "pay" && "Confirm & Pay"}
+        </h1>
+
         <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-4">
-            {cart.map((item, i) => (
-              <motion.div
-                key={`${item.product.id}-${item.size}`}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
-                className="flex gap-4 p-4 border border-border"
-              >
-                <Link to={`/product/${item.product.id}`} className="w-24 h-32 flex-shrink-0 bg-accent overflow-hidden">
-                  <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
-                </Link>
-                <div className="flex-1 flex flex-col justify-between">
-                  <div>
-                    <Link to={`/product/${item.product.id}`} className="font-medium text-sm hover:text-secondary transition-colors">{item.product.name}</Link>
-                    <p className="text-xs text-muted-foreground mt-1">Size: {item.size}</p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center border border-border">
-                      <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)} className="p-2"><Minus size={12} /></button>
-                      <span className="px-3 text-sm">{item.quantity}</span>
-                      <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)} className="p-2"><Plus size={12} /></button>
+          {/* Left column */}
+          <div className="lg:col-span-2">
+            <AnimatePresence mode="wait">
+              {step === "cart" && (
+                <motion.div
+                  key="cart"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="space-y-4"
+                >
+                  {cart.map((item, i) => (
+                    <motion.div
+                      key={`${item.product.id}-${item.size}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex gap-4 p-4 border border-border"
+                    >
+                      <Link to={`/product/${item.product.id}`} className="w-24 h-32 flex-shrink-0 bg-accent overflow-hidden">
+                        <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                      </Link>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <Link to={`/product/${item.product.id}`} className="font-medium text-sm hover:text-secondary transition-colors">{item.product.name}</Link>
+                          <p className="text-xs text-muted-foreground mt-1">Size: {item.size}</p>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center border border-border">
+                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)} className="p-2"><Minus size={12} /></button>
+                            <span className="px-3 text-sm">{item.quantity}</span>
+                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)} className="p-2"><Plus size={12} /></button>
+                          </div>
+                          <span className="font-semibold text-sm">₹{(item.product.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      </div>
+                      <button onClick={() => removeFromCart(item.product.id, item.size)} className="text-muted-foreground hover:text-destructive self-start">
+                        <X size={16} />
+                      </button>
+                    </motion.div>
+                  ))}
+                </motion.div>
+              )}
+
+              {step === "details" && (
+                <motion.div
+                  key="details"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="relative"
+                >
+                  <div className="border border-border p-6 md:p-8 space-y-5">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">1</div>
+                      <p className="text-sm font-semibold uppercase tracking-wider">Your Information</p>
                     </div>
-                    <span className="font-semibold text-sm">₹{(item.product.price * item.quantity).toLocaleString()}</span>
+
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Full Name</label>
+                      <Input
+                        value={form.name}
+                        onChange={(e) => { setForm({ ...form, name: e.target.value }); setErrors({ ...errors, name: "" }); }}
+                        placeholder="Enter your full name"
+                        className="border-border"
+                        maxLength={100}
+                      />
+                      {errors.name && <p className="text-[11px] text-destructive mt-1">{errors.name}</p>}
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Phone Number</label>
+                      <Input
+                        value={form.phone}
+                        onChange={(e) => { setForm({ ...form, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }); setErrors({ ...errors, phone: "" }); }}
+                        placeholder="10-digit mobile number"
+                        className="border-border"
+                        maxLength={10}
+                        type="tel"
+                      />
+                      {errors.phone && <p className="text-[11px] text-destructive mt-1">{errors.phone}</p>}
+                    </div>
+
+                    <div className="pt-2">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">2</div>
+                        <p className="text-sm font-semibold uppercase tracking-wider">Delivery Address</p>
+                      </div>
+                      <Textarea
+                        value={form.address}
+                        onChange={(e) => { setForm({ ...form, address: e.target.value }); setErrors({ ...errors, address: "" }); }}
+                        placeholder="House no., Street, Landmark, City, State, PIN code"
+                        className="border-border min-h-[100px]"
+                        maxLength={500}
+                      />
+                      {errors.address && <p className="text-[11px] text-destructive mt-1">{errors.address}</p>}
+                    </div>
+
+                    <button
+                      onClick={handleAddressSubmit}
+                      className="btn-primary w-full py-3.5 text-center mt-4 text-sm font-semibold tracking-wide"
+                    >
+                      Continue
+                    </button>
+
+                    <button
+                      onClick={() => setStep("cart")}
+                      className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors mt-2"
+                    >
+                      ← Back to cart
+                    </button>
                   </div>
-                </div>
-                <button onClick={() => removeFromCart(item.product.id, item.size)} className="text-muted-foreground hover:text-destructive self-start">
-                  <X size={16} />
-                </button>
-              </motion.div>
-            ))}
+
+                  {/* Save Address Popup */}
+                  <AnimatePresence>
+                    {showSavePopup && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.97 }}
+                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                        className="absolute inset-x-0 bottom-0 translate-y-full mt-4"
+                      >
+                        <div className="bg-foreground text-background p-5 mx-0 md:mx-8 mt-4 relative overflow-hidden">
+                          {/* Timer bar */}
+                          <motion.div
+                            initial={{ scaleX: 1 }}
+                            animate={{ scaleX: 0 }}
+                            transition={{ duration: 9, ease: "linear" }}
+                            className="absolute top-0 left-0 right-0 h-0.5 bg-secondary origin-left"
+                          />
+
+                          <div className="flex items-start gap-3">
+                            <MapPin size={18} className="text-secondary shrink-0 mt-0.5" />
+                            <div className="flex-1">
+                              <p className="text-sm font-semibold mb-1">Save this address?</p>
+                              <p className="text-xs text-background/60 leading-relaxed mb-3">
+                                Save "{form.address.slice(0, 40)}..." for faster checkout next time.
+                              </p>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={handleSaveAddress}
+                                  className="flex items-center gap-1.5 bg-secondary text-secondary-foreground px-4 py-2 text-[11px] font-semibold tracking-wide hover:opacity-90 transition-opacity active:scale-[0.97]"
+                                >
+                                  <Check size={12} />
+                                  Save Address
+                                </button>
+                                <button
+                                  onClick={handleSkipSave}
+                                  className="px-4 py-2 text-[11px] font-medium text-background/50 hover:text-background transition-colors"
+                                >
+                                  Skip
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+
+              {step === "pay" && (
+                <motion.div
+                  key="pay"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                  className="border border-border p-6 md:p-8"
+                >
+                  {/* Delivery info summary */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Delivering to</p>
+                    <div className="bg-accent p-4 space-y-1.5">
+                      <p className="text-sm font-semibold">{form.name}</p>
+                      <p className="text-xs text-muted-foreground">{form.phone}</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">{form.address}</p>
+                      {addressSaved && (
+                        <span className="inline-flex items-center gap-1 text-[10px] text-secondary font-medium mt-1">
+                          <Check size={10} /> Address saved
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      onClick={() => setStep("details")}
+                      className="text-[11px] text-secondary hover:underline mt-2"
+                    >
+                      Change details
+                    </button>
+                  </div>
+
+                  {/* Order items mini-list */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Order Items ({cart.length})</p>
+                    <div className="space-y-2">
+                      {cart.map(item => (
+                        <div key={`${item.product.id}-${item.size}`} className="flex items-center gap-3">
+                          <div className="w-10 h-12 bg-accent overflow-hidden shrink-0">
+                            <img src={item.product.image} alt="" className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium truncate">{item.product.name}</p>
+                            <p className="text-[10px] text-muted-foreground">Size: {item.size} · Qty: {item.quantity}</p>
+                          </div>
+                          <span className="text-xs font-semibold tabular-nums">₹{(item.product.price * item.quantity).toLocaleString()}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleProceedToPay}
+                    className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
+                  >
+                    Proceed to Pay — ₹{cartTotal.toLocaleString()}
+                  </button>
+
+                  <button
+                    onClick={() => setStep("cart")}
+                    className="w-full text-center text-xs text-muted-foreground hover:text-foreground transition-colors mt-3"
+                  >
+                    ← Back to cart
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
-          {/* Summary */}
-          <div className="bg-accent p-6 h-fit">
+          {/* Right — Order Summary (always visible) */}
+          <div className="bg-accent p-6 h-fit sticky top-24">
             <h3 className="font-heading text-lg font-semibold mb-4">Order Summary</h3>
             <div className="space-y-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
+                <span className="text-muted-foreground">Subtotal ({cart.reduce((s, i) => s + i.quantity, 0)} items)</span>
                 <span>₹{cartTotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
@@ -72,10 +329,32 @@ const CartPage = () => {
                 <span>₹{cartTotal.toLocaleString()}</span>
               </div>
             </div>
-            <button className="btn-primary w-full mt-6 text-center">Proceed to Checkout</button>
-            <button onClick={clearCart} className="w-full text-center text-xs text-muted-foreground mt-3 hover:text-destructive transition-colors">
-              Clear Cart
-            </button>
+
+            {step === "cart" && (
+              <>
+                <button onClick={handleProceedToDetails} className="btn-primary w-full mt-6 text-center">
+                  Proceed to Checkout
+                </button>
+                <button onClick={clearCart} className="w-full text-center text-xs text-muted-foreground mt-3 hover:text-destructive transition-colors">
+                  Clear Cart
+                </button>
+              </>
+            )}
+
+            {/* Step indicator */}
+            <div className="flex items-center justify-center gap-2 mt-6">
+              {["Cart", "Details", "Pay"].map((label, i) => {
+                const stepMap: CheckoutStep[] = ["cart", "details", "pay"];
+                const isActive = stepMap.indexOf(step) >= i;
+                return (
+                  <div key={label} className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full transition-colors ${isActive ? "bg-foreground" : "bg-border"}`} />
+                    <span className={`text-[10px] tracking-wide ${isActive ? "text-foreground font-medium" : "text-muted-foreground"}`}>{label}</span>
+                    {i < 2 && <div className={`w-6 h-px ${isActive ? "bg-foreground" : "bg-border"}`} />}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
