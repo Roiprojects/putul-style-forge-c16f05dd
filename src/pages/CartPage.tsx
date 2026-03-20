@@ -128,18 +128,36 @@ const CartPage = () => {
   };
 
   const handleProceedToDetails = () => {
+    if (!user) {
+      setShowAuthModal(true);
+      toast.error("Please sign in to continue checkout");
+      return;
+    }
     setStep("details");
   };
 
-  const handleAddressSubmit = () => {
-    if (!validate()) return;
-    setShowSavePopup(true);
-  };
-
-  const handleSaveAddress = () => {
-    setAddressSaved(true);
+  const handleSaveAddress = async () => {
+    if (!user) return;
+    setSavingAddress(true);
+    const { error } = await supabase.from("saved_addresses").insert({
+      user_id: user.id,
+      name: form.name,
+      phone: form.phone,
+      house_no: form.houseNo,
+      street: form.street,
+      landmark: form.landmark || null,
+      city: form.city,
+      state: form.state,
+      pincode: form.pincode,
+    });
+    setSavingAddress(false);
+    if (error) {
+      toast.error("Failed to save address");
+    } else {
+      setAddressSaved(true);
+      toast.success("Address saved!");
+    }
     setShowSavePopup(false);
-    toast.success("Address saved for future orders");
     setStep("pay");
   };
 
