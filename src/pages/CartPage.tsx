@@ -328,43 +328,39 @@ const CartPage = () => {
                   <AnimatePresence>
                     {showSavePopup && (
                       <motion.div
-                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.97 }}
-                        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-                        className="absolute inset-x-0 bottom-0 translate-y-full mt-4"
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 6 }}
+                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-sm"
                       >
-                        <div className="bg-foreground text-background p-5 mx-0 md:mx-8 mt-4 relative overflow-hidden">
-                          {/* Timer bar */}
+                        <div className="bg-foreground text-background rounded-lg shadow-2xl overflow-hidden">
                           <motion.div
                             initial={{ scaleX: 1 }}
                             animate={{ scaleX: 0 }}
                             transition={{ duration: 9, ease: "linear" }}
-                            className="absolute top-0 left-0 right-0 h-0.5 bg-secondary origin-left"
+                            className="h-[3px] bg-secondary origin-left"
                           />
-
-                          <div className="flex items-start gap-3">
-                            <MapPin size={18} className="text-secondary shrink-0 mt-0.5" />
-                            <div className="flex-1">
-                              <p className="text-sm font-semibold mb-1">Save this address?</p>
-                              <p className="text-xs text-background/60 leading-relaxed mb-3">
-                                Save "{fullAddress.slice(0, 40)}..." for faster checkout next time.
-                              </p>
-                              <div className="flex gap-2">
-                                <button
-                                  onClick={handleSaveAddress}
-                                  className="flex items-center gap-1.5 bg-secondary text-secondary-foreground px-4 py-2 text-[11px] font-semibold tracking-wide hover:opacity-90 transition-opacity active:scale-[0.97]"
-                                >
-                                  <Check size={12} />
-                                  Save Address
-                                </button>
-                                <button
-                                  onClick={handleSkipSave}
-                                  className="px-4 py-2 text-[11px] font-medium text-background/50 hover:text-background transition-colors"
-                                >
-                                  Skip
-                                </button>
-                              </div>
+                          <div className="flex items-center gap-3 px-4 py-3">
+                            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                              <MapPin size={14} className="text-secondary" />
+                            </div>
+                            <p className="text-xs font-medium flex-1 truncate">
+                              Save address for next time?
+                            </p>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <button
+                                onClick={handleSaveAddress}
+                                className="bg-secondary text-secondary-foreground px-3 py-1.5 rounded text-[11px] font-semibold tracking-wide hover:opacity-90 transition-opacity active:scale-[0.97]"
+                              >
+                                Save
+                              </button>
+                              <button
+                                onClick={handleSkipSave}
+                                className="px-2 py-1.5 text-[11px] text-background/40 hover:text-background/70 transition-colors"
+                              >
+                                Skip
+                              </button>
                             </div>
                           </div>
                         </div>
