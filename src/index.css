@@ -6,34 +6,34 @@
 
 @layer base {
   :root {
-    --background: 40 20% 96%;
-    --foreground: 0 0% 5%;
-    --card: 40 20% 96%;
-    --card-foreground: 0 0% 5%;
-    --popover: 40 20% 96%;
-    --popover-foreground: 0 0% 5%;
-    --primary: 0 0% 5%;
-    --primary-foreground: 40 20% 96%;
-    --secondary: 40 35% 55%;
+    --background: 0 0% 100%;
+    --foreground: 0 0% 8%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 8%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 8%;
+    --primary: 0 0% 8%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 40 70% 50%;
     --secondary-foreground: 0 0% 100%;
-    --muted: 40 15% 92%;
-    --muted-foreground: 0 0% 40%;
-    --accent: 40 15% 92%;
-    --accent-foreground: 0 0% 5%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 0 0% 96%;
+    --accent-foreground: 0 0% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 40 10% 88%;
-    --input: 40 10% 88%;
-    --ring: 40 35% 55%;
-    --radius: 0rem;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 40 70% 50%;
+    --radius: 0.5rem;
 
-    --gold: 40 35% 55%;
-    --gold-light: 40 40% 70%;
-    --gold-dark: 40 40% 38%;
-    --cream: 40 30% 95%;
-    --cream-dark: 40 18% 88%;
-    --surface: 40 15% 92%;
-    --surface-hover: 40 10% 88%;
+    --gold: 40 70% 50%;
+    --gold-light: 40 60% 65%;
+    --gold-dark: 40 55% 38%;
+    --cream: 40 30% 97%;
+    --cream-dark: 40 18% 90%;
+    --surface: 0 0% 96%;
+    --surface-hover: 0 0% 93%;
 
     --font-heading: 'Cormorant Garamond', serif;
     --font-body: 'DM Sans', sans-serif;
@@ -59,16 +59,6 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Hide default cursor on desktop when custom cursor is active */
-  @media (hover: hover) and (pointer: fine) {
-    body {
-      cursor: none !important;
-    }
-    a, button, [role="button"], input, select, textarea {
-      cursor: none !important;
-    }
-  }
-
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading);
   }
@@ -76,7 +66,7 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-foreground text-background px-10 py-4 tracking-[0.25em] uppercase text-[10px] font-semibold transition-all duration-700;
+    @apply bg-foreground text-background px-8 py-3 tracking-wide uppercase text-xs font-semibold rounded transition-all duration-300;
     font-family: var(--font-body);
   }
   .btn-primary:hover {
@@ -84,42 +74,11 @@
   }
 
   .btn-outline-gold {
-    @apply border border-secondary text-secondary px-10 py-4 tracking-[0.25em] uppercase text-[10px] font-semibold transition-all duration-700;
+    @apply border border-secondary text-secondary px-8 py-3 tracking-wide uppercase text-xs font-semibold rounded transition-all duration-300;
     font-family: var(--font-body);
   }
   .btn-outline-gold:hover {
     @apply bg-secondary text-secondary-foreground;
-  }
-
-  .section-heading {
-    @apply text-4xl md:text-6xl lg:text-7xl font-light tracking-tight;
-    font-family: var(--font-heading);
-  }
-
-  .section-subheading {
-    @apply text-muted-foreground text-xs tracking-[0.4em] uppercase;
-    font-family: var(--font-body);
-  }
-
-  .gold-underline {
-    @apply relative inline-block;
-  }
-  .gold-underline::after {
-    content: '';
-    @apply absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-px bg-secondary;
-  }
-
-  /* Grain texture overlay */
-  .grain-overlay {
-    position: relative;
-  }
-  .grain-overlay::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
-    pointer-events: none;
-    z-index: 1;
   }
 }
 
@@ -128,12 +87,7 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Sharp edges — editorial precision */
-img {
-  border-radius: 0;
-}
-
-/* Hide scrollbar on category pills */
+/* Hide scrollbar */
 .scrollbar-none::-webkit-scrollbar {
   display: none;
 }
@@ -142,15 +96,16 @@ img {
   scrollbar-width: none;
 }
 
-/* Minimal scrollbar */
+/* Minimal scrollbar for main page */
 ::-webkit-scrollbar {
-  width: 2px;
+  width: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: hsl(var(--muted));
 }
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: hsl(var(--muted-foreground));
@@ -158,18 +113,6 @@ img {
 
 /* Selection color */
 ::selection {
-  background: hsl(var(--secondary) / 0.15);
+  background: hsl(var(--secondary) / 0.2);
   color: hsl(var(--foreground));
-}
-
-/* Horizontal scroll showcase */
-.horizontal-scroll {
-  display: flex;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-}
-.horizontal-scroll > * {
-  scroll-snap-align: start;
-  flex-shrink: 0;
 }

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, ShoppingBag, Star, ArrowRight } from "lucide-react";
+import { Heart, ShoppingBag, Star } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import type { Product } from "@/data/products";
 import { motion } from "framer-motion";
@@ -9,7 +9,7 @@ import { useState } from "react";
 interface ProductCardProps {
   product: Product;
   index?: number;
-  variant?: "default" | "large" | "minimal" | "editorial";
+  variant?: "default" | "grid";
 }
 
 const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
@@ -34,105 +34,12 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
     toast.success(wishlisted ? "Removed from wishlist" : "Added to wishlist");
   };
 
-  if (variant === "editorial") {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ delay: index * 0.1, duration: 0.6 }}
-        className="flex-shrink-0 w-[80vw] md:w-[42vw] lg:w-[32vw]"
-      >
-        <Link
-          to={`/product/${product.id}`}
-          className="group block"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
-          <div className="relative overflow-hidden aspect-[3/4]">
-            <motion.img
-              src={product.image}
-              alt={product.name}
-              className="absolute inset-0 w-full h-full object-cover"
-              animate={{ scale: isHovered ? 1.08 : 1 }}
-              transition={{ duration: 0.8, ease: [0.25, 0.46, 0.45, 0.94] }}
-              loading="lazy"
-            />
-            <img
-              src={product.hoverImage}
-              alt={product.name}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                isHovered ? "opacity-100" : "opacity-0"
-              }`}
-              loading="lazy"
-            />
-
-            {/* Gradient overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-t from-foreground/60 via-transparent to-transparent transition-opacity duration-700 ${isHovered ? "opacity-100" : "opacity-0"}`} />
-
-            {/* Badge */}
-            {product.badge && (
-              <span className="absolute top-4 left-4 bg-secondary text-secondary-foreground text-[8px] font-medium px-2.5 py-1 tracking-[0.15em] uppercase z-10">
-                {product.badge}
-              </span>
-            )}
-
-            {/* Wishlist */}
-            <motion.button
-              onClick={handleWishlist}
-              whileTap={{ scale: 0.85 }}
-              className={`absolute top-4 right-4 p-2.5 backdrop-blur-sm transition-all z-10 ${
-                isHovered ? "bg-background/90" : "bg-background/60"
-              }`}
-            >
-              <Heart size={13} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
-            </motion.button>
-
-            {/* Quick add — slides up */}
-            <motion.div
-              initial={false}
-              animate={{ y: isHovered ? 0 : "100%", opacity: isHovered ? 1 : 0 }}
-              transition={{ duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className="absolute bottom-0 left-0 right-0 p-6 z-10"
-            >
-              <button
-                onClick={handleQuickAdd}
-                className="w-full bg-background/95 backdrop-blur-sm text-foreground py-3 text-[9px] tracking-[0.25em] uppercase font-medium flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors duration-500"
-              >
-                <ShoppingBag size={11} />
-                Add to Bag
-              </button>
-            </motion.div>
-          </div>
-
-          {/* Info */}
-          <div className="mt-5 space-y-1.5">
-            <h3 className="font-heading text-lg md:text-xl font-light text-foreground tracking-wide leading-tight">
-              {product.name}
-            </h3>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium text-foreground">₹{product.price.toLocaleString()}</span>
-              {product.originalPrice && (
-                <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
-              )}
-              {discount > 0 && (
-                <span className="text-[10px] font-medium text-secondary">{discount}% off</span>
-              )}
-            </div>
-          </div>
-        </Link>
-      </motion.div>
-    );
-  }
-
-  const aspectClass = variant === "large" ? "aspect-[3/4]" : "aspect-[4/5]";
-
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ delay: index * 0.05, duration: 0.5 }}
+      transition={{ delay: index * 0.05, duration: 0.4 }}
     >
       <Link
         to={`/product/${product.id}`}
@@ -140,72 +47,72 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div className={`relative overflow-hidden bg-accent ${aspectClass}`}>
-          <motion.img
+        <div className="relative overflow-hidden bg-accent rounded-lg aspect-square">
+          {/* Main image */}
+          <img
             src={product.image}
             alt={product.name}
-            className="absolute inset-0 w-full h-full object-cover"
-            animate={{ scale: isHovered ? 1.06 : 1 }}
-            transition={{ duration: 0.8 }}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${isHovered ? "opacity-0 scale-105" : "opacity-100 scale-100"}`}
             loading="lazy"
           />
+          {/* Hover image */}
           <img
             src={product.hoverImage}
             alt={product.name}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-              isHovered ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${isHovered ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
             loading="lazy"
           />
 
           {/* Badge */}
           {product.badge && (
-            <span className="absolute top-3 left-3 bg-secondary text-secondary-foreground text-[8px] font-medium px-2.5 py-1 tracking-[0.15em] uppercase z-10">
+            <span className="absolute top-2.5 left-2.5 bg-secondary text-secondary-foreground text-[10px] font-semibold px-2 py-0.5 rounded z-10">
               {product.badge}
             </span>
           )}
 
           {/* Wishlist */}
-          <motion.button
+          <button
             onClick={handleWishlist}
-            whileTap={{ scale: 0.85 }}
-            className={`absolute top-3 right-3 p-2 backdrop-blur-sm transition-all duration-300 z-10 ${
-              isHovered ? "bg-background/90 opacity-100" : "bg-background/60 opacity-0"
+            className={`absolute top-2.5 right-2.5 p-2 bg-background/80 backdrop-blur-sm rounded-full transition-all z-10 hover:bg-background ${
+              isHovered ? "opacity-100" : "opacity-0"
             }`}
           >
-            <Heart size={12} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
-          </motion.button>
+            <Heart size={14} className={wishlisted ? "fill-secondary text-secondary" : "text-foreground"} />
+          </button>
 
           {/* Quick Add */}
-          <motion.button
-            onClick={handleQuickAdd}
-            initial={false}
-            animate={{ y: isHovered ? 0 : "100%", opacity: isHovered ? 1 : 0 }}
-            transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-            className="absolute bottom-0 left-0 right-0 bg-foreground/90 backdrop-blur-sm text-background py-3 text-[9px] tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-2 z-10"
+          <div
+            className={`absolute bottom-0 left-0 right-0 p-3 transition-all duration-400 ${
+              isHovered ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+            }`}
           >
-            <ShoppingBag size={11} />
-            Add to Bag
-          </motion.button>
+            <button
+              onClick={handleQuickAdd}
+              className="w-full bg-foreground text-background py-2.5 text-[11px] font-semibold tracking-wide uppercase rounded flex items-center justify-center gap-2 hover:bg-secondary hover:text-secondary-foreground transition-colors"
+            >
+              <ShoppingBag size={13} />
+              Add to Cart
+            </button>
+          </div>
         </div>
 
         {/* Product info */}
-        <div className="mt-3 space-y-1 px-0.5">
-          <h3 className="font-heading text-sm font-normal text-foreground tracking-wide leading-tight">
+        <div className="mt-3 space-y-1">
+          <h3 className="text-sm font-medium text-foreground leading-snug line-clamp-2 group-hover:text-secondary transition-colors">
             {product.name}
           </h3>
-          <div className="flex items-center gap-2">
-            <span className="text-[12px] font-medium text-foreground">₹{product.price.toLocaleString()}</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-sm font-bold text-foreground">₹{product.price.toLocaleString()}</span>
             {product.originalPrice && (
-              <span className="text-[10px] text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
+              <span className="text-xs text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
             )}
             {discount > 0 && (
-              <span className="text-[10px] font-medium text-secondary">{discount}% off</span>
+              <span className="text-[11px] font-semibold text-green-600">({discount}% off)</span>
             )}
           </div>
           <div className="flex items-center gap-1">
-            <Star size={9} className="fill-secondary text-secondary" />
-            <span className="text-[10px] text-muted-foreground">{product.rating} · {product.reviews} reviews</span>
+            <Star size={11} className="fill-secondary text-secondary" />
+            <span className="text-[11px] text-muted-foreground">{product.rating} ({product.reviews})</span>
           </div>
         </div>
       </Link>
