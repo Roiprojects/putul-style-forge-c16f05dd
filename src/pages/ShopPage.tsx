@@ -1,12 +1,11 @@
 import { useState, useMemo } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { SlidersHorizontal, X, ArrowRight } from "lucide-react";
+import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { products, categories } from "@/data/products";
 
 const sizes = ["6", "7", "8", "9", "10"];
-const colorOptions = ["Black", "White", "Grey", "Brown", "Tan", "Navy", "Sky Blue", "Mehandi Green", "Mouse Grey"];
 const sortOptions = [
   { label: "Popularity", value: "popularity" },
   { label: "Price: Low to High", value: "price-asc" },
@@ -20,23 +19,14 @@ const ShopPage = () => {
   const initialCategory = searchParams.get("category") || "all";
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [selectedColors, setSelectedColors] = useState<string[]>([]);
   const [maxPrice, setMaxPrice] = useState<number>(3000);
   const [sortBy, setSortBy] = useState("popularity");
   const [showFilters, setShowFilters] = useState(false);
-
-  const toggleColor = (color: string) => {
-    setSelectedColors((prev) =>
-      prev.includes(color) ? prev.filter((c) => c !== color) : [...prev, color]
-    );
-  };
 
   const filtered = useMemo(() => {
     let items = [...products];
     if (selectedCategory !== "all") items = items.filter((p) => p.category === selectedCategory);
     if (selectedSize) items = items.filter((p) => p.sizes.includes(selectedSize));
-    if (selectedColors.length > 0)
-      items = items.filter((p) => p.colors.some((c) => selectedColors.some((sc) => c.toLowerCase().includes(sc.toLowerCase()))));
     items = items.filter((p) => p.price <= maxPrice);
     switch (sortBy) {
       case "price-asc": items.sort((a, b) => a.price - b.price); break;
@@ -50,44 +40,22 @@ const ShopPage = () => {
       default: items.sort((a, b) => b.reviews - a.reviews); break;
     }
     return items;
-  }, [selectedCategory, selectedSize, selectedColors, maxPrice, sortBy]);
+  }, [selectedCategory, selectedSize, maxPrice, sortBy]);
 
-  const hasActiveFilters = selectedCategory !== "all" || selectedSize || selectedColors.length > 0 || maxPrice < 3000;
+  const hasActiveFilters = selectedCategory !== "all" || selectedSize || maxPrice < 3000;
 
   return (
-    <div className="min-h-screen">
-      {/* Cinematic header */}
-      <div className="bg-foreground text-background min-h-[50vh] flex items-center justify-center grain-overlay relative">
-        <div className="relative z-10 text-center px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <p className="text-secondary tracking-[0.5em] uppercase text-[9px] mb-6">Putul Fashions</p>
-            <h1 className="font-heading text-5xl md:text-8xl lg:text-9xl font-light tracking-tight leading-[0.9]">
-              Our<br />Collection
-            </h1>
-            <p className="text-background/25 mt-8 text-sm max-w-sm mx-auto font-light leading-[2]">
-              Premium quality footwear at unbeatable prices
-            </p>
-          </motion.div>
-        </div>
-
-        {/* Decorative bottom border */}
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-secondary/40 to-transparent" />
-      </div>
-
-      {/* Category strip — interactive */}
-      <div className="border-b border-border bg-background sticky top-0 z-40">
-        <div className="container mx-auto px-8 md:px-16">
-          <div className="flex items-center gap-8 overflow-x-auto py-5 scrollbar-none">
+    <div className="min-h-screen bg-background">
+      {/* Category tabs */}
+      <div className="border-b border-border bg-background sticky top-0 z-30">
+        <div className="container mx-auto px-4 md:px-8">
+          <div className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-none">
             <button
               onClick={() => setSelectedCategory("all")}
-              className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-all pb-1 border-b-2 ${
+              className={`px-4 py-2 text-xs font-medium tracking-wide uppercase rounded-full whitespace-nowrap transition-all ${
                 selectedCategory === "all"
-                  ? "border-foreground text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "bg-foreground text-background"
+                  : "text-muted-foreground hover:bg-accent"
               }`}
             >
               All
@@ -96,10 +64,10 @@ const ShopPage = () => {
               <button
                 key={c.slug}
                 onClick={() => setSelectedCategory(c.slug)}
-                className={`text-[10px] tracking-[0.2em] uppercase font-medium whitespace-nowrap transition-all pb-1 border-b-2 ${
+                className={`px-4 py-2 text-xs font-medium tracking-wide uppercase rounded-full whitespace-nowrap transition-all ${
                   selectedCategory === c.slug
-                    ? "border-foreground text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                    ? "bg-foreground text-background"
+                    : "text-muted-foreground hover:bg-accent"
                 }`}
               >
                 {c.name}
@@ -109,56 +77,83 @@ const ShopPage = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-8 md:px-16 py-10 md:py-16">
+      <div className="container mx-auto px-4 md:px-8 py-6 md:py-8">
         {/* Toolbar */}
-        <div className="flex items-center justify-between mb-12">
-          <div className="flex items-center gap-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-4">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className="flex items-center gap-2 text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-2 text-xs font-medium text-foreground hover:text-secondary transition-colors border border-border rounded-full px-4 py-2"
             >
               <SlidersHorizontal size={14} />
               Filters
               {hasActiveFilters && <span className="w-1.5 h-1.5 rounded-full bg-secondary" />}
             </button>
-            <span className="text-[10px] text-muted-foreground tracking-wider">
-              {filtered.length} Product{filtered.length !== 1 ? "s" : ""}
+            <span className="text-xs text-muted-foreground">
+              {filtered.length} product{filtered.length !== 1 ? "s" : ""}
             </span>
           </div>
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            className="text-[10px] tracking-wider uppercase bg-transparent border-0 text-muted-foreground focus:outline-none"
-          >
-            {sortOptions.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
-            ))}
-          </select>
+          <div className="relative">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="text-xs font-medium bg-background border border-border rounded-full px-4 py-2 pr-8 focus:outline-none focus:ring-1 focus:ring-secondary appearance-none"
+            >
+              {sortOptions.map((o) => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+            <ChevronDown size={12} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
 
-        <div className="flex gap-12">
-          {/* Filter sidebar */}
+        {/* Active filters */}
+        {hasActiveFilters && (
+          <div className="flex flex-wrap items-center gap-2 mb-5">
+            {selectedCategory !== "all" && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] bg-accent rounded-full text-foreground">
+                {categories.find((c) => c.slug === selectedCategory)?.name}
+                <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
+              </span>
+            )}
+            {selectedSize && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 text-[11px] bg-accent rounded-full text-foreground">
+                Size: {selectedSize}
+                <X size={12} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
+              </span>
+            )}
+            <button
+              onClick={() => { setSelectedCategory("all"); setSelectedSize(""); setMaxPrice(3000); }}
+              className="text-[11px] text-secondary hover:underline"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
+
+        <div className="flex gap-8">
+          {/* Filters sidebar */}
           <AnimatePresence>
             {showFilters && (
               <motion.aside
                 initial={{ width: 0, opacity: 0 }}
-                animate={{ width: 220, opacity: 1 }}
+                animate={{ width: 240, opacity: 1 }}
                 exit={{ width: 0, opacity: 0 }}
-                transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.3 }}
                 className="hidden md:block overflow-hidden flex-shrink-0"
               >
-                <div className="w-[220px] space-y-10">
+                <div className="w-[240px] space-y-6 border-r border-border pr-6">
                   <div>
-                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Size</h3>
+                    <h3 className="text-sm font-semibold mb-3">Size</h3>
                     <div className="flex flex-wrap gap-2">
                       {sizes.map((s) => (
                         <button
                           key={s}
                           onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
-                          className={`w-10 h-10 text-[10px] border transition-all duration-300 ${
+                          className={`w-10 h-10 text-xs border rounded transition-all ${
                             selectedSize === s
                               ? "bg-foreground text-background border-foreground"
-                              : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
+                              : "border-border text-foreground hover:border-foreground"
                           }`}
                         >
                           {s}
@@ -166,28 +161,8 @@ const ShopPage = () => {
                       ))}
                     </div>
                   </div>
-
                   <div>
-                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Color</h3>
-                    <div className="space-y-3">
-                      {colorOptions.map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => toggleColor(color)}
-                          className={`block text-xs transition-colors font-light ${
-                            selectedColors.includes(color)
-                              ? "text-secondary"
-                              : "text-muted-foreground hover:text-foreground"
-                          }`}
-                        >
-                          {color}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <h3 className="text-[10px] tracking-[0.2em] uppercase font-medium mb-5 text-muted-foreground">Max Price</h3>
+                    <h3 className="text-sm font-semibold mb-3">Max Price</h3>
                     <input
                       type="range"
                       min={200}
@@ -197,58 +172,21 @@ const ShopPage = () => {
                       onChange={(e) => setMaxPrice(Number(e.target.value))}
                       className="w-full accent-secondary"
                     />
-                    <p className="text-[10px] text-muted-foreground mt-2">Up to ₹{maxPrice.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Up to ₹{maxPrice.toLocaleString()}</p>
                   </div>
-
-                  {hasActiveFilters && (
-                    <button
-                      onClick={() => {
-                        setSelectedCategory("all");
-                        setSelectedSize("");
-                        setSelectedColors([]);
-                        setMaxPrice(3000);
-                      }}
-                      className="flex items-center gap-1.5 text-[10px] tracking-[0.15em] uppercase text-muted-foreground hover:text-destructive transition-colors"
-                    >
-                      <X size={11} /> Clear All
-                    </button>
-                  )}
                 </div>
               </motion.aside>
             )}
           </AnimatePresence>
 
-          {/* Products */}
+          {/* Products grid */}
           <div className="flex-1">
-            {hasActiveFilters && (
-              <div className="flex flex-wrap gap-2 mb-8">
-                {selectedCategory !== "all" && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
-                    {categories.find((c) => c.slug === selectedCategory)?.name}
-                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedCategory("all")} />
-                  </span>
-                )}
-                {selectedColors.map((c) => (
-                  <span key={c} className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
-                    {c}
-                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => toggleColor(c)} />
-                  </span>
-                ))}
-                {selectedSize && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 text-[10px] border border-border tracking-wider uppercase text-muted-foreground">
-                    Size: {selectedSize}
-                    <X size={10} className="cursor-pointer hover:text-destructive" onClick={() => setSelectedSize("")} />
-                  </span>
-                )}
-              </div>
-            )}
-
             {filtered.length === 0 ? (
-              <div className="text-center py-32">
-                <p className="text-muted-foreground font-light">No products found. Try adjusting your filters.</p>
+              <div className="text-center py-24">
+                <p className="text-muted-foreground">No products found. Try adjusting your filters.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-5 md:gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
                 {filtered.map((product, i) => (
                   <ProductCard key={product.id} product={product} index={i} />
                 ))}
