@@ -2,36 +2,113 @@ import { Link } from "react-router-dom";
 import { Minus, Plus, X, ShoppingBag, MapPin, Check } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
+// Indian city → state + pincode mapping
+const CITY_DATA: Record<string, { state: string; pincode: string }> = {
+  "Mumbai": { state: "Maharashtra", pincode: "400001" },
+  "Pune": { state: "Maharashtra", pincode: "411001" },
+  "Nagpur": { state: "Maharashtra", pincode: "440001" },
+  "Delhi": { state: "Delhi", pincode: "110001" },
+  "New Delhi": { state: "Delhi", pincode: "110001" },
+  "Bangalore": { state: "Karnataka", pincode: "560001" },
+  "Bengaluru": { state: "Karnataka", pincode: "560001" },
+  "Mysore": { state: "Karnataka", pincode: "570001" },
+  "Chennai": { state: "Tamil Nadu", pincode: "600001" },
+  "Coimbatore": { state: "Tamil Nadu", pincode: "641001" },
+  "Madurai": { state: "Tamil Nadu", pincode: "625001" },
+  "Hyderabad": { state: "Telangana", pincode: "500001" },
+  "Kolkata": { state: "West Bengal", pincode: "700001" },
+  "Ahmedabad": { state: "Gujarat", pincode: "380001" },
+  "Surat": { state: "Gujarat", pincode: "395001" },
+  "Jaipur": { state: "Rajasthan", pincode: "302001" },
+  "Lucknow": { state: "Uttar Pradesh", pincode: "226001" },
+  "Kanpur": { state: "Uttar Pradesh", pincode: "208001" },
+  "Bhopal": { state: "Madhya Pradesh", pincode: "462001" },
+  "Indore": { state: "Madhya Pradesh", pincode: "452001" },
+  "Patna": { state: "Bihar", pincode: "800001" },
+  "Kochi": { state: "Kerala", pincode: "682001" },
+  "Thiruvananthapuram": { state: "Kerala", pincode: "695001" },
+  "Chandigarh": { state: "Chandigarh", pincode: "160001" },
+  "Guwahati": { state: "Assam", pincode: "781001" },
+  "Bhubaneswar": { state: "Odisha", pincode: "751001" },
+  "Visakhapatnam": { state: "Andhra Pradesh", pincode: "530001" },
+  "Ranchi": { state: "Jharkhand", pincode: "834001" },
+  "Dehradun": { state: "Uttarakhand", pincode: "248001" },
+};
+
+type AddressForm = {
+  name: string;
+  phone: string;
+  houseNo: string;
+  street: string;
+  landmark: string;
+  city: string;
+  state: string;
+  pincode: string;
+};
+
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
   const [step, setStep] = useState<CheckoutStep>("cart");
-  const [form, setForm] = useState({ name: "", phone: "", address: "" });
+  const [form, setForm] = useState<AddressForm>({
+    name: "", phone: "", houseNo: "", street: "", landmark: "", city: "", state: "", pincode: "",
+  });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSavePopup, setShowSavePopup] = useState(false);
   const [addressSaved, setAddressSaved] = useState(false);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
 
-  // Save address popup timer
+  const fullAddress = useMemo(() => {
+    const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
+    return parts.join(", ");
+  }, [form]);
+
+  // Auto-fill state & pincode when city matches
+  useEffect(() => {
+    const match = Object.entries(CITY_DATA).find(
+      ([city]) => city.toLowerCase() === form.city.trim().toLowerCase()
+    );
+    if (match) {
+      setForm(prev => ({ ...prev, state: match[1].state, pincode: match[1].pincode }));
+    }
+  }, [form.city]);
+
+  // City suggestions
+  useEffect(() => {
+    if (form.city.length < 2) { setCitySuggestions([]); return; }
+    const q = form.city.toLowerCase();
+    const matches = Object.keys(CITY_DATA).filter(c => c.toLowerCase().includes(q)).slice(0, 5);
+    setCitySuggestions(matches);
+  }, [form.city]);
+
   useEffect(() => {
     if (!showSavePopup) return;
     const timer = setTimeout(() => setShowSavePopup(false), 9000);
     return () => clearTimeout(timer);
   }, [showSavePopup]);
 
+  const updateField = (field: keyof AddressForm, value: string) => {
+    setForm(prev => ({ ...prev, [field]: value }));
+    setErrors(prev => ({ ...prev, [field]: "" }));
+  };
+
   const validate = () => {
     const e: Record<string, string> = {};
     if (!form.name.trim()) e.name = "Name is required";
-    else if (form.name.trim().length > 100) e.name = "Name too long";
     if (!form.phone.trim()) e.phone = "Phone number is required";
-    else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter a valid 10-digit phone number";
-    if (!form.address.trim()) e.address = "Address is required";
-    else if (form.address.trim().length < 10) e.address = "Please enter a complete address";
+    else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter valid 10-digit number";
+    if (!form.houseNo.trim()) e.houseNo = "House/flat no. is required";
+    if (!form.street.trim()) e.street = "Street is required";
+    if (!form.city.trim()) e.city = "City is required";
+    if (!form.state.trim()) e.state = "State is required";
+    if (!form.pincode.trim()) e.pincode = "PIN code is required";
+    else if (!/^\d{6}$/.test(form.pincode.trim())) e.pincode = "Enter valid 6-digit PIN";
     setErrors(e);
     return Object.keys(e).length === 0;
   };
