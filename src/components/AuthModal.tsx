@@ -14,6 +14,7 @@ interface AuthModalProps {
 type AuthView = "login" | "signup" | "forgot";
 
 const AuthModal = ({ open, onClose }: AuthModalProps) => {
+  const navigate = useNavigate();
   const [view, setView] = useState<AuthView>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
