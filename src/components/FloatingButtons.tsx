@@ -25,14 +25,14 @@ const FloatingButtons = () => {
           href="https://wa.me/919999999999"
           target="_blank"
           rel="noopener noreferrer"
-          className="w-10 h-10 bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="WhatsApp"
         >
           <WhatsAppIcon />
         </a>
         <a
           href="tel:+919999999999"
-          className="w-10 h-10 bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="Call us"
         >
           <Phone size={16} strokeWidth={1.5} />
