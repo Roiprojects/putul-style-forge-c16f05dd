@@ -327,44 +327,58 @@ const CartPage = () => {
                   {/* Save Address Popup */}
                   <AnimatePresence>
                     {showSavePopup && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 6 }}
-                        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                        className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90vw] max-w-sm"
-                      >
-                        <div className="bg-foreground text-background rounded-lg shadow-2xl overflow-hidden">
-                          <motion.div
-                            initial={{ scaleX: 1 }}
-                            animate={{ scaleX: 0 }}
-                            transition={{ duration: 9, ease: "linear" }}
-                            className="h-[3px] bg-secondary origin-left"
-                          />
-                          <div className="flex items-center gap-3 px-4 py-3">
-                            <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-                              <MapPin size={14} className="text-secondary" />
-                            </div>
-                            <p className="text-xs font-medium flex-1 truncate">
-                              Save address for next time?
-                            </p>
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <button
-                                onClick={handleSaveAddress}
-                                className="bg-secondary text-secondary-foreground px-3 py-1.5 rounded text-[11px] font-semibold tracking-wide hover:opacity-90 transition-opacity active:scale-[0.97]"
-                              >
-                                Save
-                              </button>
-                              <button
-                                onClick={handleSkipSave}
-                                className="px-2 py-1.5 text-[11px] text-background/40 hover:text-background/70 transition-colors"
-                              >
-                                Skip
-                              </button>
+                      <>
+                        {/* Blur overlay */}
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="fixed inset-0 z-40 bg-foreground/30 backdrop-blur-sm"
+                          onClick={handleSkipSave}
+                        />
+                        {/* Popup */}
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.95 }}
+                          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                          className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-72"
+                        >
+                          <div className="bg-secondary text-secondary-foreground rounded-xl shadow-2xl overflow-hidden">
+                            {/* Timer bar */}
+                            <motion.div
+                              initial={{ scaleX: 1 }}
+                              animate={{ scaleX: 0 }}
+                              transition={{ duration: 9, ease: "linear" }}
+                              className="h-1 bg-background/30 origin-left"
+                            />
+                            <div className="flex flex-col items-center text-center p-6 gap-3">
+                              <div className="w-12 h-12 rounded-xl bg-background/15 flex items-center justify-center">
+                                <MapPin size={20} />
+                              </div>
+                              <p className="text-sm font-bold font-heading">Save Address?</p>
+                              <p className="text-[11px] leading-relaxed opacity-80">
+                                Quick checkout next time
+                              </p>
+                              <div className="flex gap-2 w-full mt-1">
+                                <button
+                                  onClick={handleSaveAddress}
+                                  className="flex-1 bg-foreground text-background py-2.5 rounded-lg text-xs font-semibold tracking-wide hover:opacity-90 transition-opacity active:scale-[0.97]"
+                                >
+                                  Save
+                                </button>
+                                <button
+                                  onClick={handleSkipSave}
+                                  className="flex-1 py-2.5 rounded-lg text-xs font-medium border border-background/20 hover:bg-background/10 transition-colors active:scale-[0.97]"
+                                >
+                                  Skip
+                                </button>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </motion.div>
+                        </motion.div>
+                      </>
                     )}
                   </AnimatePresence>
                 </motion.div>
