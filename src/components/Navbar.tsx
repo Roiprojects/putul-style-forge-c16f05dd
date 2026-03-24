@@ -195,19 +195,6 @@ const Navbar = () => {
             className="fixed top-[calc(2rem+3.5rem)] left-0 right-0 z-30 bg-background border-b border-border overflow-hidden shadow-lg"
           >
             <div className="py-4 px-6 space-y-1">
-              {/* Mobile search bar */}
-              <form onSubmit={(e) => { handleSearch(e); setMobileOpen(false); }} className="mb-3">
-                <div className="relative w-full">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search for products, brands and more"
-                    className="w-full h-10 pl-10 pr-4 text-sm bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
-                  />
-                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                </div>
-              </form>
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
