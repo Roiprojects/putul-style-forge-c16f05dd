@@ -104,7 +104,7 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Search bar */}
+            {/* Desktop search bar */}
             <form onSubmit={handleSearch} className="hidden lg:flex items-center flex-1 max-w-[320px] mx-4">
               <div className="relative w-full">
                 <input
@@ -115,6 +115,20 @@ const Navbar = () => {
                   className="w-full h-9 pl-10 pr-4 text-[12px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                 />
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              </div>
+            </form>
+
+            {/* Mobile search bar */}
+            <form onSubmit={handleSearch} className="flex lg:hidden items-center flex-1 mx-2">
+              <div className="relative w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full h-8 pl-8 pr-3 text-xs bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                />
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
               </div>
             </form>
 
