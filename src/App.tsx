@@ -9,6 +9,7 @@ import { StoreProvider } from "@/contexts/StoreContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
+import MobileBottomNav from "@/components/MobileBottomNav";
 import CustomCursor from "@/components/CustomCursor";
 import ScrollToTop from "@/components/ScrollToTop";
 import HomePage from "./pages/HomePage";
@@ -127,6 +128,7 @@ const App = () => (
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                   <Footer />
+                  <MobileBottomNav />
                   <FloatingButtons />
                 </>
               }
