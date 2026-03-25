@@ -1,93 +1,104 @@
 
 
-# Plan: Advanced Admin Panel for Putul Fashions
+# Mobile OTP Authentication System
 
 ## Overview
-Add 7 new admin modules: Homepage Content Builder, Media Library, CMS (pages + blog), Reviews Management, Analytics, Admin Roles, and Website Settings. This is a large scope — we'll build each as a standalone admin page with corresponding database tables.
+Replace email/password login with mobile-number-based OTP for both customers and admins. Since Twilio connector isn't set up yet and the user will provide the OTP API later, we'll build the full system with a placeholder edge function that can be swapped to use Twilio gateway once connected.
 
-## Database Changes (1 migration)
+## Database Changes
 
-New tables:
-- **homepage_sections**: id, section_type (hero/featured_collection/trending/editorial/banner), title, subtitle, content (jsonb), image_urls (text[]), sort_order, is_enabled, created_at, updated_at
-- **media_library**: id, file_url, file_name, file_type, file_size, folder, tags (text[]), uploaded_by (uuid), created_at
-- **cms_pages**: id, slug (unique), title, content (text - markdown/html), meta_description, is_published, created_at, updated_at
-- **blog_posts**: id, title, slug (unique), content (text), excerpt, cover_image, author_name, tags (text[]), is_published, published_at, created_at, updated_at
-- **reviews**: id, product_id (fk admin_products), user_id, author_name, rating (int), comment, status (pending/approved/rejected), is_featured, created_at
-- **site_settings**: id, setting_key (unique text), setting_value (jsonb), updated_at
+**Migration 1 — OTP requests table + admin phones whitelist:**
+```sql
+CREATE TABLE public.otp_requests (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone text NOT NULL,
+  otp_code text NOT NULL,
+  expires_at timestamptz NOT NULL,
+  verified boolean DEFAULT false,
+  attempts integer DEFAULT 0,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.otp_requests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Service role only" ON public.otp_requests FOR ALL TO service_role USING (true);
 
-Storage bucket:
-- **media** (public) — for image/video uploads from Media Library and content builder
+CREATE TABLE public.admin_phones (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  phone text NOT NULL UNIQUE,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.admin_phones ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Admins can manage" ON public.admin_phones FOR ALL TO authenticated
+  USING (has_role(auth.uid(), 'admin')) WITH CHECK (has_role(auth.uid(), 'admin'));
+CREATE POLICY "Service role can read" ON public.admin_phones FOR SELECT TO service_role USING (true);
+```
 
-RLS: All tables admin-only for write, public read for published content (cms_pages, blog_posts with is_published, reviews with approved status, site_settings, homepage_sections with is_enabled).
+## Edge Functions
 
-## New Admin Pages
+### `send-otp/index.ts`
+- Accepts `{ phone, is_admin? }` 
+- Rate-limits: max 3 OTPs per phone per 10 minutes (query otp_requests)
+- If `is_admin`: check phone exists in `admin_phones`, reject if not
+- Generate 6-digit OTP, store in `otp_requests` with 5-min expiry
+- **SMS sending**: placeholder `console.log` for now — will be replaced with Twilio gateway once connected
+- Returns success/error
 
-### 1. Homepage Content Builder (`AdminHomepage.tsx`)
-- List all homepage_sections ordered by sort_order
-- Each section: toggle enabled/disabled, edit content (title, subtitle, images, linked products)
-- Drag-and-drop reorder (update sort_order)
-- Section types: hero_banner, product_carousel, category_showcase, promo_banner, editorial, marquee
-- Frontend HomePage.tsx reads from this table instead of hardcoded data
+### `verify-otp/index.ts`
+- Accepts `{ phone, otp_code }`
+- Validates against `otp_requests` (not expired, attempts < 5, not already verified)
+- Increments attempts on failure
+- On success: marks verified, looks up profile by phone
+  - Existing user: generates session via `supabase.auth.admin.signInWithPassword` or custom token
+  - New user: creates auth user with phone as identifier + profile, then signs in
+- If admin check requested: verify user has admin role
+- Returns session data (access_token, refresh_token)
 
-### 2. Media Library (`AdminMedia.tsx`)
-- Upload images/videos to storage bucket
-- Grid view of all assets with search/filter by folder/type
-- Click to copy URL
-- Delete assets
-- Folder organization
+## Frontend Changes
 
-### 3. CMS Pages & Blog (`AdminCMS.tsx`)
-- Tabs: Pages | Blog
-- Pages: Edit About, Contact, Policies content (rich text via textarea + markdown preview)
-- Blog: CRUD for blog posts with title, content, cover image, tags, publish/draft toggle
-- New route needed: `/blog` and `/blog/:slug` on storefront
+### `AuthModal.tsx` — Complete Rewrite
+Two-step flow with Framer Motion transitions:
 
-### 4. Reviews Management (`AdminReviews.tsx`)
-- List all reviews with status filter (pending/approved/rejected)
-- Approve/reject actions
-- Toggle "featured" for homepage testimonials
-- Link to product
+**Step 1 — Phone Input:**
+- +91 prefix (fixed for India)
+- 10-digit phone number input
+- "Send OTP" button
+- Premium minimal design matching existing brand
 
-### 5. Analytics (`AdminAnalytics.tsx`)
-- Sales by date range (query orders table, aggregate by day/month)
-- Top products by revenue
-- Customer count over time
-- Charts using recharts (already in project via shadcn)
+**Step 2 — OTP Verification:**
+- 6 auto-focus OTP input boxes (using existing `input-otp` component)
+- Auto-submit on last digit
+- 30-second countdown timer for resend
+- "Change number" link to go back
+- On success: close modal, toast welcome, redirect admin to `/admin`
 
-### 6. Admin Roles (`AdminRoles.tsx`)
-- List users with roles from user_roles table
-- Assign/remove roles (admin, moderator, user)
-- Add INSERT/UPDATE/DELETE policies for user_roles (currently missing — only admins can manage)
-- Display role-based access info
+Remove: email/password fields, Google OAuth, forgot password link, signup form.
 
-### 7. Website Settings (`AdminSettings.tsx`)
-- Logo URL (upload via media bucket)
-- Theme colors (primary, accent, background) stored as JSON
-- Font selections (heading font, body font)
-- Currency symbol, region
-- Settings stored as key-value pairs in site_settings table
+### `AdminLogin.tsx` — Rewrite
+Same OTP flow but with admin-specific UI:
+- "Admin Access" header with shield icon
+- Phone input (server validates against whitelist)
+- OTP verification
+- Redirect to `/admin` on success
 
-## Routing & Sidebar Updates
+### `Navbar.tsx` — Minor Updates
+- User menu shows phone number instead of email
+- Remove email-related display logic
 
-New routes under `/admin`:
-- `/admin/homepage` — Content Builder
-- `/admin/media` — Media Library
-- `/admin/cms` — Pages & Blog
-- `/admin/reviews` — Reviews
-- `/admin/analytics` — Analytics
-- `/admin/roles` — Roles & Permissions
-- `/admin/settings` — Website Settings
-
-Sidebar gets 7 new nav items with appropriate icons (Layout, Image, FileText, Star, BarChart2, Shield, Settings).
-
-## Storefront Integration
-- HomePage.tsx will query `homepage_sections` table to render sections dynamically
-- TestimonialSection will query approved+featured reviews
-- Site settings (logo, colors) can be consumed via a React context
+### `App.tsx` — Add Inactivity Timer
+- 30-minute idle timeout using mouse/keyboard event listeners
+- Auto sign-out and toast notification on timeout
 
 ## File Summary
-- **1 migration**: ~8 new tables + storage bucket + RLS policies
-- **7 new pages**: AdminHomepage, AdminMedia, AdminCMS, AdminReviews, AdminAnalytics, AdminRoles, AdminSettings
-- **2 new storefront pages**: BlogList, BlogPost
-- **Modified**: App.tsx (routes), AdminSidebar.tsx (nav), HomePage.tsx (dynamic sections)
+
+| Action | File |
+|--------|------|
+| Create | `supabase/functions/send-otp/index.ts` |
+| Create | `supabase/functions/verify-otp/index.ts` |
+| Create | 1 database migration (otp_requests + admin_phones) |
+| Rewrite | `src/components/AuthModal.tsx` |
+| Rewrite | `src/pages/admin/AdminLogin.tsx` |
+| Update | `src/components/Navbar.tsx` |
+| Update | `src/App.tsx` |
+
+## Note on SMS Integration
+The edge functions will log the OTP to console for testing. Once you provide the Twilio API connection, we'll wire up actual SMS delivery through the connector gateway.
 
