@@ -20,6 +20,7 @@ const navLinks = [
 const Navbar = () => {
   const { cartCount, wishlist } = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
