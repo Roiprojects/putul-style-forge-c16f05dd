@@ -99,20 +99,18 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             </span>
           )}
 
-          {/* Wishlist — top right */}
+          {/* Wishlist — top right, always visible */}
           <button
             onClick={handleWishlist}
-            className={`absolute top-2.5 right-2.5 z-10 w-8 h-8 flex items-center justify-center transition-all duration-300 ${
-              isHovered || wishlisted ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"
-            }`}
+            className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center shadow-sm transition-all duration-300 hover:bg-background active:scale-95"
           >
             <Heart
-              size={16}
+              size={15}
               strokeWidth={1.5}
               className={`transition-all duration-300 ${
                 wishlisted
-                  ? "fill-white text-white scale-110"
-                  : "text-white hover:scale-110"
+                  ? "fill-secondary text-secondary scale-110"
+                  : "text-foreground/70 hover:scale-110"
               }`}
             />
           </button>
