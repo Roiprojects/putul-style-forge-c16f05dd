@@ -20,6 +20,7 @@ const navLinks = [
 const Navbar = () => {
   const { cartCount, wishlist } = useStore();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -83,14 +84,12 @@ const Navbar = () => {
       {/* Main navbar */}
       <nav className={`sticky top-0 z-40 bg-background transition-shadow duration-300 ${scrolled ? "shadow-md" : "shadow-sm"}`}>
         <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-center justify-between h-14 md:h-16">
-            {/* Logo */}
+          {/* Desktop layout */}
+          <div className="hidden lg:flex items-center justify-between h-16">
             <Link to="/" className="flex-shrink-0">
-              <img src={putulLogo} alt="Putul Fashions" className="h-10 md:h-12 w-auto" />
+              <img src={putulLogo} alt="Putul Fashions" className="h-12 w-auto" />
             </Link>
-
-            {/* Desktop nav links */}
-            <div className="hidden lg:flex items-center gap-1">
+            <div className="flex items-center gap-1">
               {navLinks.map((link) => (
                 <Link
                   key={link.to}
@@ -103,9 +102,7 @@ const Navbar = () => {
                 </Link>
               ))}
             </div>
-
-            {/* Desktop search bar */}
-            <form onSubmit={handleSearch} className="hidden lg:flex items-center flex-1 max-w-[320px] mx-4">
+            <form onSubmit={handleSearch} className="flex items-center flex-1 max-w-[320px] mx-4">
               <div className="relative w-full">
                 <input
                   type="text"
@@ -117,24 +114,7 @@ const Navbar = () => {
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               </div>
             </form>
-
-            {/* Mobile search bar */}
-            <form onSubmit={handleSearch} className="flex lg:hidden items-center flex-1 mx-2">
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search products..."
-                  className="w-full h-8 pl-8 pr-3 text-xs bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
-                />
-                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-              </div>
-            </form>
-
-            {/* Icons */}
             <div className="flex items-center gap-1">
-              {/* User icon */}
               <div className="relative">
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
@@ -175,12 +155,98 @@ const Navbar = () => {
                   </span>
                 )}
               </Link>
-              {/* Mobile menu toggle */}
-              <button className="lg:hidden p-2.5 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+            </div>
+          </div>
+
+          {/* Mobile layout */}
+          <div className="flex lg:hidden items-center justify-between h-14">
+            {/* Search icon */}
+            <button
+              onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
+              className="p-2 text-foreground hover:text-secondary transition-colors"
+              aria-label="Search"
+            >
+              <Search size={20} strokeWidth={1.5} />
+            </button>
+
+            {/* Centered logo */}
+            <Link to="/" className="absolute left-1/2 -translate-x-1/2">
+              <img src={putulLogo} alt="Putul Fashions" className="h-10 w-auto" />
+            </Link>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-0">
+              <div className="relative">
+                <button
+                  onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
+                  className="p-2 text-foreground hover:text-secondary transition-colors"
+                  aria-label={user ? "Account menu" : "Sign in"}
+                >
+                  <User size={20} strokeWidth={1.5} />
+                </button>
+                {user && (
+                  <AnimatePresence>
+                    {showUserMenu && (
+                      <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="absolute right-0 top-full mt-2 w-44 bg-background border border-border shadow-lg rounded-md z-50">
+                        <div className="px-4 py-3 border-b border-border">
+                          <p className="text-xs font-medium truncate text-foreground">{displayName}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{user.user_metadata?.phone || user.email}</p>
+                        </div>
+                        <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors">
+                          <LogOut size={13} /> Sign Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                )}
+              </div>
+              <Link to="/wishlist" className="p-2 text-foreground hover:text-secondary transition-colors relative">
+                <Heart size={20} strokeWidth={1.5} />
+                {wishlist.length > 0 && (
+                  <span className="absolute top-0.5 right-0 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {wishlist.length}
+                  </span>
+                )}
+              </Link>
+              <Link to="/cart" className="p-2 text-foreground hover:text-secondary transition-colors relative">
+                <ShoppingBag size={20} strokeWidth={1.5} />
+                {cartCount > 0 && (
+                  <span className="absolute top-0.5 right-0 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
+              </Link>
+              <button className="p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
                 {mobileOpen ? <X size={22} /> : <Menu size={22} />}
               </button>
             </div>
           </div>
+
+          {/* Mobile search bar (expandable) */}
+          <AnimatePresence>
+            {mobileSearchOpen && (
+              <motion.form
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                onSubmit={(e) => { handleSearch(e); setMobileSearchOpen(false); }}
+                className="lg:hidden overflow-hidden pb-2"
+              >
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    autoFocus
+                    className="w-full h-9 pl-9 pr-4 text-xs bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                  />
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                </div>
+              </motion.form>
+            )}
+          </AnimatePresence>
         </div>
       </nav>
 
