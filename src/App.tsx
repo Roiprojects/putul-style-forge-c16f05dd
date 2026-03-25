@@ -84,8 +84,8 @@ const App = () => (
           <ScrollToTop />
           <InactivityTimer />
           <Routes>
-            {/* Admin login - separate route */}
-            <Route path="/admin/login" element={<AdminLogin />} />
+            {/* Admin login - hidden route */}
+            <Route path="/store-portal-access" element={<AdminLogin />} />
 
             {/* Admin routes - no Navbar/Footer */}
             <Route path="/admin" element={<AdminLayout />}>
