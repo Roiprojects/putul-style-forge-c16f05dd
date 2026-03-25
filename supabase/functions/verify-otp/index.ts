@@ -128,21 +128,34 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check admin role if needed
+      // Check/assign admin role if needed
       if (is_admin) {
-        const { data: adminRole } = await supabase
+        const { data: adminPhone } = await supabase
+          .from("admin_phones")
+          .select("phone")
+          .eq("phone", phone)
+          .maybeSingle();
+
+        if (!adminPhone) {
+          await supabase.auth.admin.signOut(signInData.session!.access_token);
+          return new Response(
+            JSON.stringify({ error: "Access denied. Admin privileges required." }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Auto-assign admin role if not already present
+        const { data: existingRole } = await supabase
           .from("user_roles")
           .select("role")
           .eq("user_id", userId)
           .eq("role", "admin")
           .maybeSingle();
 
-        if (!adminRole) {
-          await supabase.auth.admin.signOut(signInData.session!.access_token);
-          return new Response(
-            JSON.stringify({ error: "Access denied. Admin privileges required." }),
-            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (!existingRole) {
+          await supabase
+            .from("user_roles")
+            .insert({ user_id: userId, role: "admin" });
         }
       }
 
@@ -194,11 +207,24 @@ Deno.serve(async (req) => {
       }
 
       if (is_admin) {
-        await supabase.auth.admin.signOut(signInData.session!.access_token);
-        return new Response(
-          JSON.stringify({ error: "Access denied. Admin privileges required." }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        const { data: adminPhone } = await supabase
+          .from("admin_phones")
+          .select("phone")
+          .eq("phone", phone)
+          .maybeSingle();
+
+        if (!adminPhone) {
+          await supabase.auth.admin.signOut(signInData.session!.access_token);
+          return new Response(
+            JSON.stringify({ error: "Access denied. Admin privileges required." }),
+            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // Auto-assign admin role to new user
+        await supabase
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
       }
 
       return new Response(
