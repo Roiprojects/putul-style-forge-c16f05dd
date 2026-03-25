@@ -30,12 +30,15 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+
+    const serviceClient = createClient(supabaseUrl, serviceRoleKey);
+    const authClient = createClient(supabaseUrl, anonKey);
 
     const adminDevOtp = "123456";
 
     const { data: adminPhoneRecord } = is_admin
-      ? await supabase
+      ? await serviceClient
           .from("admin_phones")
           .select("phone")
           .eq("phone", phone)
@@ -45,7 +48,45 @@ Deno.serve(async (req) => {
     const isAdminPhoneAuthorized = Boolean(adminPhoneRecord);
     const isFixedAdminOtpLogin = Boolean(is_admin && isAdminPhoneAuthorized && otp_code === adminDevOtp);
 
-    let otpRecord: { id: string; attempts: number | null; otp_code: string } | null = null;
+    const assignAdminRole = async (userId: string) => {
+      const { error } = await serviceClient
+        .from("user_roles")
+        .upsert(
+          { user_id: userId, role: "admin" },
+          { onConflict: "user_id,role", ignoreDuplicates: true }
+        );
+
+      if (error) {
+        console.error("Failed to assign admin role:", error);
+        throw new Error("Failed to assign admin role.");
+      }
+    };
+
+    const signInWithDummyCredentials = async (userId: string, email: string, password: string) => {
+      await serviceClient.auth.admin.updateUserById(userId, { password });
+
+      let { data, error } = await authClient.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (!error && data.session) {
+        return data.session;
+      }
+
+      await serviceClient.auth.admin.updateUserById(userId, { email, password });
+      ({ data, error } = await authClient.auth.signInWithPassword({
+        email,
+        password,
+      }));
+
+      if (error || !data.session) {
+        console.error("Sign in failed:", error);
+        throw new Error("Authentication failed. Please try again.");
+      }
+
+      return data.session;
+    };
 
     if (is_admin && !isAdminPhoneAuthorized) {
       return new Response(
@@ -55,19 +96,16 @@ Deno.serve(async (req) => {
     }
 
     if (!isFixedAdminOtpLogin) {
-      // Find the latest non-verified, non-expired OTP for this phone
       const now = new Date().toISOString();
-      const { data: foundOtpRecord, error: otpError } = await supabase
+      const { data: otpRecord, error: otpError } = await serviceClient
         .from("otp_requests")
-        .select("*")
+        .select("id, attempts, otp_code")
         .eq("phone", phone)
         .eq("verified", false)
         .gte("expires_at", now)
         .order("created_at", { ascending: false })
         .limit(1)
         .maybeSingle();
-
-      otpRecord = foundOtpRecord;
 
       if (otpError || !otpRecord) {
         return new Response(
@@ -76,120 +114,58 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Check max attempts
-      if ((otpRecord.attempts ?? 0) >= 5) {
+      const attempts = otpRecord.attempts ?? 0;
+
+      if (attempts >= 5) {
         return new Response(
           JSON.stringify({ error: "Too many failed attempts. Please request a new OTP." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Wrong OTP — increment attempts
       if (otpRecord.otp_code !== otp_code) {
-        await supabase
+        await serviceClient
           .from("otp_requests")
-          .update({ attempts: (otpRecord.attempts ?? 0) + 1 })
+          .update({ attempts: attempts + 1 })
           .eq("id", otpRecord.id);
 
-        const remaining = 4 - (otpRecord.attempts ?? 0);
+        const remaining = 4 - attempts;
         return new Response(
           JSON.stringify({ error: `Invalid OTP. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.` }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // OTP is correct — mark as verified
-      await supabase
+      await serviceClient
         .from("otp_requests")
         .update({ verified: true })
         .eq("id", otpRecord.id);
     }
 
-    // Check if user exists by phone in profiles
-    const { data: existingProfile } = await supabase
+    const { data: existingProfile } = await serviceClient
       .from("profiles")
       .select("user_id")
       .eq("phone", phone)
       .maybeSingle();
 
-    let userId: string;
     const dummyEmail = `${phone.replace("+", "")}@phone.putul.app`;
     const dummyPassword = crypto.randomUUID();
 
+    let userId: string;
+    let session;
+
     if (existingProfile) {
-      // Existing user — sign in
       userId = existingProfile.user_id;
-
-      // Update password to a known value, then sign in
-      await supabase.auth.admin.updateUserById(userId, { password: dummyPassword });
-
-      let session = null;
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: dummyEmail,
-        password: dummyPassword,
-      });
-
-      if (signInError) {
-        await supabase.auth.admin.updateUserById(userId, { email: dummyEmail, password: dummyPassword });
-        const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
-          email: dummyEmail,
-          password: dummyPassword,
-        });
-
-        if (retryError || !retryData.session) {
-          console.error("Sign in failed:", retryError);
-          return new Response(
-            JSON.stringify({ error: "Authentication failed. Please try again." }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        session = retryData.session;
-      } else {
-        session = signInData.session;
-      }
-
-      if (!session) {
-        return new Response(
-          JSON.stringify({ error: "Authentication failed. Please try again." }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      // Assign admin role for authorized admin phone numbers
-      if (is_admin && isAdminPhoneAuthorized) {
-        const { data: existingRole } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle();
-
-        if (!existingRole) {
-          await supabase
-            .from("user_roles")
-            .insert({ user_id: userId, role: "admin" });
-        }
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          session,
-          is_new_user: false,
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      session = await signInWithDummyCredentials(userId, dummyEmail, dummyPassword);
     } else {
-      // New user — create account
-      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+      const { data: newUser, error: createError } = await serviceClient.auth.admin.createUser({
         email: dummyEmail,
         password: dummyPassword,
         email_confirm: true,
         user_metadata: { display_name: phone, phone },
       });
 
-      if (createError) {
+      if (createError || !newUser.user) {
         console.error("Create user failed:", createError);
         return new Response(
           JSON.stringify({ error: "Failed to create account. Please try again." }),
@@ -199,54 +175,33 @@ Deno.serve(async (req) => {
 
       userId = newUser.user.id;
 
-      // Update profile with phone
-      await supabase
+      const { error: profileError } = await serviceClient
         .from("profiles")
-        .update({ phone, display_name: phone })
-        .eq("user_id", userId);
+        .upsert({ user_id: userId, phone, display_name: phone }, { onConflict: "user_id" });
 
-      // Sign in
-      const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-        email: dummyEmail,
-        password: dummyPassword,
-      });
-
-      if (signInError) {
-        console.error("New user sign in failed:", signInError);
-        return new Response(
-          JSON.stringify({ error: "Account created but sign-in failed. Please try again." }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+      if (profileError) {
+        console.error("Failed to upsert profile:", profileError);
       }
 
-      if (is_admin && isAdminPhoneAuthorized) {
-        const { data: existingRole } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", userId)
-          .eq("role", "admin")
-          .maybeSingle();
-
-        if (!existingRole) {
-          await supabase
-            .from("user_roles")
-            .insert({ user_id: userId, role: "admin" });
-        }
-      }
-
-      return new Response(
-        JSON.stringify({
-          success: true,
-          session: signInData.session,
-          is_new_user: true,
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      session = await signInWithDummyCredentials(userId, dummyEmail, dummyPassword);
     }
+
+    if (is_admin && isAdminPhoneAuthorized) {
+      await assignAdminRole(userId);
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        session,
+        is_new_user: !existingProfile,
+      }),
+      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   } catch (error) {
     console.error("verify-otp error:", error);
     return new Response(
-      JSON.stringify({ error: "Internal server error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
