@@ -56,8 +56,14 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Generate 6-digit OTP
-    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+    // Use fixed OTP for admin numbers during development
+    const { data: isAdminPhone } = await supabase
+      .from("admin_phones")
+      .select("id")
+      .eq("phone", phone)
+      .maybeSingle();
+
+    const otpCode = isAdminPhone ? "123456" : String(Math.floor(100000 + Math.random() * 900000));
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Store OTP
