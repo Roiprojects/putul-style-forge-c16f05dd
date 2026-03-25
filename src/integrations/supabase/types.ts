@@ -55,6 +55,24 @@ export type Database = {
           },
         ]
       }
+      admin_phones: {
+        Row: {
+          created_at: string | null
+          id: string
+          phone: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          phone: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          phone?: string
+        }
+        Relationships: []
+      }
       admin_products: {
         Row: {
           category_id: string | null
@@ -441,6 +459,36 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      otp_requests: {
+        Row: {
+          attempts: number | null
+          created_at: string | null
+          expires_at: string
+          id: string
+          otp_code: string
+          phone: string
+          verified: boolean | null
+        }
+        Insert: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          otp_code: string
+          phone: string
+          verified?: boolean | null
+        }
+        Update: {
+          attempts?: number | null
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone?: string
+          verified?: boolean | null
         }
         Relationships: []
       }
