@@ -77,8 +77,6 @@ const Navbar = () => {
         <p className="text-[10px] md:text-[11px] tracking-wide font-light">
           Free Shipping Sitewide on Every Order — <span className="text-secondary font-medium">Don't Miss Out!!</span>
         </p>
-        {/* Auth link on right */}
-        
       </div>
 
       {/* Main navbar */}
@@ -209,14 +207,6 @@ const Navbar = () => {
                   </AnimatePresence>
                 )}
               </div>
-              <Link to="/wishlist" className="p-2 text-foreground hover:text-secondary transition-colors relative">
-                <Heart size={20} strokeWidth={1.5} />
-                {wishlist.length > 0 && (
-                  <span className="absolute top-0.5 right-0 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
               <Link to="/cart" className="p-2 text-foreground hover:text-secondary transition-colors relative">
                 <ShoppingBag size={20} strokeWidth={1.5} />
                 {cartCount > 0 && (
