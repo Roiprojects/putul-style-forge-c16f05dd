@@ -123,20 +123,20 @@ Deno.serve(async (req) => {
       // Update password to a known value, then sign in
       await supabase.auth.admin.updateUserById(userId, { password: dummyPassword });
 
+      let session = null;
       const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
         email: dummyEmail,
         password: dummyPassword,
       });
 
       if (signInError) {
-        // Try updating email too in case it doesn't match
         await supabase.auth.admin.updateUserById(userId, { email: dummyEmail, password: dummyPassword });
         const { data: retryData, error: retryError } = await supabase.auth.signInWithPassword({
           email: dummyEmail,
           password: dummyPassword,
         });
 
-        if (retryError) {
+        if (retryError || !retryData.session) {
           console.error("Sign in failed:", retryError);
           return new Response(
             JSON.stringify({ error: "Authentication failed. Please try again." }),
@@ -144,33 +144,20 @@ Deno.serve(async (req) => {
           );
         }
 
+        session = retryData.session;
+      } else {
+        session = signInData.session;
+      }
+
+      if (!session) {
         return new Response(
-          JSON.stringify({
-            success: true,
-            session: retryData.session,
-            is_new_user: false,
-          }),
-          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Authentication failed. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Check/assign admin role if needed
-      if (is_admin) {
-        const { data: adminPhone } = await supabase
-          .from("admin_phones")
-          .select("phone")
-          .eq("phone", phone)
-          .maybeSingle();
-
-        if (!adminPhone) {
-          await supabase.auth.admin.signOut(signInData.session!.access_token);
-          return new Response(
-            JSON.stringify({ error: "Access denied. Admin privileges required." }),
-            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
-        }
-
-        // Auto-assign admin role if not already present
+      // Assign admin role for authorized admin phone numbers
+      if (is_admin && isAdminPhoneAuthorized) {
         const { data: existingRole } = await supabase
           .from("user_roles")
           .select("role")
@@ -188,7 +175,7 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({
           success: true,
-          session: signInData.session,
+          session,
           is_new_user: false,
         }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
