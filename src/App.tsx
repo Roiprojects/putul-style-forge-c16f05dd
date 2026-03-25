@@ -41,6 +41,36 @@ import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
 
+const INACTIVITY_TIMEOUT = 30 * 60 * 1000; // 30 minutes
+
+const InactivityTimer = () => {
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+
+    const resetTimer = () => {
+      clearTimeout(timer);
+      timer = setTimeout(async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          await supabase.auth.signOut();
+          toast("Session expired due to inactivity. Please sign in again.");
+        }
+      }, INACTIVITY_TIMEOUT);
+    };
+
+    const events = ["mousedown", "keydown", "touchstart", "scroll"];
+    events.forEach((e) => window.addEventListener(e, resetTimer));
+    resetTimer();
+
+    return () => {
+      clearTimeout(timer);
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
+    };
+  }, []);
+
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -48,6 +78,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <InactivityTimer />
           <Routes>
             {/* Admin login - separate route */}
             <Route path="/admin/login" element={<AdminLogin />} />

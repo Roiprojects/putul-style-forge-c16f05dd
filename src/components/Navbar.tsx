@@ -67,7 +67,7 @@ const Navbar = () => {
     toast.success("Signed out");
   };
 
-  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+  const displayName = user?.user_metadata?.phone || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
 
   return (
     <>
