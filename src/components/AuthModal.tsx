@@ -1,9 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { X, Eye, EyeOff, Loader2 } from "lucide-react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { X, Loader2, Phone, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { toast } from "sonner";
 
 interface AuthModalProps {
@@ -11,94 +9,136 @@ interface AuthModalProps {
   onClose: () => void;
 }
 
-type AuthView = "login" | "signup" | "forgot";
+type Step = "phone" | "otp";
 
 const AuthModal = ({ open, onClose }: AuthModalProps) => {
-  const navigate = useNavigate();
-  const [view, setView] = useState<AuthView>("login");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [step, setStep] = useState<Step>("phone");
+  const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
+  const [countdown, setCountdown] = useState(0);
+  const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const reset = () => {
-    setEmail("");
-    setPassword("");
-    setDisplayName("");
-    setShowPassword(false);
+  const reset = useCallback(() => {
+    setStep("phone");
+    setPhone("");
+    setOtp(["", "", "", "", "", ""]);
     setLoading(false);
-  };
+    setCountdown(0);
+  }, []);
 
   const handleClose = () => {
     reset();
-    setView("login");
     onClose();
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // Countdown timer
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const t = setTimeout(() => setCountdown(countdown - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown]);
+
+  // Auto-focus first OTP input
+  useEffect(() => {
+    if (step === "otp") {
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+    }
+  }, [step]);
+
+  const fullPhone = `+91${phone}`;
+
+  const handleSendOTP = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (phone.length !== 10) {
+      toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      setLoading(false);
-      toast.error(error.message);
+
+    const { data, error } = await supabase.functions.invoke("send-otp", {
+      body: { phone: fullPhone },
+    });
+
+    setLoading(false);
+
+    if (error || data?.error) {
+      toast.error(data?.error || error?.message || "Failed to send OTP");
       return;
     }
 
-    // Check if the user is an admin
-    const { data: role } = await supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", data.user.id)
-      .eq("role", "admin")
-      .maybeSingle();
+    toast.success("OTP sent to your mobile number!");
+    setStep("otp");
+    setCountdown(30);
+    setOtp(["", "", "", "", "", ""]);
+  };
+
+  const handleVerifyOTP = useCallback(async (otpValue: string) => {
+    if (otpValue.length !== 6) return;
+    setLoading(true);
+
+    const { data, error } = await supabase.functions.invoke("verify-otp", {
+      body: { phone: fullPhone, otp_code: otpValue },
+    });
+
+    if (error || data?.error) {
+      setLoading(false);
+      toast.error(data?.error || error?.message || "Verification failed");
+      setOtp(["", "", "", "", "", ""]);
+      setTimeout(() => otpRefs.current[0]?.focus(), 100);
+      return;
+    }
+
+    // Set session from returned tokens
+    if (data?.session) {
+      await supabase.auth.setSession({
+        access_token: data.session.access_token,
+        refresh_token: data.session.refresh_token,
+      });
+    }
 
     setLoading(false);
+    toast.success(data?.is_new_user ? "Welcome to Putul Fashions!" : "Welcome back!");
+    handleClose();
+  }, [fullPhone]);
 
-    if (role) {
-      toast.success("Welcome, Admin!");
-      handleClose();
-      navigate("/admin");
-    } else {
-      toast.success("Welcome back!");
-      handleClose();
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...otp];
+    newOtp[index] = value.slice(-1);
+    setOtp(newOtp);
+
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+
+    // Auto-submit on last digit
+    const fullOtp = newOtp.join("");
+    if (fullOtp.length === 6) {
+      handleVerifyOTP(fullOtp);
     }
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { display_name: displayName },
-        emailRedirectTo: window.location.origin,
-      },
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Account created! Check your email to verify.");
-      handleClose();
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
     }
   };
 
-  const handleForgot = async (e: React.FormEvent) => {
+  const handleOtpPaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setLoading(false);
-    if (error) {
-      toast.error(error.message);
-    } else {
-      toast.success("Password reset link sent to your email.");
-      handleClose();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (pasted.length === 6) {
+      const newOtp = pasted.split("");
+      setOtp(newOtp);
+      otpRefs.current[5]?.focus();
+      handleVerifyOTP(pasted);
     }
+  };
+
+  const handleResend = async () => {
+    if (countdown > 0) return;
+    await handleSendOTP();
   };
 
   return (
@@ -116,189 +156,158 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.2 }}
-            className="bg-background w-full max-w-md relative"
-            onClick={e => e.stopPropagation()}
+            className="bg-background w-full max-w-sm rounded-xl overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
             <div className="bg-primary text-primary-foreground px-6 py-5 flex items-center justify-between">
               <div>
-                <p className="text-secondary text-[10px] tracking-[0.3em] uppercase">Putul Fashions</p>
+                <p className="text-secondary text-[10px] tracking-[0.3em] uppercase">
+                  Putul Fashions
+                </p>
                 <h2 className="font-heading text-xl font-semibold mt-1">
-                  {view === "login" ? "Welcome Back" : view === "signup" ? "Create Account" : "Reset Password"}
+                  {step === "phone" ? "Sign In" : "Verify OTP"}
                 </h2>
               </div>
-              <button onClick={handleClose} className="text-primary-foreground/70 hover:text-primary-foreground">
+              <button
+                onClick={handleClose}
+                className="text-primary-foreground/70 hover:text-primary-foreground transition-colors"
+              >
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-6">
-              {/* Google Sign In - shown on login and signup */}
-              {(view === "login" || view === "signup") && (
-                <div className="mb-5">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      setLoading(true);
-                      const { error } = await lovable.auth.signInWithOAuth("google", {
-                        redirect_uri: window.location.origin,
-                      });
-                      setLoading(false);
-                      if (error) toast.error(error.message);
-                    }}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center gap-3 border border-border py-2.5 text-sm font-medium text-foreground hover:bg-accent transition-colors"
+              <AnimatePresence mode="wait">
+                {step === "phone" && (
+                  <motion.form
+                    key="phone-step"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    onSubmit={handleSendOTP}
+                    className="space-y-5"
                   >
-                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                      <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-                      <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-                      <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.997 8.997 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-                      <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-                    </svg>
-                    Continue with Google
-                  </button>
-                  <div className="flex items-center gap-3 my-4">
-                    <div className="flex-1 h-px bg-border" />
-                    <span className="text-[11px] text-muted-foreground uppercase tracking-wider">or</span>
-                    <div className="flex-1 h-px bg-border" />
-                  </div>
-                </div>
-              )}
-
-              {view === "login" && (
-                <form onSubmit={handleLogin} className="space-y-4">
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Password</label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary pr-10"
-                        placeholder="••••••••"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                      >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
+                    <p className="text-sm text-muted-foreground">
+                      Enter your mobile number to receive a verification code.
+                    </p>
+                    <div>
+                      <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">
+                        Mobile Number
+                      </label>
+                      <div className="flex gap-2">
+                        <div className="flex items-center justify-center px-3 border border-border rounded-lg bg-muted text-sm font-medium text-foreground">
+                          +91
+                        </div>
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          maxLength={10}
+                          required
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                          className="flex-1 border border-border bg-background rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all"
+                          placeholder="Enter 10-digit number"
+                          autoFocus
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex justify-end">
-                    <button type="button" onClick={() => setView("forgot")} className="text-xs text-secondary hover:underline">
-                      Forgot Password?
-                    </button>
-                  </div>
-                  <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
-                    {loading && <Loader2 size={16} className="animate-spin" />}
-                    Sign In
-                  </button>
-                  <p className="text-center text-sm text-muted-foreground">
-                    Don't have an account?{" "}
-                    <button type="button" onClick={() => setView("signup")} className="text-secondary hover:underline font-medium">
-                      Sign Up
-                    </button>
-                  </p>
-                </form>
-              )}
 
-              {view === "signup" && (
-                <form onSubmit={handleSignup} className="space-y-4">
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Full Name</label>
-                    <input
-                      type="text"
-                      required
-                      value={displayName}
-                      onChange={e => setDisplayName(e.target.value)}
-                      className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
-                      placeholder="John Doe"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Password</label>
-                    <div className="relative">
-                      <input
-                        type={showPassword ? "text" : "password"}
-                        required
-                        minLength={6}
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary pr-10"
-                        placeholder="Min. 6 characters"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                      >
-                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                      </button>
+                    <button
+                      type="submit"
+                      disabled={loading || phone.length !== 10}
+                      className="btn-primary w-full py-3 flex items-center justify-center gap-2 rounded-lg disabled:opacity-50 transition-all"
+                    >
+                      {loading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <>
+                          <Phone size={16} />
+                          Send OTP
+                        </>
+                      )}
+                    </button>
+
+                    <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+                      By continuing, you agree to our Terms of Service and Privacy Policy.
+                    </p>
+                  </motion.form>
+                )}
+
+                {step === "otp" && (
+                  <motion.div
+                    key="otp-step"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    className="space-y-5"
+                  >
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        Enter the 6-digit code sent to
+                      </p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-sm font-semibold text-foreground">
+                          +91 {phone}
+                        </span>
+                        <button
+                          onClick={() => {
+                            setStep("phone");
+                            setOtp(["", "", "", "", "", ""]);
+                          }}
+                          className="text-secondary text-xs hover:underline flex items-center gap-0.5"
+                        >
+                          <ArrowLeft size={12} />
+                          Change
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
-                    {loading && <Loader2 size={16} className="animate-spin" />}
-                    Create Account
-                  </button>
-                  <p className="text-center text-sm text-muted-foreground">
-                    Already have an account?{" "}
-                    <button type="button" onClick={() => setView("login")} className="text-secondary hover:underline font-medium">
-                      Sign In
-                    </button>
-                  </p>
-                </form>
-              )}
 
-              {view === "forgot" && (
-                <form onSubmit={handleForgot} className="space-y-4">
-                  <p className="text-sm text-muted-foreground">Enter your email and we'll send you a password reset link.</p>
-                  <div>
-                    <label className="text-xs tracking-widest uppercase text-muted-foreground block mb-1.5">Email</label>
-                    <input
-                      type="email"
-                      required
-                      value={email}
-                      onChange={e => setEmail(e.target.value)}
-                      className="w-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-1 focus:ring-secondary"
-                      placeholder="you@example.com"
-                    />
-                  </div>
-                  <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2">
-                    {loading && <Loader2 size={16} className="animate-spin" />}
-                    Send Reset Link
-                  </button>
-                  <p className="text-center text-sm text-muted-foreground">
-                    <button type="button" onClick={() => setView("login")} className="text-secondary hover:underline font-medium">
-                      Back to Sign In
-                    </button>
-                  </p>
-                </form>
-              )}
+                    {/* OTP Input Boxes */}
+                    <div className="flex justify-center gap-2.5" onPaste={handleOtpPaste}>
+                      {otp.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { otpRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleOtpChange(i, e.target.value)}
+                          onKeyDown={(e) => handleOtpKeyDown(i, e)}
+                          disabled={loading}
+                          className="w-11 h-12 text-center text-lg font-semibold border-2 border-border rounded-lg bg-background focus:outline-none focus:border-secondary focus:ring-2 focus:ring-secondary/30 transition-all disabled:opacity-50"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Countdown / Resend */}
+                    <div className="text-center">
+                      {countdown > 0 ? (
+                        <p className="text-xs text-muted-foreground">
+                          Resend OTP in{" "}
+                          <span className="font-semibold text-foreground">{countdown}s</span>
+                        </p>
+                      ) : (
+                        <button
+                          onClick={handleResend}
+                          disabled={loading}
+                          className="text-xs text-secondary hover:underline font-medium disabled:opacity-50"
+                        >
+                          Resend OTP
+                        </button>
+                      )}
+                    </div>
+
+                    {loading && (
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 size={16} className="animate-spin" />
+                        Verifying...
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         </motion.div>

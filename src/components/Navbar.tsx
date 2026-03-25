@@ -67,7 +67,7 @@ const Navbar = () => {
     toast.success("Signed out");
   };
 
-  const displayName = user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
+  const displayName = user?.user_metadata?.phone || user?.user_metadata?.display_name || user?.email?.split("@")[0] || "User";
 
   return (
     <>
@@ -149,7 +149,7 @@ const Navbar = () => {
                       <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} className="absolute right-0 top-full mt-2 w-44 bg-background border border-border shadow-lg rounded-md z-50">
                         <div className="px-4 py-3 border-b border-border">
                           <p className="text-xs font-medium truncate text-foreground">{displayName}</p>
-                          <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                          <p className="text-[10px] text-muted-foreground truncate">{user.user_metadata?.phone || user.email}</p>
                         </div>
                         <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors">
                           <LogOut size={13} /> Sign Out
