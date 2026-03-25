@@ -34,7 +34,7 @@ Deno.serve(async (req) => {
 
     const adminDevOtp = "123456";
 
-    const { data: adminPhone } = is_admin
+    const { data: adminPhoneRecord } = is_admin
       ? await supabase
           .from("admin_phones")
           .select("phone")
@@ -42,11 +42,12 @@ Deno.serve(async (req) => {
           .maybeSingle()
       : { data: null };
 
-    const isFixedAdminOtpLogin = Boolean(is_admin && adminPhone && otp_code === adminDevOtp);
+    const isAdminPhoneAuthorized = Boolean(adminPhoneRecord);
+    const isFixedAdminOtpLogin = Boolean(is_admin && isAdminPhoneAuthorized && otp_code === adminDevOtp);
 
     let otpRecord: { id: string; attempts: number | null; otp_code: string } | null = null;
 
-    if (is_admin && !adminPhone) {
+    if (is_admin && !isAdminPhoneAuthorized) {
       return new Response(
         JSON.stringify({ error: "Access denied. Admin privileges required." }),
         { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
