@@ -219,25 +219,19 @@ Deno.serve(async (req) => {
         );
       }
 
-      if (is_admin) {
-        const { data: adminPhone } = await supabase
-          .from("admin_phones")
-          .select("phone")
-          .eq("phone", phone)
+      if (is_admin && isAdminPhoneAuthorized) {
+        const { data: existingRole } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", userId)
+          .eq("role", "admin")
           .maybeSingle();
 
-        if (!adminPhone) {
-          await supabase.auth.admin.signOut(signInData.session!.access_token);
-          return new Response(
-            JSON.stringify({ error: "Access denied. Admin privileges required." }),
-            { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        if (!existingRole) {
+          await supabase
+            .from("user_roles")
+            .insert({ user_id: userId, role: "admin" });
         }
-
-        // Auto-assign admin role to new user
-        await supabase
-          .from("user_roles")
-          .insert({ user_id: userId, role: "admin" });
       }
 
       return new Response(
