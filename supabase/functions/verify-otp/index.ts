@@ -49,16 +49,27 @@ Deno.serve(async (req) => {
     const isFixedAdminOtpLogin = Boolean(is_admin && isAdminPhoneAuthorized && otp_code === adminDevOtp);
 
     const assignAdminRole = async (userId: string) => {
-      const { error } = await serviceClient
+      const { data: existingRole, error: roleLookupError } = await serviceClient
         .from("user_roles")
-        .upsert(
-          { user_id: userId, role: "admin" },
-          { onConflict: "user_id,role", ignoreDuplicates: true }
-        );
+        .select("id")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
 
-      if (error) {
-        console.error("Failed to assign admin role:", error);
-        throw new Error("Failed to assign admin role.");
+      if (roleLookupError) {
+        console.error("Failed to lookup admin role:", roleLookupError);
+        throw new Error("Failed to verify admin role.");
+      }
+
+      if (!existingRole) {
+        const { error: insertError } = await serviceClient
+          .from("user_roles")
+          .insert({ user_id: userId, role: "admin" });
+
+        if (insertError) {
+          console.error("Failed to assign admin role:", insertError);
+          throw new Error("Failed to assign admin role.");
+        }
       }
     };
 

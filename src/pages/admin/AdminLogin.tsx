@@ -76,11 +76,26 @@ const AdminLogin = () => {
         access_token: data.session.access_token,
         refresh_token: data.session.refresh_token,
       });
+
+      const sessionUserId = data.session.user?.id;
+      if (sessionUserId) {
+        for (let attempt = 0; attempt < 5; attempt += 1) {
+          const { data: adminRole } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", sessionUserId)
+            .eq("role", "admin")
+            .maybeSingle();
+
+          if (adminRole) break;
+          await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+      }
     }
 
     setLoading(false);
     toast.success("Welcome, Admin!");
-    navigate("/admin");
+    navigate("/admin", { replace: true });
   }, [fullPhone, navigate]);
 
   const handleOtpChange = (index: number, value: string) => {
