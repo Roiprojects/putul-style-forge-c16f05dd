@@ -543,7 +543,7 @@ const CartPage = () => {
                     onClick={handleProceedToPay}
                     className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
                   >
-                    Proceed to Pay — ₹{cartTotal.toLocaleString()}
+                    Proceed to Pay — ₹{finalTotal.toLocaleString()}
                   </button>
 
                   <button
