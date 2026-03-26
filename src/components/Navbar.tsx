@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShoppingBag, Heart, User, Search, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { AnimatePresence, motion } from "framer-motion";
@@ -25,6 +25,7 @@ const Navbar = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
@@ -63,6 +64,18 @@ const Navbar = () => {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // Close user menu on click outside
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showUserMenu]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -123,7 +136,7 @@ const Navbar = () => {
               </div>
             </form>
             <div className="flex items-center gap-1">
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
                   className="p-2.5 text-foreground hover:text-secondary transition-colors"
@@ -199,7 +212,7 @@ const Navbar = () => {
 
             {/* Right icons */}
             <div className="flex items-center gap-0">
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
                   className="p-2 text-foreground hover:text-secondary transition-colors"
