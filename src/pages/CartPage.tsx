@@ -312,7 +312,62 @@ const CartPage = () => {
   const finalTotal = cartTotal - couponDiscount;
 
   const handleProceedToPay = () => {
-    toast.success("Redirecting to payment...");
+    setShowRazorpay(true);
+  };
+
+  const handlePaymentSuccess = async (paymentId: string) => {
+    setShowRazorpay(false);
+    
+    // Create order in database
+    const { data: orderData, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user?.id || null,
+        customer_name: form.name,
+        customer_email: user?.email || `${form.phone}@phone.putul.app`,
+        customer_phone: form.phone,
+        shipping_address: fullAddress,
+        subtotal: cartTotal,
+        discount: couponDiscount,
+        total: finalTotal,
+        payment_method: "razorpay",
+        payment_status: "paid",
+        status: "confirmed",
+        notes: `Payment ID: ${paymentId}`,
+      })
+      .select()
+      .single();
+
+    if (orderError || !orderData) {
+      toast.error("Order failed. Please try again.");
+      return;
+    }
+
+    // Create order items
+    const orderItems = cart.map(item => ({
+      order_id: orderData.id,
+      product_id: item.product.id,
+      product_name: item.product.name,
+      size: item.size,
+      quantity: item.quantity,
+      unit_price: item.product.price,
+      total_price: item.product.price * item.quantity,
+    }));
+
+    await supabase.from("order_items").insert(orderItems);
+
+    clearCart();
+    
+    navigate("/order-confirmation", {
+      state: {
+        orderId: orderData.id,
+        paymentId,
+        amount: finalTotal,
+        items: cart.map(i => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price })),
+        address: fullAddress,
+        customerName: form.name,
+      },
+    });
   };
 
   if (cart.length === 0) {
