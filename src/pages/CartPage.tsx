@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
+import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
