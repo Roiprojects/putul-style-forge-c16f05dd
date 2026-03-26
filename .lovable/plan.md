@@ -1,104 +1,39 @@
 
 
-# Mobile OTP Authentication System
+## Plan: Fix Search, About Us, Footer, and Product Images
 
-## Overview
-Replace email/password login with mobile-number-based OTP for both customers and admins. Since Twilio connector isn't set up yet and the user will provide the OTP API later, we'll build the full system with a placeholder edge function that can be swapped to use Twilio gateway once connected.
+### Issues Identified
 
-## Database Changes
+1. **Search bar**: The mobile search works but the ShopPage category bar is `sticky top-0` which overlaps the sticky Navbar. Also, the search query from URL isn't being cleared when leaving ShopPage. The desktop search works. The main issue: when navigating to `/shop?search=...`, the ShopPage category tabs cover the top since both Navbar and category bar are `sticky top-0`.
 
-**Migration 1 — OTP requests table + admin phones whitelist:**
-```sql
-CREATE TABLE public.otp_requests (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  phone text NOT NULL,
-  otp_code text NOT NULL,
-  expires_at timestamptz NOT NULL,
-  verified boolean DEFAULT false,
-  attempts integer DEFAULT 0,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.otp_requests ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Service role only" ON public.otp_requests FOR ALL TO service_role USING (true);
+2. **About Us content**: Currently describes "men's clothing" generically. Putul Fashions actually sells **men's footwear** — crocs, sports shoes, slides & slippers, loafer sandals. Need to rewrite to reflect this accurately.
 
-CREATE TABLE public.admin_phones (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  phone text NOT NULL UNIQUE,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.admin_phones ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "Admins can manage" ON public.admin_phones FOR ALL TO authenticated
-  USING (has_role(auth.uid(), 'admin')) WITH CHECK (has_role(auth.uid(), 'admin'));
-CREATE POLICY "Service role can read" ON public.admin_phones FOR SELECT TO service_role USING (true);
-```
+3. **Footer links**: Links to `/shop`, `/about`, `/contact` exist but "Privacy Policy", "Terms of Service", and "Shipping" use `href="#"` (non-functional). Social media links also use `href="#"`.
 
-## Edge Functions
+4. **Product images**: Multiple products in `data/products.ts` share identical image URLs (e.g., products 8-14 reuse the same Brown Airmix sandal images or Grey clogs images). This is a hardcoded data issue. The DB products may have the same problem if they were seeded from this data.
 
-### `send-otp/index.ts`
-- Accepts `{ phone, is_admin? }` 
-- Rate-limits: max 3 OTPs per phone per 10 minutes (query otp_requests)
-- If `is_admin`: check phone exists in `admin_phones`, reject if not
-- Generate 6-digit OTP, store in `otp_requests` with 5-min expiry
-- **SMS sending**: placeholder `console.log` for now — will be replaced with Twilio gateway once connected
-- Returns success/error
+### Changes
 
-### `verify-otp/index.ts`
-- Accepts `{ phone, otp_code }`
-- Validates against `otp_requests` (not expired, attempts < 5, not already verified)
-- Increments attempts on failure
-- On success: marks verified, looks up profile by phone
-  - Existing user: generates session via `supabase.auth.admin.signInWithPassword` or custom token
-  - New user: creates auth user with phone as identifier + profile, then signs in
-- If admin check requested: verify user has admin role
-- Returns session data (access_token, refresh_token)
+#### 1. Fix ShopPage sticky category bar overlap
+- Change the category bar in `ShopPage.tsx` from `sticky top-0` to `sticky top-14 lg:top-16` to account for the Navbar height, so it doesn't overlap.
 
-## Frontend Changes
+#### 2. Rewrite About Us page
+- Update `AboutPage.tsx` content to accurately describe Putul Fashions as a **men's footwear brand** specializing in crocs, sports shoes, slides & slippers, and loafer sandals.
+- Replace generic "clothing" references with footwear-specific language about comfort, quality materials (EVA, Airmix, PVC), and affordable pricing.
+- Update mission statement and values to reflect footwear focus.
 
-### `AuthModal.tsx` — Complete Rewrite
-Two-step flow with Framer Motion transitions:
+#### 3. Fix Footer buttons
+- Change "Privacy Policy", "Terms of Service", "Shipping" from `<a href="#">` to `<Link to="/...">` pointing to actual routes, or keep as anchor links but make them point to the contact page or relevant sections.
+- Update social media links to open in new tabs with proper `target="_blank"` and `rel="noopener noreferrer"`.
 
-**Step 1 — Phone Input:**
-- +91 prefix (fixed for India)
-- 10-digit phone number input
-- "Send OTP" button
-- Premium minimal design matching existing brand
+#### 4. Fix duplicate product images in database
+- Run a SQL update to fix the `images` arrays for products that share duplicate image URLs. Cross-reference with the actual putul.fashion product catalog to assign correct unique images to each product.
+- For the local `data/products.ts` file, update the duplicate entries (products 8-15) with their correct unique image paths from the CDN.
 
-**Step 2 — OTP Verification:**
-- 6 auto-focus OTP input boxes (using existing `input-otp` component)
-- Auto-submit on last digit
-- 30-second countdown timer for resend
-- "Change number" link to go back
-- On success: close modal, toast welcome, redirect admin to `/admin`
-
-Remove: email/password fields, Google OAuth, forgot password link, signup form.
-
-### `AdminLogin.tsx` — Rewrite
-Same OTP flow but with admin-specific UI:
-- "Admin Access" header with shield icon
-- Phone input (server validates against whitelist)
-- OTP verification
-- Redirect to `/admin` on success
-
-### `Navbar.tsx` — Minor Updates
-- User menu shows phone number instead of email
-- Remove email-related display logic
-
-### `App.tsx` — Add Inactivity Timer
-- 30-minute idle timeout using mouse/keyboard event listeners
-- Auto sign-out and toast notification on timeout
-
-## File Summary
-
-| Action | File |
-|--------|------|
-| Create | `supabase/functions/send-otp/index.ts` |
-| Create | `supabase/functions/verify-otp/index.ts` |
-| Create | 1 database migration (otp_requests + admin_phones) |
-| Rewrite | `src/components/AuthModal.tsx` |
-| Rewrite | `src/pages/admin/AdminLogin.tsx` |
-| Update | `src/components/Navbar.tsx` |
-| Update | `src/App.tsx` |
-
-## Note on SMS Integration
-The edge functions will log the OTP to console for testing. Once you provide the Twilio API connection, we'll wire up actual SMS delivery through the connector gateway.
+### Files to Modify
+- `src/pages/ShopPage.tsx` — fix sticky positioning
+- `src/pages/AboutPage.tsx` — rewrite content for footwear brand
+- `src/components/Footer.tsx` — fix non-functional links
+- `src/data/products.ts` — fix duplicate images (if still used as fallback)
+- Database migration or SQL update for product images in `admin_products` table
 
