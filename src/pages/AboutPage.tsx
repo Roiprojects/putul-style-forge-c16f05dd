@@ -23,18 +23,18 @@ const AboutPage = () => (
           <h2 className="font-heading text-3xl md:text-4xl font-semibold mb-6">Putul Fashions</h2>
           <div className="space-y-4 text-muted-foreground leading-relaxed">
             <p>
-              Putul Fashions is a modern fashion brand focused on delivering stylish and comfortable men's clothing. We combine contemporary fashion trends with high-quality materials to create outfits that are perfect for everyday wear.
+              Putul Fashions is a men's footwear brand dedicated to delivering stylish, comfortable, and affordable shoes for every occasion. From everyday casuals to sporty essentials, we bring you footwear that keeps you moving in style.
             </p>
             <p>
-              Founded with the belief that every man deserves to look and feel confident, we curate collections that bridge the gap between luxury fashion and everyday affordability.
+              Our collection spans across Crocs, Sports Shoes, Slides & Slippers, and Loafer Sandals — crafted using premium materials like EVA, Airmix soles, and high-grade PVC for lasting comfort and durability.
             </p>
             <p>
-              From premium cotton t-shirts to statement jackets, every piece in our collection is thoughtfully designed and rigorously tested for quality, fit, and durability.
+              Founded with the belief that great footwear shouldn't break the bank, Putul Fashions offers trending designs at prices that make quality accessible to everyone across India.
             </p>
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <img src={gallery1} alt="Fashion lifestyle" className="w-full aspect-[3/4] object-cover" />
+          <img src={gallery1} alt="Putul Fashions footwear" className="w-full aspect-[3/4] object-cover" />
         </motion.div>
       </div>
 
@@ -47,16 +47,16 @@ const AboutPage = () => (
       >
         <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4">Our Mission</p>
         <h3 className="font-heading text-2xl md:text-4xl font-semibold max-w-2xl mx-auto leading-relaxed">
-          To provide stylish, comfortable, and affordable fashion for modern men.
+          To provide stylish, comfortable, and affordable footwear that empowers every man to walk with confidence.
         </h3>
       </motion.div>
 
       {/* Values */}
       <div className="mt-20 grid md:grid-cols-3 gap-8">
         {[
-          { title: "Quality First", desc: "We never compromise on materials. Every fabric is hand-selected for softness, durability, and feel." },
-          { title: "Style Forward", desc: "Our design team stays ahead of global fashion trends to bring you the latest looks every season." },
-          { title: "Customer Love", desc: "Your satisfaction drives us. From easy returns to responsive support, we're here for you." },
+          { title: "Comfort First", desc: "Every sole is engineered for all-day comfort using lightweight EVA and cushioned Airmix technology." },
+          { title: "Style Forward", desc: "From classic loafers to bold sports shoes, our designs keep pace with the latest trends across India." },
+          { title: "Value for Money", desc: "Premium quality footwear at honest prices — because looking good shouldn't cost a fortune." },
         ].map((v, i) => (
           <motion.div
             key={v.title}

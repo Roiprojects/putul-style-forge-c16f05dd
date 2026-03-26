@@ -13,13 +13,13 @@ const Footer = () => (
             Premium men's footwear for the modern man. Step into style, walk with confidence.
           </p>
           <div className="flex gap-3">
-            <a href="#" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Instagram">
+            <a href="https://www.instagram.com/putul.fashion/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Instagram">
               <Instagram size={15} strokeWidth={1.3} />
             </a>
-            <a href="#" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Facebook">
+            <a href="https://www.facebook.com/putulfashion" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Facebook">
               <Facebook size={15} strokeWidth={1.3} />
             </a>
-            <a href="#" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Twitter">
+            <a href="https://twitter.com/putulfashion" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Twitter">
               <Twitter size={15} strokeWidth={1.3} />
             </a>
           </div>
@@ -72,11 +72,15 @@ const Footer = () => (
           © 2026 Putul Fashions. All rights reserved.
         </p>
         <div className="flex gap-4">
-          {["Privacy Policy", "Terms of Service", "Shipping"].map((t) => (
-            <a key={t} href="#" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
-              {t}
-            </a>
-          ))}
+          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+            Privacy Policy
+          </Link>
+          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+            Terms of Service
+          </Link>
+          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+            Shipping
+          </Link>
         </div>
       </div>
     </div>
