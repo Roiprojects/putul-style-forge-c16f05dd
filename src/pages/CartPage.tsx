@@ -420,6 +420,7 @@ const CartPage = () => {
                               </button>
                             ))}
                           </div>
+                        )}
                       </div>
 
                       <div className="mt-3">
