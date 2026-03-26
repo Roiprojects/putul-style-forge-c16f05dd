@@ -42,7 +42,7 @@ import AdminCoupons from "@/pages/admin/AdminCoupons";
 import AdminShipping from "@/pages/admin/AdminShipping";
 import AdminPayments from "@/pages/admin/AdminPayments";
 import AdminHomepage from "@/pages/admin/AdminHomepage";
-import AdminMedia from "@/pages/admin/AdminMedia";
+
 import AdminCMS from "@/pages/admin/AdminCMS";
 import AdminReviews from "@/pages/admin/AdminReviews";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
