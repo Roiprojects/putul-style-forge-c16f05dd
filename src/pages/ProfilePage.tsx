@@ -320,7 +320,7 @@ const ProfilePage = () => {
                 ) : (
                   <div className="space-y-3">
                     {orders.map((order) => (
-                      <div key={order.id} className="border border-border rounded-xl p-4 md:p-5 flex items-center justify-between hover:bg-accent/30 transition-colors">
+                      <Link key={order.id} to={`/orders/${order.id}`} className="border border-border rounded-xl p-4 md:p-5 flex items-center justify-between hover:bg-accent/30 transition-colors block">
                         <div className="flex items-center gap-3">
                           {statusIcon(order.status)}
                           <div>
