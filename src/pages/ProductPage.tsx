@@ -189,11 +189,28 @@ const ProductPage = () => {
             </div>
 
             <div className="flex gap-3 mb-8">
-              <button onClick={handleAddToCart} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5">
-                <ShoppingBag size={16} />
-                Add to Cart
-              </button>
-              <button
+              {cartQty > 0 ? (
+                <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden">
+                  <button
+                    onClick={() => updateQuantity(product.id, selectedSize, cartQty - 1)}
+                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="px-6 text-sm font-semibold tabular-nums">{cartQty}</span>
+                  <button
+                    onClick={() => updateQuantity(product.id, selectedSize, cartQty + 1)}
+                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={handleAddToCart} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5">
+                  <ShoppingBag size={16} />
+                  Add to Cart
+                </button>
+              )}
                 onClick={() => { toggleWishlist(product.id); toast.success(wishlisted ? "Removed" : "Added to wishlist"); }}
                 className={`px-4 border rounded transition-all ${
                   wishlisted ? "border-secondary text-secondary" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
