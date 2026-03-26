@@ -22,6 +22,7 @@ import ContactPage from "./pages/ContactPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdersPage from "./pages/OrdersPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
