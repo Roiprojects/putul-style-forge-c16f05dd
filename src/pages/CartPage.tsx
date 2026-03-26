@@ -182,6 +182,65 @@ const CartPage = () => {
     setStep("pay");
   };
 
+  // Coupon logic
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("code", couponCode.trim().toUpperCase())
+      .eq("is_active", true)
+      .single();
+
+    setCouponLoading(false);
+    if (error || !data) {
+      setCouponError("Invalid or expired coupon code");
+      return;
+    }
+    if (data.expiry_date && new Date(data.expiry_date) < new Date()) {
+      setCouponError("This coupon has expired");
+      return;
+    }
+    if (data.usage_limit && data.used_count >= data.usage_limit) {
+      setCouponError("Coupon usage limit reached");
+      return;
+    }
+    if (data.min_order && cartTotal < data.min_order) {
+      setCouponError(`Minimum order ₹${data.min_order} required`);
+      return;
+    }
+    setAppliedCoupon({
+      code: data.code,
+      discount_type: data.discount_type,
+      discount_value: data.discount_value,
+      max_discount: data.max_discount,
+      min_order: data.min_order,
+    });
+    setCouponCode("");
+    toast.success(`Coupon "${data.code}" applied!`);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError("");
+  };
+
+  const couponDiscount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    let disc = 0;
+    if (appliedCoupon.discount_type === "percentage") {
+      disc = (cartTotal * appliedCoupon.discount_value) / 100;
+      if (appliedCoupon.max_discount) disc = Math.min(disc, appliedCoupon.max_discount);
+    } else {
+      disc = appliedCoupon.discount_value;
+    }
+    return Math.min(disc, cartTotal);
+  }, [appliedCoupon, cartTotal]);
+
+  const finalTotal = cartTotal - couponDiscount;
+
   const handleProceedToPay = () => {
     toast.success("Redirecting to payment...");
   };
