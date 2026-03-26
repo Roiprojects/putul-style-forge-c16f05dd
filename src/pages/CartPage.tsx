@@ -49,6 +49,7 @@ type AddressForm = {
   phone: string;
   houseNo: string;
   street: string;
+  area: string;
   landmark: string;
   city: string;
   state: string;
