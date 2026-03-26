@@ -60,7 +60,7 @@ const Footer = () => (
           <h4 className="text-[11px] tracking-wide uppercase font-semibold text-background/70 mb-4">Contact</h4>
           <div className="space-y-2.5 text-xs text-background/35">
             <p>support@putulfashions.com</p>
-            <p>+91 98765 43210</p>
+            <p>+91 80006 85588</p>
             <p>India</p>
           </div>
         </div>
