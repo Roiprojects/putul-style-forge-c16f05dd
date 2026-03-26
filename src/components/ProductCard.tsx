@@ -61,8 +61,8 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => { setIsHovered(false); setPhase("idle"); setAddedSize(null); }}
       >
-        {/* Image container — sharp edges per brand */}
-        <div className="relative overflow-hidden aspect-[3/4] bg-accent">
+        {/* Image container */}
+        <div className="relative overflow-hidden aspect-[3/4] bg-accent rounded-2xl">
           {/* Primary image */}
           <img
             src={product.image}
