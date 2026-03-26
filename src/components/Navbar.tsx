@@ -108,11 +108,18 @@ const Navbar = () => {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true); }}
+                  onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                   placeholder="Search for products, brands and more"
                   className="w-full h-9 pl-10 pr-4 text-[12px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                 />
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <AnimatePresence>
+                  {showSearchDropdown && searchQuery.trim() && (
+                    <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); }} />
+                  )}
+                </AnimatePresence>
               </div>
             </form>
             <div className="flex items-center gap-1">
