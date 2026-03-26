@@ -92,7 +92,7 @@ const ProductPage = () => {
               >
                 {product.images.map((img, i) => (
                   <div key={i} className="relative h-full" style={{ width: `${100 / product.images.length}%` }}>
-                    <img src={img} alt={product.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={img} alt={product.name} className="w-full h-full object-contain" loading="lazy" />
                   </div>
                 ))}
               </motion.div>
