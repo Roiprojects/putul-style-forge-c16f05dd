@@ -11,7 +11,7 @@ const ProductPage = () => {
   const { id } = useParams();
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
-  const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -55,6 +55,8 @@ const ProductPage = () => {
 
   const wishlisted = isInWishlist(product.id);
   const related = allProducts.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 6);
+  const cartItem = cart.find(i => i.product.id === product.id && i.size === selectedSize);
+  const cartQty = cartItem?.quantity || 0;
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
@@ -187,10 +189,28 @@ const ProductPage = () => {
             </div>
 
             <div className="flex gap-3 mb-8">
-              <button onClick={handleAddToCart} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5">
-                <ShoppingBag size={16} />
-                Add to Cart
-              </button>
+              {cartQty > 0 ? (
+                <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden">
+                  <button
+                    onClick={() => updateQuantity(product.id, selectedSize, cartQty - 1)}
+                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                  >
+                    <Minus size={16} />
+                  </button>
+                  <span className="px-6 text-sm font-semibold tabular-nums">{cartQty}</span>
+                  <button
+                    onClick={() => updateQuantity(product.id, selectedSize, cartQty + 1)}
+                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={handleAddToCart} className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5">
+                  <ShoppingBag size={16} />
+                  Add to Cart
+                </button>
+              )}
               <button
                 onClick={() => { toggleWishlist(product.id); toast.success(wishlisted ? "Removed" : "Added to wishlist"); }}
                 className={`px-4 border rounded transition-all ${
