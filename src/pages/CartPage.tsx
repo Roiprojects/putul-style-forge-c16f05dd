@@ -377,33 +377,33 @@ const CartPage = () => {
                   transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                   className="relative"
                 >
+                  {/* Saved Addresses Dropdown - outside the box */}
+                  {savedAddresses.length > 0 && (
+                    <div className="mb-4">
+                      <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Saved Addresses</label>
+                      <select
+                        defaultValue=""
+                        onChange={(e) => {
+                          const addr = savedAddresses.find(a => a.id === e.target.value);
+                          if (addr) selectSavedAddress(addr);
+                        }}
+                        className="w-full border border-border rounded-lg px-3 py-2.5 text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                      >
+                        <option value="" disabled>Select a saved address</option>
+                        {savedAddresses.map((addr) => (
+                          <option key={addr.id} value={addr.id}>
+                            {addr.name} — {addr.house_no}, {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <div className="border border-border p-6 md:p-8 space-y-5">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">1</div>
                       <p className="text-sm font-semibold uppercase tracking-wider">Your Information</p>
                     </div>
-
-                    {/* Saved Addresses Dropdown */}
-                    {savedAddresses.length > 0 && (
-                      <div className="mb-4">
-                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Saved Addresses</label>
-                        <select
-                          defaultValue=""
-                          onChange={(e) => {
-                            const addr = savedAddresses.find(a => a.id === e.target.value);
-                            if (addr) selectSavedAddress(addr);
-                          }}
-                          className="w-full border border-border rounded-lg px-3 py-2.5 text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                        >
-                          <option value="" disabled>Select a saved address</option>
-                          {savedAddresses.map((addr) => (
-                            <option key={addr.id} value={addr.id}>
-                              {addr.name} — {addr.house_no}, {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    )}
 
                     <div>
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Full Name</label>
