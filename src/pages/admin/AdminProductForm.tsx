@@ -300,22 +300,38 @@ const AdminProductForm = () => {
 
         {/* Images */}
         <div className="bg-background rounded-xl border border-border p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-foreground">Images</h2>
-          <div className="flex gap-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">Images</h2>
+            {form.images.length > 1 && (
+              <button
+                type="button"
+                onClick={removeAllImages}
+                className="text-xs text-destructive hover:underline"
+              >
+                Remove All
+              </button>
+            )}
+          </div>
+          <div>
             <input
-              type="url"
-              placeholder="Paste image URL..."
-              value={imageInput}
-              onChange={(e) => setImageInput(e.target.value)}
-              className="flex-1 border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
             />
             <button
               type="button"
-              onClick={addImage}
-              className="px-4 py-2 text-xs font-medium border border-border rounded-lg hover:bg-accent transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImages}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed border-border rounded-lg hover:border-foreground/30 hover:bg-accent/50 transition-colors w-full justify-center text-muted-foreground"
             >
-              <Plus size={14} />
+              {uploadingImages ? (
+                <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+              ) : (
+                <><Upload size={16} /> Click to upload images</>
+              )}
             </button>
           </div>
           {form.images.length > 0 && (
