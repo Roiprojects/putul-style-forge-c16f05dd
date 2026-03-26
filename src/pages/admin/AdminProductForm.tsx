@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Loader2, Plus, X } from "lucide-react";
+import { ArrowLeft, Loader2, Upload, X } from "lucide-react";
 
 interface ProductForm {
   name: string;
@@ -48,8 +48,9 @@ const AdminProductForm = () => {
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [categories, setCategories] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
-  const [imageInput, setImageInput] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [colorInput, setColorInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase
@@ -133,11 +134,28 @@ const AdminProductForm = () => {
     setSaving(false);
   };
 
-  const addImage = () => {
-    if (imageInput.trim()) {
-      setForm({ ...form, images: [...form.images, imageInput.trim()] });
-      setImageInput("");
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploadingImages(true);
+    const newUrls: string[] = [];
+    for (const file of Array.from(files)) {
+      const filePath = `product-images/${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from("media").upload(filePath, file);
+      if (error) { toast.error(`Failed to upload ${file.name}`); continue; }
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+      newUrls.push(urlData.publicUrl);
     }
+    if (newUrls.length) {
+      setForm(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
+      toast.success(`${newUrls.length} image(s) uploaded`);
+    }
+    setUploadingImages(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeAllImages = () => {
+    setForm({ ...form, images: [] });
   };
 
   const addColor = () => {
@@ -282,22 +300,38 @@ const AdminProductForm = () => {
 
         {/* Images */}
         <div className="bg-background rounded-xl border border-border p-6 space-y-4">
-          <h2 className="text-sm font-semibold text-foreground">Images</h2>
-          <div className="flex gap-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-foreground">Images</h2>
+            {form.images.length > 1 && (
+              <button
+                type="button"
+                onClick={removeAllImages}
+                className="text-xs text-destructive hover:underline"
+              >
+                Remove All
+              </button>
+            )}
+          </div>
+          <div>
             <input
-              type="url"
-              placeholder="Paste image URL..."
-              value={imageInput}
-              onChange={(e) => setImageInput(e.target.value)}
-              className="flex-1 border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-              onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addImage())}
+              ref={fileInputRef}
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageUpload}
             />
             <button
               type="button"
-              onClick={addImage}
-              className="px-4 py-2 text-xs font-medium border border-border rounded-lg hover:bg-accent transition-colors"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingImages}
+              className="flex items-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed border-border rounded-lg hover:border-foreground/30 hover:bg-accent/50 transition-colors w-full justify-center text-muted-foreground"
             >
-              <Plus size={14} />
+              {uploadingImages ? (
+                <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+              ) : (
+                <><Upload size={16} /> Click to upload images</>
+              )}
             </button>
           </div>
           {form.images.length > 0 && (
