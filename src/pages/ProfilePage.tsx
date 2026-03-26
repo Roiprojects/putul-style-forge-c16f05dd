@@ -337,7 +337,7 @@ const ProfilePage = () => {
                         <div className="text-right">
                           <p className="text-sm font-bold tabular-nums">₹{order.total.toLocaleString("en-IN")}</p>
                         </div>
-                      </div>
+                      </Link>
                     ))}
                   </div>
                 )}
