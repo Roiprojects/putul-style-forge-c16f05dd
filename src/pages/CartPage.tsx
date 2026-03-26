@@ -86,6 +86,19 @@ const CartPage = () => {
     min_order: number | null;
   } | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+
+  // Fetch available coupons
+  useEffect(() => {
+    supabase
+      .from("coupons")
+      .select("*")
+      .eq("is_active", true)
+      .order("min_order", { ascending: true })
+      .then(({ data }) => {
+        if (data) setAvailableCoupons(data.filter(c => !c.expiry_date || new Date(c.expiry_date) > new Date()));
+      });
+  }, []);
 
   // Listen for auth state
   useEffect(() => {
