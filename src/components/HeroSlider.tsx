@@ -81,21 +81,26 @@ const HeroSlider = () => {
         <motion.div
           key={current}
           custom={direction}
-          initial={(dir: number) => ({
-            x: dir > 0 ? "100%" : "-100%",
-            opacity: 0,
-            scale: 1.05,
-          })}
-          animate={{
-            x: 0,
-            opacity: 1,
-            scale: 1,
+          variants={{
+            enter: (dir: number) => ({
+              x: dir > 0 ? "100%" : "-100%",
+              opacity: 0,
+              scale: 1.05,
+            }),
+            center: {
+              x: 0,
+              opacity: 1,
+              scale: 1,
+            },
+            exit: (dir: number) => ({
+              x: dir > 0 ? "-30%" : "30%",
+              opacity: 0,
+              scale: 0.95,
+            }),
           }}
-          exit={(dir: number) => ({
-            x: dir > 0 ? "-30%" : "30%",
-            opacity: 0,
-            scale: 0.95,
-          })}
+          initial="enter"
+          animate="center"
+          exit="exit"
           transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
           className="absolute inset-0 z-[1]"
         >
