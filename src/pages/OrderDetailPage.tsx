@@ -2,8 +2,10 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, Package, MapPin, CreditCard, Clock, CheckCircle, Truck, 
-  FileText, Download, Phone, Mail, ShoppingBag, Star, ChevronRight
+  FileText, Download, Phone, Mail, ShoppingBag, Star, ChevronRight, MessageCircle, RotateCcw
 } from "lucide-react";
+import ReturnRequestModal from "@/components/ReturnRequestModal";
+import HelpChatbox from "@/components/HelpChatbox";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
