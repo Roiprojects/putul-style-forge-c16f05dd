@@ -68,6 +68,17 @@ const CartPage = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount_type: string;
+    discount_value: number;
+    max_discount: number | null;
+    min_order: number | null;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
 
   // Listen for auth state
   useEffect(() => {
