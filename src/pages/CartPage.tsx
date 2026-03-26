@@ -137,6 +137,8 @@ const CartPage = () => {
       state: addr.state,
       pincode: addr.pincode,
     });
+    setUsedSavedAddress(true);
+    setSelectedSavedAddressId(addr.id);
     toast.success("Address filled!");
   };
 
