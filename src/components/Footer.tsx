@@ -69,21 +69,31 @@ const Footer = () => (
       </div>
 
       {/* Bottom */}
-      <div className="border-t border-background/10 py-5 flex flex-col md:flex-row items-center justify-between gap-2">
-        <p className="text-[10px] text-background/25 tracking-wide">
-          © 2026 Putul Fashions. All rights reserved.
-        </p>
-        <div className="flex gap-4">
-          <Link to="/privacy-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
-            Privacy Policy
-          </Link>
-          <Link to="/terms-of-service" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
-            Terms of Service
-          </Link>
-          <Link to="/shipping-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
-            Shipping Policy
-          </Link>
+      <div className="border-t border-background/10 py-5 flex flex-col items-center gap-2">
+        <div className="w-full flex flex-col md:flex-row items-center justify-between gap-2">
+          <p className="text-[10px] text-background/25 tracking-wide">
+            © 2026 Putul Fashions. All rights reserved.
+          </p>
+          <div className="flex gap-4">
+            <Link to="/privacy-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+              Privacy Policy
+            </Link>
+            <Link to="/terms-of-service" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+              Terms of Service
+            </Link>
+            <Link to="/shipping-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+              Shipping Policy
+            </Link>
+          </div>
         </div>
+        <a
+          href="https://wa.me/919945379333"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] text-background/25 hover:text-secondary transition-colors text-center"
+        >
+          Developed by ROI Infotech
+        </a>
       </div>
     </div>
   </footer>
