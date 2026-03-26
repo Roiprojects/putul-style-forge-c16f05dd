@@ -20,6 +20,22 @@ const AdminCategories = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<CategoryForm>(empty);
   const [saving, setSaving] = useState(false);
+  const [uploadingCatImage, setUploadingCatImage] = useState(false);
+  const catFileRef = useRef<HTMLInputElement>(null);
+
+  const handleCatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCatImage(true);
+    const filePath = `categories/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("media").upload(filePath, file);
+    if (error) { toast.error("Upload failed"); setUploadingCatImage(false); return; }
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+    setForm(prev => ({ ...prev, image_url: urlData.publicUrl }));
+    toast.success("Image uploaded");
+    setUploadingCatImage(false);
+    if (catFileRef.current) catFileRef.current.value = "";
+  };
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
