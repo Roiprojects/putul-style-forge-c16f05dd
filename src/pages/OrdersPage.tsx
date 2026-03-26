@@ -96,7 +96,7 @@ const OrdersPage = () => {
               <p className="text-sm font-semibold text-foreground">₹{order.total.toLocaleString("en-IN")}</p>
               <ChevronRight size={16} className="text-muted-foreground" />
             </div>
-          </div>
+          </Link>
         ))}
       </div>
     </div>
