@@ -43,7 +43,15 @@ const ShopPage = () => {
     let items = [...products];
     if (searchQuery) {
       const q = searchQuery.toLowerCase();
-      items = items.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+      const matchingCategorySlugs = categories
+        .filter(c => c.name.toLowerCase().includes(q) || c.slug.toLowerCase().includes(q))
+        .map(c => c.slug);
+      items = items.filter(p =>
+        p.name.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.category.toLowerCase().includes(q) ||
+        matchingCategorySlugs.includes(p.category)
+      );
     }
     if (selectedCategory !== "all") items = items.filter((p) => p.category === selectedCategory);
     if (selectedSize) items = items.filter((p) => p.sizes.includes(selectedSize));
