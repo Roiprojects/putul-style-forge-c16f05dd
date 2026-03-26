@@ -21,6 +21,7 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdersPage from "./pages/OrdersPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import NotFound from "./pages/NotFound";
 
 // Admin
