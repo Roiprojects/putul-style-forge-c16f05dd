@@ -1,6 +1,21 @@
 import { motion } from "framer-motion";
 import gallery6 from "@/assets/gallery-6.jpg";
-import gallery1 from "@/assets/gallery-1.jpg";
+import aboutLifestyle1 from "@/assets/about-lifestyle-1.jpg";
+import aboutLifestyle2 from "@/assets/about-lifestyle-2.jpg";
+
+const floatUp = {
+  animate: {
+    y: [0, -12, 0],
+    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const },
+  },
+};
+
+const floatDown = {
+  animate: {
+    y: [0, 12, 0],
+    transition: { duration: 5, repeat: Infinity, ease: "easeInOut" as const },
+  },
+};
 
 const AboutPage = () => (
   <div className="pt-20 md:pt-24 min-h-screen">
@@ -33,8 +48,50 @@ const AboutPage = () => (
             </p>
           </div>
         </motion.div>
-        <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-          <img src={gallery1} alt="Putul Fashions footwear" className="w-full aspect-[3/4] object-cover" />
+
+        {/* Two floating images with curved edges and glow */}
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true }}
+          className="relative h-[500px] md:h-[550px]"
+        >
+          {/* Image 1 - floats up */}
+          <motion.div
+            {...floatUp}
+            className="absolute top-0 left-0 w-[65%] z-10"
+          >
+            <div className="rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(var(--secondary-rgb,217,119,6),0.25)] ring-2 ring-secondary/30">
+              <img
+                src={aboutLifestyle1}
+                alt="Man wearing premium EVA clogs"
+                className="w-full aspect-[3/4] object-cover"
+                loading="lazy"
+                width={800}
+                height={1024}
+              />
+            </div>
+          </motion.div>
+
+          {/* Image 2 - floats down */}
+          <motion.div
+            {...floatDown}
+            className="absolute bottom-0 right-0 w-[60%] z-20"
+          >
+            <div className="rounded-3xl overflow-hidden shadow-[0_0_30px_rgba(var(--secondary-rgb,217,119,6),0.25)] ring-2 ring-secondary/30">
+              <img
+                src={aboutLifestyle2}
+                alt="Man wearing white sports shoes"
+                className="w-full aspect-[3/4] object-cover"
+                loading="lazy"
+                width={800}
+                height={1024}
+              />
+            </div>
+          </motion.div>
+
+          {/* Decorative glow behind */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-secondary/10 rounded-full blur-3xl -z-0" />
         </motion.div>
       </div>
 
@@ -43,7 +100,7 @@ const AboutPage = () => (
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="mt-20 bg-primary text-primary-foreground p-12 md:p-20 text-center"
+        className="mt-20 bg-primary text-primary-foreground p-12 md:p-20 text-center rounded-3xl"
       >
         <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-4">Our Mission</p>
         <h3 className="font-heading text-2xl md:text-4xl font-semibold max-w-2xl mx-auto leading-relaxed">
@@ -64,7 +121,7 @@ const AboutPage = () => (
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.1 }}
-            className="text-center p-8 border border-border"
+            className="text-center p-8 border border-border rounded-2xl hover:shadow-[0_0_20px_rgba(var(--secondary-rgb,217,119,6),0.15)] transition-shadow duration-300"
           >
             <h4 className="font-heading text-xl font-semibold mb-3">{v.title}</h4>
             <p className="text-sm text-muted-foreground">{v.desc}</p>
