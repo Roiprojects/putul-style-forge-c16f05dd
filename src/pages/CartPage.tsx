@@ -49,6 +49,7 @@ type AddressForm = {
   phone: string;
   houseNo: string;
   street: string;
+  area: string;
   landmark: string;
   city: string;
   state: string;
@@ -59,7 +60,7 @@ const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
   const [step, setStep] = useState<CheckoutStep>("cart");
   const [form, setForm] = useState<AddressForm>({
-    name: "", phone: "", houseNo: "", street: "", landmark: "", city: "", state: "", pincode: "",
+    name: "", phone: "", houseNo: "", street: "", area: "", landmark: "", city: "", state: "", pincode: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSavePopup, setShowSavePopup] = useState(false);
@@ -67,7 +68,7 @@ const CartPage = () => {
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
-  const { results: areaSuggestions, loading: areaLoading } = useAreaSearch(form.street);
+  const { results: areaSuggestions, loading: areaLoading } = useAreaSearch(form.area);
   const { results: pincodeResults } = usePincodeSearch(form.pincode);
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -94,7 +95,7 @@ const CartPage = () => {
   }, []);
 
   const fullAddress = useMemo(() => {
-    const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
+    const parts = [form.houseNo, form.street, form.area, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
     return parts.join(", ");
   }, [form]);
 
@@ -374,47 +375,52 @@ const CartPage = () => {
                           <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
                           {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
                         </div>
-                        <div className="col-span-1 relative">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Area</label>
-                          <Input
-                            value={form.street}
-                            onChange={(e) => { updateField("street", e.target.value); setShowAreaSuggestions(true); }}
-                            onFocus={() => form.street.length >= 1 && setShowAreaSuggestions(true)}
-                            onBlur={() => setTimeout(() => setShowAreaSuggestions(false), 200)}
-                            placeholder="Type area name..."
-                            className="border-border"
-                            maxLength={100}
-                          />
+                        <div className="col-span-1">
+                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
+                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
                           {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
-                          {showAreaSuggestions && (areaSuggestions.length > 0 || areaLoading) && (
-                            <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-xl max-h-48 overflow-auto">
-                              {areaLoading && (
-                                <div className="px-3 py-2 text-[11px] text-muted-foreground flex items-center gap-2">
-                                  <span className="w-3 h-3 border border-foreground border-t-transparent rounded-full animate-spin" />
-                                  Searching...
-                                </div>
-                              )}
-                              {areaSuggestions.map((po, i) => (
-                                <button
-                                  key={`${po.Name}-${po.Pincode}-${i}`}
-                                  type="button"
-                                  onMouseDown={(e) => {
-                                    e.preventDefault();
-                                    updateField("street", po.Name);
-                                    updateField("city", po.District);
-                                    updateField("state", po.State);
-                                    updateField("pincode", po.Pincode);
-                                    setShowAreaSuggestions(false);
-                                  }}
-                                  className="w-full text-left px-3 py-2.5 hover:bg-accent transition-colors border-b border-border/50 last:border-0"
-                                >
-                                  <p className="text-xs font-medium text-foreground">{po.Name}</p>
-                                  <p className="text-[10px] text-muted-foreground">{po.District}, {po.State} — {po.Pincode}</p>
-                                </button>
-                              ))}
-                            </div>
-                          )}
                         </div>
+                      </div>
+
+                      <div className="mt-3 relative">
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Area / Locality</label>
+                        <Input
+                          value={form.area}
+                          onChange={(e) => { updateField("area", e.target.value); setShowAreaSuggestions(true); }}
+                          onFocus={() => form.area.length >= 1 && setShowAreaSuggestions(true)}
+                          onBlur={() => setTimeout(() => setShowAreaSuggestions(false), 200)}
+                          placeholder="Type area name e.g. Yelahanka, Malleswaram..."
+                          className="border-border"
+                          maxLength={100}
+                        />
+                        {showAreaSuggestions && (areaSuggestions.length > 0 || areaLoading) && (
+                          <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-xl max-h-48 overflow-auto">
+                            {areaLoading && (
+                              <div className="px-3 py-2 text-[11px] text-muted-foreground flex items-center gap-2">
+                                <span className="w-3 h-3 border border-foreground border-t-transparent rounded-full animate-spin" />
+                                Searching...
+                              </div>
+                            )}
+                            {areaSuggestions.map((po, i) => (
+                              <button
+                                key={`${po.Name}-${po.Pincode}-${i}`}
+                                type="button"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  updateField("area", po.Name);
+                                  updateField("city", po.District);
+                                  updateField("state", po.State);
+                                  updateField("pincode", po.Pincode);
+                                  setShowAreaSuggestions(false);
+                                }}
+                                className="w-full text-left px-3 py-2.5 hover:bg-accent transition-colors border-b border-border/50 last:border-0"
+                              >
+                                <p className="text-xs font-medium text-foreground">{po.Name}</p>
+                                <p className="text-[10px] text-muted-foreground">{po.District}, {po.State} — {po.Pincode}</p>
+                              </button>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
                       <div className="mt-3">
