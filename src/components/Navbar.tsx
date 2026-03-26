@@ -65,7 +65,18 @@ const Navbar = () => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const handleLogout = async () => {
+  // Close user menu on click outside
+  useEffect(() => {
+    if (!showUserMenu) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showUserMenu]);
+
     await supabase.auth.signOut();
     setShowUserMenu(false);
     setMobileOpen(false);
