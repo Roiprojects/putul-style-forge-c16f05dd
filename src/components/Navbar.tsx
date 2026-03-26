@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ShoppingBag, Heart, User, Search, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { AnimatePresence, motion } from "framer-motion";
