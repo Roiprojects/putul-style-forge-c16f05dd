@@ -1,5 +1,21 @@
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+
 const MarqueeBanner = () => {
-  const text = "Premium Footwear For The Modern Man";
+  const [text, setText] = useState("Premium Footwear For The Modern Man");
+
+  useEffect(() => {
+    supabase
+      .from("homepage_sections")
+      .select("title")
+      .eq("section_type", "marquee")
+      .eq("is_enabled", true)
+      .order("sort_order")
+      .limit(1)
+      .then(({ data }) => {
+        if (data?.[0]?.title) setText(data[0].title);
+      });
+  }, []);
 
   return (
     <div className="bg-foreground py-3 md:py-4 overflow-hidden">
