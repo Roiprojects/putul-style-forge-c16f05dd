@@ -30,7 +30,7 @@ const HeroSlider = () => {
   };
 
   return (
-    <section className="relative w-full aspect-[16/7] md:aspect-[16/6] overflow-hidden bg-muted">
+    <section className="relative w-full aspect-[16/7] md:aspect-[16/6] overflow-hidden bg-foreground">
       <AnimatePresence custom={direction} mode="wait">
         <motion.div
           key={current}
