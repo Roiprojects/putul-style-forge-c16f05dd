@@ -75,7 +75,7 @@ const ShopPage = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Category tabs */}
-      <div className="border-b border-border bg-background sticky top-0 z-30">
+      <div className="border-b border-border bg-background sticky top-14 lg:top-16 z-30">
         <div className="container mx-auto px-4 md:px-8">
           <div className="flex items-center gap-1 overflow-x-auto py-3 scrollbar-none">
             <button
