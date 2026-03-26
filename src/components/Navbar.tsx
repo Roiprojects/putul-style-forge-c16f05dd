@@ -136,7 +136,7 @@ const Navbar = () => {
               </div>
             </form>
             <div className="flex items-center gap-1">
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
                   className="p-2.5 text-foreground hover:text-secondary transition-colors"
