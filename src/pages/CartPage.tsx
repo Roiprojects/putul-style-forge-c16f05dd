@@ -721,7 +721,7 @@ const CartPage = () => {
                     onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
                   />
                   <button
-                    onClick={applyCoupon}
+                    onClick={() => applyCoupon()}
                     disabled={couponLoading || !couponCode.trim()}
                     className="px-4 h-9 bg-foreground text-background text-xs font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
