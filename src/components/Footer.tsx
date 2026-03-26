@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter } from "lucide-react";
-import putulLogo from "@/assets/putul-logo.png";
+import putulFooterLogo from "@/assets/putul-footer-logo.png";
 
 const Footer = () => (
   <footer className="bg-foreground text-background pb-16 md:pb-0">
