@@ -78,7 +78,7 @@ const AdminHomepage = () => {
       section_type: form.section_type,
       title: form.title || null,
       subtitle: form.subtitle || null,
-      image_urls: form.image_urls.split(",").map(u => u.trim()).filter(Boolean),
+      image_urls: form.image_urls,
       is_enabled: form.is_enabled,
       sort_order: editSection ? editSection.sort_order : sections.length,
     };
