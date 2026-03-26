@@ -38,9 +38,11 @@ const AdminHomepage = () => {
     section_type: "hero_banner",
     title: "",
     subtitle: "",
-    image_urls: "",
+    image_urls: [] as string[],
     is_enabled: true,
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const homepageFileRef = useRef<HTMLInputElement>(null);
 
   const fetchSections = async () => {
     const { data, error } = await supabase
