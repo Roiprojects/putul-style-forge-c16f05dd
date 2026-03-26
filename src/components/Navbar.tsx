@@ -25,6 +25,7 @@ const Navbar = () => {
   const [authOpen, setAuthOpen] = useState(false);
   const [user, setUser] = useState<SupaUser | null>(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
