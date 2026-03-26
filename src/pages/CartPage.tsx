@@ -66,6 +66,8 @@ const CartPage = () => {
   const [addressSaved, setAddressSaved] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
+  const { results: areaSuggestions, loading: areaLoading } = useAreaSearch(form.street);
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
