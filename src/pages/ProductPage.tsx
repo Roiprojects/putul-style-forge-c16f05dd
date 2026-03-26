@@ -84,18 +84,16 @@ const ProductPage = () => {
         <div className="grid md:grid-cols-2 gap-6 md:gap-10">
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
             <div className="relative overflow-hidden rounded-lg bg-accent aspect-square mb-3">
-              <motion.div
-                className="absolute inset-0 flex"
-                animate={{ x: `-${selectedImage * 100}%` }}
-                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                style={{ width: `${product.images.length * 100}%` }}
+              <div
+                className="flex h-full transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]"
+                style={{ transform: `translateX(-${selectedImage * 100}%)` }}
               >
                 {product.images.map((img, i) => (
-                  <div key={i} className="relative h-full" style={{ width: `${100 / product.images.length}%` }}>
-                    <img src={img} alt={product.name} className="w-full h-full object-contain" loading="lazy" />
+                  <div key={i} className="min-w-full h-full flex items-center justify-center bg-accent">
+                    <img src={img} alt={product.name} className="max-w-full max-h-full object-contain" loading="lazy" />
                   </div>
                 ))}
-              </motion.div>
+              </div>
               {product.badge && (
                 <span className="absolute top-4 left-4 bg-secondary text-secondary-foreground text-[11px] font-semibold px-3 py-1 rounded z-10">
                   {product.badge}
