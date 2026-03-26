@@ -48,8 +48,9 @@ const AdminProductForm = () => {
   const [form, setForm] = useState<ProductForm>(emptyForm);
   const [categories, setCategories] = useState<any[]>([]);
   const [saving, setSaving] = useState(false);
-  const [imageInput, setImageInput] = useState("");
+  const [uploadingImages, setUploadingImages] = useState(false);
   const [colorInput, setColorInput] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     supabase
