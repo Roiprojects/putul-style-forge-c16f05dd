@@ -182,6 +182,7 @@ const CartPage = () => {
   const updateField = (field: keyof AddressForm, value: string) => {
     setForm(prev => ({ ...prev, [field]: value }));
     setErrors(prev => ({ ...prev, [field]: "" }));
+    setUsedSavedAddress(false);
   };
 
   const validate = () => {
