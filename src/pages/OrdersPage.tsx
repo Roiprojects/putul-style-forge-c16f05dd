@@ -80,7 +80,7 @@ const OrdersPage = () => {
       <h1 className="text-2xl font-heading font-semibold text-foreground mb-6">My Orders</h1>
       <div className="space-y-3">
         {orders.map((order) => (
-          <div key={order.id} className="border border-border rounded-lg p-4 flex items-center justify-between hover:bg-accent/30 transition-colors">
+          <Link key={order.id} to={`/orders/${order.id}`} className="border border-border rounded-lg p-4 flex items-center justify-between hover:bg-accent/30 transition-colors block">
             <div>
               <p className="text-sm font-medium text-foreground">
                 {order.invoice_number || `#${order.id.slice(0, 8)}`}
