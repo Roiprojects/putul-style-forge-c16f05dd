@@ -890,6 +890,15 @@ const CartPage = () => {
         </div>
       </div>
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      {showRazorpay && (
+        <FakeRazorpay
+          amount={finalTotal}
+          customerName={form.name}
+          customerPhone={form.phone}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowRazorpay(false)}
+        />
+      )}
     </div>
   );
 };
