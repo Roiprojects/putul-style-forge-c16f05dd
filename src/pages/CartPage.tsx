@@ -684,10 +684,7 @@ const CartPage = () => {
                           </div>
                           {isUnlocked ? (
                             <button
-                              onClick={() => {
-                                setCouponCode(coupon.code);
-                                setTimeout(() => applyCoupon(), 100);
-                              }}
+                              onClick={() => applyCoupon(coupon.code)}
                               className="text-[10px] font-semibold bg-secondary text-secondary-foreground px-3 py-1 rounded-md hover:opacity-90 transition-opacity whitespace-nowrap"
                             >
                               Apply
