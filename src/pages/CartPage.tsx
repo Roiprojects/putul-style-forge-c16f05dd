@@ -95,7 +95,7 @@ const CartPage = () => {
   }, []);
 
   const fullAddress = useMemo(() => {
-    const parts = [form.houseNo, form.street, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
+    const parts = [form.houseNo, form.street, form.area, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
     return parts.join(", ");
   }, [form]);
 
