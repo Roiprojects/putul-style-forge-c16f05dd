@@ -246,12 +246,19 @@ const Navbar = () => {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true); }}
+                    onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                     placeholder="Search products..."
                     autoFocus
                     className="w-full h-9 pl-9 pr-4 text-xs bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                   />
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <AnimatePresence>
+                    {showSearchDropdown && searchQuery.trim() && (
+                      <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); setMobileSearchOpen(false); }} />
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.form>
             )}
