@@ -61,6 +61,7 @@ type AddressForm = {
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
+  const navigate = useNavigate();
   const [step, setStep] = useState<CheckoutStep>("cart");
   const [form, setForm] = useState<AddressForm>({
     name: "", phone: "", houseNo: "", street: "", area: "", landmark: "", city: "", state: "", pincode: "",
