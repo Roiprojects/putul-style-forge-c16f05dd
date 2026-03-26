@@ -175,18 +175,6 @@ const ProductPage = () => {
               </div>
             )}
 
-            <div className="mb-6">
-              <p className="text-sm font-semibold mb-3">Quantity</p>
-              <div className="flex items-center border border-border rounded w-fit">
-                <button onClick={() => setQuantity(Math.max(1, quantity - 1))} className="p-3 hover:bg-accent transition-colors">
-                  <Minus size={14} />
-                </button>
-                <span className="px-5 text-sm font-medium">{quantity}</span>
-                <button onClick={() => setQuantity(quantity + 1)} className="p-3 hover:bg-accent transition-colors">
-                  <Plus size={14} />
-                </button>
-              </div>
-            </div>
 
             <div className="flex gap-3 mb-8">
               {cartQty > 0 ? (
