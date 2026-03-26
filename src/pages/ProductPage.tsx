@@ -211,6 +211,7 @@ const ProductPage = () => {
                   Add to Cart
                 </button>
               )}
+              <button
                 onClick={() => { toggleWishlist(product.id); toast.success(wishlisted ? "Removed" : "Added to wishlist"); }}
                 className={`px-4 border rounded transition-all ${
                   wishlisted ? "border-secondary text-secondary" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
