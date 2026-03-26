@@ -134,11 +134,28 @@ const AdminProductForm = () => {
     setSaving(false);
   };
 
-  const addImage = () => {
-    if (imageInput.trim()) {
-      setForm({ ...form, images: [...form.images, imageInput.trim()] });
-      setImageInput("");
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files?.length) return;
+    setUploadingImages(true);
+    const newUrls: string[] = [];
+    for (const file of Array.from(files)) {
+      const filePath = `product-images/${Date.now()}_${file.name}`;
+      const { error } = await supabase.storage.from("media").upload(filePath, file);
+      if (error) { toast.error(`Failed to upload ${file.name}`); continue; }
+      const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+      newUrls.push(urlData.publicUrl);
     }
+    if (newUrls.length) {
+      setForm(prev => ({ ...prev, images: [...prev.images, ...newUrls] }));
+      toast.success(`${newUrls.length} image(s) uploaded`);
+    }
+    setUploadingImages(false);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeAllImages = () => {
+    setForm({ ...form, images: [] });
   };
 
   const addColor = () => {
