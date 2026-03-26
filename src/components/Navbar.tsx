@@ -212,7 +212,7 @@ const Navbar = () => {
 
             {/* Right icons */}
             <div className="flex items-center gap-0">
-              <div className="relative">
+              <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
                   className="p-2 text-foreground hover:text-secondary transition-colors"
