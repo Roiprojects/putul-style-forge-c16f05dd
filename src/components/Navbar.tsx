@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
+import SearchDropdown from "@/components/SearchDropdown";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import putulLogo from "@/assets/putul-logo.png";
 
