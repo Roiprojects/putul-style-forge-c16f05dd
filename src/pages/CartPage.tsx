@@ -383,25 +383,25 @@ const CartPage = () => {
                       <p className="text-sm font-semibold uppercase tracking-wider">Your Information</p>
                     </div>
 
-                    {/* Saved Addresses */}
+                    {/* Saved Addresses Dropdown */}
                     {savedAddresses.length > 0 && (
                       <div className="mb-4">
-                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Saved Addresses</p>
-                        <div className="space-y-2">
+                        <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Saved Addresses</label>
+                        <select
+                          defaultValue=""
+                          onChange={(e) => {
+                            const addr = savedAddresses.find(a => a.id === e.target.value);
+                            if (addr) selectSavedAddress(addr);
+                          }}
+                          className="w-full border border-border rounded-lg px-3 py-2.5 text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        >
+                          <option value="" disabled>Select a saved address</option>
                           {savedAddresses.map((addr) => (
-                            <button
-                              key={addr.id}
-                              type="button"
-                              onClick={() => selectSavedAddress(addr)}
-                              className="w-full text-left p-3 border border-border rounded-lg hover:border-foreground hover:bg-accent/50 transition-all"
-                            >
-                              <p className="text-xs font-medium">{addr.name} — {addr.phone}</p>
-                              <p className="text-[11px] text-muted-foreground mt-0.5">
-                                {addr.house_no}, {addr.street}{addr.landmark ? `, ${addr.landmark}` : ""}, {addr.city}, {addr.state} — {addr.pincode}
-                              </p>
-                            </button>
+                            <option key={addr.id} value={addr.id}>
+                              {addr.name} — {addr.house_no}, {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
+                            </option>
                           ))}
-                        </div>
+                        </select>
                       </div>
                     )}
 
