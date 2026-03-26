@@ -36,6 +36,7 @@ const Navbar = () => {
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
+      setShowSearchDropdown(false);
     }
   };
 
