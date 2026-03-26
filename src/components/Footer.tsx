@@ -72,14 +72,14 @@ const Footer = () => (
           © 2026 Putul Fashions. All rights reserved.
         </p>
         <div className="flex gap-4">
-          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+          <Link to="/privacy-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
             Privacy Policy
           </Link>
-          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+          <Link to="/terms-of-service" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
             Terms of Service
           </Link>
-          <Link to="/contact" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
-            Shipping
+          <Link to="/shipping-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+            Shipping Policy
           </Link>
         </div>
       </div>
