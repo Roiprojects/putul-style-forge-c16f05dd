@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
+import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
@@ -65,6 +66,9 @@ const CartPage = () => {
   const [addressSaved, setAddressSaved] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
+  const { results: areaSuggestions, loading: areaLoading } = useAreaSearch(form.street);
+  const { results: pincodeResults } = usePincodeSearch(form.pincode);
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
@@ -103,6 +107,14 @@ const CartPage = () => {
       setForm(prev => ({ ...prev, state: match[1].state, pincode: match[1].pincode }));
     }
   }, [form.city]);
+
+  // Auto-fill city & state from pincode API
+  useEffect(() => {
+    if (pincodeResults.length > 0) {
+      const po = pincodeResults[0];
+      setForm(prev => ({ ...prev, city: prev.city || po.District, state: po.State }));
+    }
+  }, [pincodeResults]);
 
   // City suggestions
   useEffect(() => {
@@ -362,10 +374,46 @@ const CartPage = () => {
                           <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
                           {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
                         </div>
-                        <div className="col-span-1">
+                        <div className="col-span-1 relative">
                           <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Area</label>
-                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="Street name, area" className="border-border" maxLength={100} />
+                          <Input
+                            value={form.street}
+                            onChange={(e) => { updateField("street", e.target.value); setShowAreaSuggestions(true); }}
+                            onFocus={() => form.street.length >= 1 && setShowAreaSuggestions(true)}
+                            onBlur={() => setTimeout(() => setShowAreaSuggestions(false), 200)}
+                            placeholder="Type area name..."
+                            className="border-border"
+                            maxLength={100}
+                          />
                           {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
+                          {showAreaSuggestions && (areaSuggestions.length > 0 || areaLoading) && (
+                            <div className="absolute z-30 top-full left-0 right-0 mt-1 bg-background border border-border rounded-lg shadow-xl max-h-48 overflow-auto">
+                              {areaLoading && (
+                                <div className="px-3 py-2 text-[11px] text-muted-foreground flex items-center gap-2">
+                                  <span className="w-3 h-3 border border-foreground border-t-transparent rounded-full animate-spin" />
+                                  Searching...
+                                </div>
+                              )}
+                              {areaSuggestions.map((po, i) => (
+                                <button
+                                  key={`${po.Name}-${po.Pincode}-${i}`}
+                                  type="button"
+                                  onMouseDown={(e) => {
+                                    e.preventDefault();
+                                    updateField("street", po.Name);
+                                    updateField("city", po.District);
+                                    updateField("state", po.State);
+                                    updateField("pincode", po.Pincode);
+                                    setShowAreaSuggestions(false);
+                                  }}
+                                  className="w-full text-left px-3 py-2.5 hover:bg-accent transition-colors border-b border-border/50 last:border-0"
+                                >
+                                  <p className="text-xs font-medium text-foreground">{po.Name}</p>
+                                  <p className="text-[10px] text-muted-foreground">{po.District}, {po.State} — {po.Pincode}</p>
+                                </button>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
 
