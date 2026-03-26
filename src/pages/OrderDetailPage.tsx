@@ -402,13 +402,19 @@ const OrderDetailPage = () => {
             >
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Need Help?</p>
               <div className="space-y-2">
-                <Link to="/contact" className="flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5">
-                  <span>Contact Support</span>
+                <button
+                  onClick={() => setShowHelpChat(true)}
+                  className="flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5 w-full"
+                >
+                  <span className="flex items-center gap-2"><MessageCircle size={12} /> Chat with us</span>
                   <ChevronRight size={12} />
-                </Link>
+                </button>
                 {order.status.toLowerCase() === "delivered" && (
-                  <button className="flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5 w-full">
-                    <span>Return or Exchange</span>
+                  <button
+                    onClick={() => setShowReturnModal(true)}
+                    className="flex items-center justify-between text-xs text-muted-foreground hover:text-foreground transition-colors py-1.5 w-full"
+                  >
+                    <span className="flex items-center gap-2"><RotateCcw size={12} /> Return or Exchange</span>
                     <ChevronRight size={12} />
                   </button>
                 )}
@@ -416,6 +422,23 @@ const OrderDetailPage = () => {
             </motion.div>
           </div>
         </div>
+
+        {/* Return Request Modal */}
+        <ReturnRequestModal
+          open={showReturnModal}
+          onClose={() => setShowReturnModal(false)}
+          orderId={order.id}
+          items={items}
+          productImages={productImages}
+        />
+
+        {/* Help Chatbox */}
+        <HelpChatbox
+          open={showHelpChat}
+          onClose={() => setShowHelpChat(false)}
+          orderId={order.id}
+          orderStatus={order.status}
+        />
       </div>
     </div>
   );
