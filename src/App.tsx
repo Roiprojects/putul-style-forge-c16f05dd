@@ -22,6 +22,7 @@ import ContactPage from "./pages/ContactPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdersPage from "./pages/OrdersPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrderDetailPage from "./pages/OrderDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
@@ -129,6 +130,7 @@ const App = () => (
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/orders/:id" element={<OrderDetailPage />} />
                     <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
                     <Route path="*" element={<NotFound />} />
