@@ -24,7 +24,6 @@ const HeroSlider = () => {
       .order("sort_order")
       .then(({ data }) => {
         if (data && data.length > 0) {
-          // Flatten: each section can have multiple images
           const dbSlides: HeroBanner[] = [];
           data.forEach((s: any) => {
             if (s.image_urls?.length) {
@@ -38,7 +37,6 @@ const HeroSlider = () => {
             return;
           }
         }
-        // Fallback to static data
         setSlides(heroBanners.map(b => ({ image: b.image, title: b.title })));
       });
   }, []);
@@ -61,49 +59,76 @@ const HeroSlider = () => {
     return () => clearInterval(timer);
   }, [next, slides.length]);
 
-  const variants = {
-    enter: (dir: number) => ({ x: dir > 0 ? "100%" : "-100%", opacity: 0 }),
-    center: { x: 0, opacity: 1 },
-    exit: (dir: number) => ({ x: dir > 0 ? "-100%" : "100%", opacity: 0 }),
-  };
-
   if (slides.length === 0) {
     return <section className="relative w-full aspect-[16/9] md:aspect-[16/7] bg-muted" />;
   }
 
   return (
-    <section className="relative w-full aspect-[16/9] md:aspect-[16/7] overflow-hidden bg-muted">
-      <AnimatePresence custom={direction} mode="wait">
+    <section className="relative w-full aspect-[16/9] md:aspect-[16/7] overflow-hidden bg-foreground/5">
+      {/* Background: show current image as blurred backdrop to avoid white flash */}
+      <div
+        className="absolute inset-0 transition-opacity duration-700"
+        style={{
+          backgroundImage: `url(${slides[current].image})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          filter: "blur(20px) brightness(0.6)",
+          transform: "scale(1.1)",
+        }}
+      />
+
+      <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={current}
           custom={direction}
-          variants={variants}
+          variants={{
+            enter: (dir: number) => ({
+              x: dir > 0 ? "100%" : "-100%",
+              opacity: 0,
+              scale: 1.05,
+            }),
+            center: {
+              x: 0,
+              opacity: 1,
+              scale: 1,
+            },
+            exit: (dir: number) => ({
+              x: dir > 0 ? "-30%" : "30%",
+              opacity: 0,
+              scale: 0.95,
+            }),
+          }}
           initial="enter"
           animate="center"
           exit="exit"
-          transition={{ duration: 0.6, ease: [0.42, 0, 0.58, 1] }}
-          className="absolute inset-0"
+          transition={{ duration: 0.7, ease: [0.25, 0.46, 0.45, 0.94] }}
+          className="absolute inset-0 z-[1]"
         >
-          <Link to="/shop" className="block w-full h-full">
-            <img
+          <Link to="/shop" className="block w-full h-full relative">
+            <motion.img
               src={slides[current].image}
               alt={slides[current].title}
               className="w-full h-full object-cover object-center"
+              initial={{ scale: 1 }}
+              animate={{ scale: 1.04 }}
+              transition={{ duration: 6, ease: "linear" }}
             />
+            {/* Subtle gradient overlay at bottom for dot visibility */}
+            <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/30 to-transparent pointer-events-none" />
           </Link>
         </motion.div>
       </AnimatePresence>
 
       <button
         onClick={prev}
-        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-background/70 backdrop-blur-sm flex items-center justify-center rounded-full hover:bg-background transition-colors shadow-md"
+        className="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-background/60 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-background/80 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
         aria-label="Previous slide"
       >
         <ChevronLeft size={20} className="text-foreground" />
       </button>
       <button
         onClick={next}
-        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-background/70 backdrop-blur-sm flex items-center justify-center rounded-full hover:bg-background transition-colors shadow-md"
+        className="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 z-10 w-10 h-10 md:w-12 md:h-12 bg-background/60 backdrop-blur-md flex items-center justify-center rounded-full hover:bg-background/80 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
         aria-label="Next slide"
       >
         <ChevronRight size={20} className="text-foreground" />
@@ -114,10 +139,10 @@ const HeroSlider = () => {
           <button
             key={i}
             onClick={() => { setDirection(i > current ? 1 : -1); setCurrent(i); }}
-            className={`transition-all duration-300 rounded-full ${
+            className={`transition-all duration-500 rounded-full ${
               i === current
-                ? "w-8 h-2 bg-foreground"
-                : "w-2 h-2 bg-foreground/40 hover:bg-foreground/60"
+                ? "w-8 h-2 bg-white shadow-[0_0_8px_rgba(255,255,255,0.5)]"
+                : "w-2 h-2 bg-white/50 hover:bg-white/80"
             }`}
             aria-label={`Go to slide ${i + 1}`}
           />
