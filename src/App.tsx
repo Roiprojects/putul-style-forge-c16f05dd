@@ -21,6 +21,7 @@ import AboutPage from "./pages/AboutPage";
 import ContactPage from "./pages/ContactPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import OrdersPage from "./pages/OrdersPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import NotFound from "./pages/NotFound";
 
 // Admin
@@ -127,6 +128,7 @@ const App = () => (
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/reset-password" element={<ResetPasswordPage />} />
                     <Route path="/orders" element={<OrdersPage />} />
+                    <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                   <Footer />

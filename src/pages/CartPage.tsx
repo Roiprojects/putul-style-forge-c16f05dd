@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Minus, Plus, X, ShoppingBag, MapPin, Check, LogIn } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
 import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
+import FakeRazorpay from "@/components/FakeRazorpay";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
@@ -60,6 +61,7 @@ type AddressForm = {
 
 const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
+  const navigate = useNavigate();
   const [step, setStep] = useState<CheckoutStep>("cart");
   const [form, setForm] = useState<AddressForm>({
     name: "", phone: "", houseNo: "", street: "", area: "", landmark: "", city: "", state: "", pincode: "",
@@ -90,6 +92,7 @@ const CartPage = () => {
   } | null>(null);
   const [couponError, setCouponError] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+  const [showRazorpay, setShowRazorpay] = useState(false);
 
   // Fetch available coupons
   useEffect(() => {
@@ -309,7 +312,62 @@ const CartPage = () => {
   const finalTotal = cartTotal - couponDiscount;
 
   const handleProceedToPay = () => {
-    toast.success("Redirecting to payment...");
+    setShowRazorpay(true);
+  };
+
+  const handlePaymentSuccess = async (paymentId: string) => {
+    setShowRazorpay(false);
+    
+    // Create order in database
+    const { data: orderData, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user?.id || null,
+        customer_name: form.name,
+        customer_email: user?.email || `${form.phone}@phone.putul.app`,
+        customer_phone: form.phone,
+        shipping_address: fullAddress,
+        subtotal: cartTotal,
+        discount: couponDiscount,
+        total: finalTotal,
+        payment_method: "razorpay",
+        payment_status: "paid",
+        status: "confirmed",
+        notes: `Payment ID: ${paymentId}`,
+      })
+      .select()
+      .single();
+
+    if (orderError || !orderData) {
+      toast.error("Order failed. Please try again.");
+      return;
+    }
+
+    // Create order items
+    const orderItems = cart.map(item => ({
+      order_id: orderData.id,
+      product_id: item.product.id,
+      product_name: item.product.name,
+      size: item.size,
+      quantity: item.quantity,
+      unit_price: item.product.price,
+      total_price: item.product.price * item.quantity,
+    }));
+
+    await supabase.from("order_items").insert(orderItems);
+
+    clearCart();
+    
+    navigate("/order-confirmation", {
+      state: {
+        orderId: orderData.id,
+        paymentId,
+        amount: finalTotal,
+        items: cart.map(i => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price })),
+        address: fullAddress,
+        customerName: form.name,
+      },
+    });
   };
 
   if (cart.length === 0) {
@@ -832,6 +890,15 @@ const CartPage = () => {
         </div>
       </div>
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
+      {showRazorpay && (
+        <FakeRazorpay
+          amount={finalTotal}
+          customerName={form.name}
+          customerPhone={form.phone}
+          onSuccess={handlePaymentSuccess}
+          onClose={() => setShowRazorpay(false)}
+        />
+      )}
     </div>
   );
 };
