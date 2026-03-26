@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X, Loader2, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Loader2, GripVertical, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryForm {
