@@ -60,7 +60,7 @@ const CartPage = () => {
   const { cart, removeFromCart, updateQuantity, cartTotal, clearCart } = useStore();
   const [step, setStep] = useState<CheckoutStep>("cart");
   const [form, setForm] = useState<AddressForm>({
-    name: "", phone: "", houseNo: "", street: "", landmark: "", city: "", state: "", pincode: "",
+    name: "", phone: "", houseNo: "", street: "", area: "", landmark: "", city: "", state: "", pincode: "",
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSavePopup, setShowSavePopup] = useState(false);
