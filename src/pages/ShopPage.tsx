@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import { products, categories } from "@/data/products";
+import { useProducts, useCategories } from "@/hooks/useProducts";
 
 const sizes = ["6", "7", "8", "9", "10"];
 const sortOptions = [
@@ -17,14 +17,34 @@ const sortOptions = [
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
+  const searchQuery = searchParams.get("search") || "";
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [maxPrice, setMaxPrice] = useState<number>(3000);
   const [sortBy, setSortBy] = useState("popularity");
   const [showFilters, setShowFilters] = useState(false);
 
+  const { data: products = [], isLoading } = useProducts();
+  const { data: dbCategories = [] } = useCategories();
+
+  // Sync category from URL
+  useEffect(() => {
+    setSelectedCategory(searchParams.get("category") || "all");
+  }, [searchParams]);
+
+  const categories = dbCategories.map(c => ({
+    name: c.name,
+    slug: c.slug,
+    image: c.image_url || "",
+    productCount: 0,
+  }));
+
   const filtered = useMemo(() => {
     let items = [...products];
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      items = items.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+    }
     if (selectedCategory !== "all") items = items.filter((p) => p.category === selectedCategory);
     if (selectedSize) items = items.filter((p) => p.sizes.includes(selectedSize));
     items = items.filter((p) => p.price <= maxPrice);
@@ -40,9 +60,17 @@ const ShopPage = () => {
       default: items.sort((a, b) => b.reviews - a.reviews); break;
     }
     return items;
-  }, [selectedCategory, selectedSize, maxPrice, sortBy]);
+  }, [products, selectedCategory, selectedSize, maxPrice, sortBy, searchQuery]);
 
   const hasActiveFilters = selectedCategory !== "all" || selectedSize || maxPrice < 3000;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-foreground border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

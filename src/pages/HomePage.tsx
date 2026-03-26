@@ -4,22 +4,22 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import PromoBanners from "@/components/PromoBanners";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import TestimonialSection from "@/components/TestimonialSection";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 
-const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
-const newArrivals = products.filter((p) => p.newArrival).slice(0, 8);
-const trending = products.filter((p) => p.trending).slice(0, 8);
-
 const HomePage = () => {
+  const { data: products = [] } = useProducts();
+
+  const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
+  const newArrivals = products.filter((p) => p.newArrival).slice(0, 8);
+  const trending = products.filter((p) => p.trending).slice(0, 8);
+
   return (
     <div>
-      {/* Hero Banner Slider */}
       <HeroSlider />
 
-      {/* Best Sellers Carousel */}
       <ProductCarousel
         title="Best Sellers"
         subtitle="Top picks loved by our customers"
@@ -27,50 +27,46 @@ const HomePage = () => {
         viewAllLink="/shop"
       />
 
-      {/* Promo Banners - side by side */}
       <PromoBanners />
 
-      {/* New Arrivals - Grid */}
-      <section className="py-10 md:py-14">
-        <div className="container mx-auto px-4 md:px-8">
-          <div className="flex items-end justify-between mb-6 md:mb-8">
-            <div>
-              <h2 className="text-xl md:text-2xl font-heading font-semibold tracking-wide uppercase text-foreground">
-                New Arrivals
-              </h2>
-              <p className="text-sm text-muted-foreground mt-1">Fresh drops you'll love</p>
+      {newArrivals.length > 0 && (
+        <section className="py-10 md:py-14">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="flex items-end justify-between mb-6 md:mb-8">
+              <div>
+                <h2 className="text-xl md:text-2xl font-heading font-semibold tracking-wide uppercase text-foreground">
+                  New Arrivals
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">Fresh drops you'll love</p>
+              </div>
+              <Link to="/shop" className="text-xs tracking-wide text-secondary font-medium hover:underline">
+                View All
+              </Link>
             </div>
-            <Link to="/shop" className="text-xs tracking-wide text-secondary font-medium hover:underline">
-              View All
-            </Link>
-          </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
-            {newArrivals.map((product, i) => (
-              <ProductCard key={product.id} product={product} index={i} />
-            ))}
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+              {newArrivals.map((product, i) => (
+                <ProductCard key={product.id} product={product} index={i} />
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Shop By Category */}
       <CategoryShowcase />
-
-      {/* Marquee Banner */}
       <MarqueeBanner />
 
-      {/* Trending Carousel */}
-      <ProductCarousel
-        title="Trending Now"
-        subtitle="What everyone's wearing"
-        products={trending}
-        viewAllLink="/shop"
-      />
+      {trending.length > 0 && (
+        <ProductCarousel
+          title="Trending Now"
+          subtitle="What everyone's wearing"
+          products={trending}
+          viewAllLink="/shop"
+        />
+      )}
 
-      {/* Customer Reviews */}
       <TestimonialSection />
 
-      {/* Why Choose Us - Clean cards */}
       <section className="py-10 md:py-14 bg-accent/50">
         <div className="container mx-auto px-4 md:px-8">
           <div className="text-center mb-8">
