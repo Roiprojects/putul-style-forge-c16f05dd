@@ -110,6 +110,34 @@ const CartPage = () => {
     return () => subscription.unsubscribe();
   }, []);
 
+  // Fetch saved addresses
+  useEffect(() => {
+    if (!user) { setSavedAddresses([]); return; }
+    supabase
+      .from("saved_addresses")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setSavedAddresses(data);
+      });
+  }, [user, addressSaved]);
+
+  const selectSavedAddress = (addr: any) => {
+    setForm({
+      name: addr.name,
+      phone: addr.phone,
+      houseNo: addr.house_no,
+      street: addr.street,
+      area: "",
+      landmark: addr.landmark || "",
+      city: addr.city,
+      state: addr.state,
+      pincode: addr.pincode,
+    });
+    toast.success("Address filled!");
+  };
+
   const fullAddress = useMemo(() => {
     const parts = [form.houseNo, form.street, form.area, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
     return parts.join(", ");
