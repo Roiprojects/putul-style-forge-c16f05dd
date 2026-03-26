@@ -389,21 +389,32 @@ const CartPage = () => {
                   {savedAddresses.length > 0 && (
                     <div className="mb-4">
                       <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 block">Saved Addresses</label>
-                      <select
-                        defaultValue=""
-                        onChange={(e) => {
-                          const addr = savedAddresses.find(a => a.id === e.target.value);
-                          if (addr) selectSavedAddress(addr);
-                        }}
-                        className="w-full border border-border rounded-lg px-3 py-2.5 text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-                      >
-                        <option value="" disabled>Select a saved address</option>
-                        {savedAddresses.map((addr) => (
-                          <option key={addr.id} value={addr.id}>
-                            {addr.name} — {addr.house_no}, {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
-                          </option>
-                        ))}
-                      </select>
+                      <div className="flex gap-2">
+                        <select
+                          defaultValue=""
+                          onChange={(e) => {
+                            const addr = savedAddresses.find(a => a.id === e.target.value);
+                            if (addr) selectSavedAddress(addr);
+                          }}
+                          className="flex-1 border border-border rounded-lg px-3 py-2.5 text-xs bg-background text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+                        >
+                          <option value="" disabled>Select a saved address</option>
+                          {savedAddresses.map((addr) => (
+                            <option key={addr.id} value={addr.id}>
+                              {addr.name} — {addr.house_no}, {addr.street}, {addr.city}, {addr.state} — {addr.pincode}
+                            </option>
+                          ))}
+                        </select>
+                        {selectedSavedAddressId && (
+                          <button
+                            type="button"
+                            onClick={() => { setUsedSavedAddress(false); setSelectedSavedAddressId(null); }}
+                            className="px-3 py-2.5 text-xs font-medium border border-border rounded-lg hover:bg-accent transition-colors whitespace-nowrap"
+                          >
+                            Edit
+                          </button>
+                        )}
+                      </div>
                     </div>
                   )}
 
