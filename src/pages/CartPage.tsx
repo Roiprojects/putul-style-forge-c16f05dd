@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPortal } from "react-dom";
 import { Minus, Plus, X, ShoppingBag, MapPin, Check, LogIn } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
 import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
+import FakeRazorpay from "@/components/FakeRazorpay";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
