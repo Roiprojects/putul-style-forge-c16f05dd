@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowUp, ArrowDown, Plus, Pencil, Trash2, GripVertical } from "lucide-react";
+import { ArrowUp, ArrowDown, Plus, Pencil, Trash2, GripVertical, Upload, X, Loader2 } from "lucide-react";
 
 type HomepageSection = {
   id: string;
@@ -39,9 +38,11 @@ const AdminHomepage = () => {
     section_type: "hero_banner",
     title: "",
     subtitle: "",
-    image_urls: "",
+    image_urls: [] as string[],
     is_enabled: true,
   });
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const homepageFileRef = useRef<HTMLInputElement>(null);
 
   const fetchSections = async () => {
     const { data, error } = await supabase
@@ -56,7 +57,7 @@ const AdminHomepage = () => {
 
   const openNew = () => {
     setEditSection(null);
-    setForm({ section_type: "hero_banner", title: "", subtitle: "", image_urls: "", is_enabled: true });
+    setForm({ section_type: "hero_banner", title: "", subtitle: "", image_urls: [], is_enabled: true });
     setDialogOpen(true);
   };
 
@@ -66,7 +67,7 @@ const AdminHomepage = () => {
       section_type: s.section_type,
       title: s.title || "",
       subtitle: s.subtitle || "",
-      image_urls: (s.image_urls || []).join(", "),
+      image_urls: s.image_urls || [],
       is_enabled: s.is_enabled,
     });
     setDialogOpen(true);
@@ -77,7 +78,7 @@ const AdminHomepage = () => {
       section_type: form.section_type,
       title: form.title || null,
       subtitle: form.subtitle || null,
-      image_urls: form.image_urls.split(",").map(u => u.trim()).filter(Boolean),
+      image_urls: form.image_urls,
       is_enabled: form.is_enabled,
       sort_order: editSection ? editSection.sort_order : sections.length,
     };
@@ -182,8 +183,61 @@ const AdminHomepage = () => {
               <Input value={form.subtitle} onChange={(e) => setForm({ ...form, subtitle: e.target.value })} />
             </div>
             <div>
-              <label className="text-sm font-medium">Image URLs (comma-separated)</label>
-              <Textarea value={form.image_urls} onChange={(e) => setForm({ ...form, image_urls: e.target.value })} rows={3} />
+              <label className="text-sm font-medium mb-2 block">Images</label>
+              <input
+                ref={homepageFileRef}
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                onChange={async (e) => {
+                  const files = e.target.files;
+                  if (!files?.length) return;
+                  setUploadingImages(true);
+                  const newUrls: string[] = [];
+                  for (const file of Array.from(files)) {
+                    const filePath = `homepage/${Date.now()}_${file.name}`;
+                    const { error } = await supabase.storage.from("media").upload(filePath, file);
+                    if (error) { toast.error(`Failed: ${file.name}`); continue; }
+                    const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+                    newUrls.push(urlData.publicUrl);
+                  }
+                  if (newUrls.length) {
+                    setForm(prev => ({ ...prev, image_urls: [...prev.image_urls, ...newUrls] }));
+                    toast.success(`${newUrls.length} image(s) uploaded`);
+                  }
+                  setUploadingImages(false);
+                  if (homepageFileRef.current) homepageFileRef.current.value = "";
+                }}
+              />
+              <button
+                type="button"
+                onClick={() => homepageFileRef.current?.click()}
+                disabled={uploadingImages}
+                className="flex items-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed border-border rounded-lg hover:border-foreground/30 hover:bg-accent/50 transition-colors w-full justify-center text-muted-foreground"
+              >
+                {uploadingImages ? (
+                  <><Loader2 size={16} className="animate-spin" /> Uploading...</>
+                ) : (
+                  <><Upload size={16} /> Click to upload images</>
+                )}
+              </button>
+              {form.image_urls.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {form.image_urls.map((img, i) => (
+                    <div key={i} className="relative group">
+                      <img src={img} alt="" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                      <button
+                        type="button"
+                        onClick={() => setForm(prev => ({ ...prev, image_urls: prev.image_urls.filter((_, j) => j !== i) }))}
+                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-destructive text-destructive-foreground rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Switch checked={form.is_enabled} onCheckedChange={(v) => setForm({ ...form, is_enabled: v })} />
