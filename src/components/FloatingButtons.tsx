@@ -31,7 +31,7 @@ const FloatingButtons = () => {
           <WhatsAppIcon />
         </a>
         <a
-          href="tel:+919999999999"
+          href="tel:+918000685588"
           className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="Call us"
         >
