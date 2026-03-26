@@ -201,7 +201,11 @@ const CartPage = () => {
 
   const handleAddressSubmit = () => {
     if (!validate()) return;
-    setShowSavePopup(true);
+    if (usedSavedAddress) {
+      setStep("pay");
+    } else {
+      setShowSavePopup(true);
+    }
   };
 
   const handleProceedToDetails = () => {
