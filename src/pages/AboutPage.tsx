@@ -18,7 +18,7 @@ const floatDown = {
 };
 
 const AboutPage = () => (
-  <div className="pt-20 md:pt-24 min-h-screen">
+  <div className="min-h-screen">
     {/* Hero */}
     <div className="relative h-[50vh] overflow-hidden">
       <img src={gallery6} alt="About Putul Fashions" className="w-full h-full object-cover" />
