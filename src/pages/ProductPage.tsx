@@ -55,6 +55,8 @@ const ProductPage = () => {
 
   const wishlisted = isInWishlist(product.id);
   const related = allProducts.filter((p) => p.category === product.category && p.id !== product.id).slice(0, 6);
+  const cartItem = cart.find(i => i.product.id === product.id && i.size === selectedSize);
+  const cartQty = cartItem?.quantity || 0;
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : 0;
