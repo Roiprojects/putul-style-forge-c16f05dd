@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Minus, Plus, X, ShoppingBag, MapPin, Check, LogIn } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { Gift, Tag } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -85,6 +86,19 @@ const CartPage = () => {
     min_order: number | null;
   } | null>(null);
   const [couponError, setCouponError] = useState("");
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
+
+  // Fetch available coupons
+  useEffect(() => {
+    supabase
+      .from("coupons")
+      .select("*")
+      .eq("is_active", true)
+      .order("min_order", { ascending: true })
+      .then(({ data }) => {
+        if (data) setAvailableCoupons(data.filter(c => !c.expiry_date || new Date(c.expiry_date) > new Date()));
+      });
+  }, []);
 
   // Listen for auth state
   useEffect(() => {
@@ -197,14 +211,15 @@ const CartPage = () => {
   };
 
   // Coupon logic
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) return;
+  const applyCoupon = async (directCode?: string) => {
+    const code = (directCode || couponCode).trim().toUpperCase();
+    if (!code) return;
     setCouponLoading(true);
     setCouponError("");
     const { data, error } = await supabase
       .from("coupons")
       .select("*")
-      .eq("code", couponCode.trim().toUpperCase())
+      .eq("code", code)
       .eq("is_active", true)
       .single();
 
@@ -639,10 +654,63 @@ const CartPage = () => {
               </div>
             </div>
 
-            {/* Coupon input */}
+            {/* Coupon section */}
             {step === "cart" && !appliedCoupon && (
               <div className="mt-4 pt-4 border-t border-border">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Have a coupon?</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                  <Tag size={12} /> Available Coupons
+                </p>
+
+                {/* Coupon cards */}
+                <div className="space-y-2 mb-3">
+                  {availableCoupons.map((coupon) => {
+                    const minOrder = coupon.min_order || 0;
+                    const isUnlocked = cartTotal >= minOrder;
+                    const remaining = minOrder - cartTotal;
+
+                    return (
+                      <div
+                        key={coupon.id}
+                        className={`rounded-lg border p-3 transition-all ${
+                          isUnlocked
+                            ? "border-secondary/50 bg-secondary/5"
+                            : "border-border bg-muted/30 opacity-75"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Gift size={14} className={isUnlocked ? "text-secondary" : "text-muted-foreground"} />
+                            <span className="text-xs font-bold tracking-wider">{coupon.code}</span>
+                          </div>
+                          {isUnlocked ? (
+                            <button
+                              onClick={() => applyCoupon(coupon.code)}
+                              className="text-[10px] font-semibold bg-secondary text-secondary-foreground px-3 py-1 rounded-md hover:opacity-90 transition-opacity whitespace-nowrap"
+                            >
+                              Apply
+                            </button>
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground whitespace-nowrap">🔒 Locked</span>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1.5">
+                          {coupon.discount_type === "percentage"
+                            ? `${coupon.discount_value}% off${coupon.max_discount ? ` (up to ₹${coupon.max_discount})` : ""}`
+                            : `₹${coupon.discount_value} off`}
+                          {minOrder > 0 ? ` on orders above ₹${minOrder.toLocaleString()}` : ""}
+                        </p>
+                        {!isUnlocked && (
+                          <p className="text-[10px] font-medium text-secondary mt-1">
+                            Shop for ₹{remaining.toLocaleString()} more to unlock!
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Manual coupon input */}
+                <p className="text-[10px] text-muted-foreground mb-1.5">Or enter a code manually</p>
                 <div className="flex gap-2">
                   <Input
                     value={couponCode}
@@ -653,7 +721,7 @@ const CartPage = () => {
                     onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
                   />
                   <button
-                    onClick={applyCoupon}
+                    onClick={() => applyCoupon()}
                     disabled={couponLoading || !couponCode.trim()}
                     className="px-4 h-9 bg-foreground text-background text-xs font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 whitespace-nowrap"
                   >
