@@ -7,14 +7,14 @@ import aboutLifestyle2 from "@/assets/about-lifestyle-2.jpg";
 const floatUp = {
   animate: {
     y: [0, -12, 0],
-    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" },
+    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" as const },
   },
 };
 
 const floatDown = {
   animate: {
     y: [0, 12, 0],
-    transition: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+    transition: { duration: 5, repeat: Infinity, ease: "easeInOut" as const },
   },
 };
 
