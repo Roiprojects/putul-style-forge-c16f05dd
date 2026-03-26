@@ -215,7 +215,13 @@ const Navbar = () => {
                           <p className="text-xs font-medium truncate text-foreground">{displayName}</p>
                           <p className="text-[10px] text-muted-foreground truncate">{user.user_metadata?.phone || user.email}</p>
                         </div>
-                        <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-3 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors">
+                        <Link to="/profile" onClick={() => setShowUserMenu(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                          <User size={13} /> My Profile
+                        </Link>
+                        <Link to="/orders" onClick={() => setShowUserMenu(false)} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+                          <ShoppingBag size={13} /> My Orders
+                        </Link>
+                        <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2.5 text-xs text-muted-foreground hover:text-destructive hover:bg-accent transition-colors border-t border-border">
                           <LogOut size={13} /> Sign Out
                         </button>
                       </motion.div>
