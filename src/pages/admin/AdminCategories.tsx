@@ -1,7 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2, X, Loader2, GripVertical } from "lucide-react";
+import { Plus, Pencil, Trash2, X, Loader2, GripVertical, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface CategoryForm {
@@ -20,6 +20,22 @@ const AdminCategories = () => {
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<CategoryForm>(empty);
   const [saving, setSaving] = useState(false);
+  const [uploadingCatImage, setUploadingCatImage] = useState(false);
+  const catFileRef = useRef<HTMLInputElement>(null);
+
+  const handleCatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingCatImage(true);
+    const filePath = `categories/${Date.now()}_${file.name}`;
+    const { error } = await supabase.storage.from("media").upload(filePath, file);
+    if (error) { toast.error("Upload failed"); setUploadingCatImage(false); return; }
+    const { data: urlData } = supabase.storage.from("media").getPublicUrl(filePath);
+    setForm(prev => ({ ...prev, image_url: urlData.publicUrl }));
+    toast.success("Image uploaded");
+    setUploadingCatImage(false);
+    if (catFileRef.current) catFileRef.current.value = "";
+  };
 
   const fetchCategories = async () => {
     const { data, error } = await supabase
@@ -171,13 +187,36 @@ const AdminCategories = () => {
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-muted-foreground block mb-1.5">Image URL</label>
+                  <label className="text-xs text-muted-foreground block mb-1.5">Category Image</label>
                   <input
-                    type="url"
-                    value={form.image_url}
-                    onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-                    className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                    ref={catFileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleCatImageUpload}
                   />
+                  {form.image_url ? (
+                    <div className="flex items-center gap-3">
+                      <img src={form.image_url} alt="" className="w-16 h-16 rounded-lg object-cover border border-border" />
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => catFileRef.current?.click()} disabled={uploadingCatImage} className="text-xs text-muted-foreground hover:text-foreground">Change</button>
+                        <button type="button" onClick={() => setForm({ ...form, image_url: "" })} className="text-xs text-destructive hover:underline">Remove</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => catFileRef.current?.click()}
+                      disabled={uploadingCatImage}
+                      className="flex items-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed border-border rounded-lg hover:border-foreground/30 hover:bg-accent/50 transition-colors w-full justify-center text-muted-foreground"
+                    >
+                      {uploadingCatImage ? (
+                        <><Loader2 size={14} className="animate-spin" /> Uploading...</>
+                      ) : (
+                        <><Upload size={14} /> Upload Image</>
+                      )}
+                    </button>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs text-muted-foreground block mb-1.5">Parent Category</label>
