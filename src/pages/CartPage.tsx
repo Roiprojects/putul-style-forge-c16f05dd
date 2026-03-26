@@ -76,6 +76,8 @@ const CartPage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
   const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [usedSavedAddress, setUsedSavedAddress] = useState(false);
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState<string | null>(null);
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
