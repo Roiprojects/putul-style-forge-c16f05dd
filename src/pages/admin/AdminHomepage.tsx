@@ -57,7 +57,7 @@ const AdminHomepage = () => {
 
   const openNew = () => {
     setEditSection(null);
-    setForm({ section_type: "hero_banner", title: "", subtitle: "", image_urls: "", is_enabled: true });
+    setForm({ section_type: "hero_banner", title: "", subtitle: "", image_urls: [], is_enabled: true });
     setDialogOpen(true);
   };
 
