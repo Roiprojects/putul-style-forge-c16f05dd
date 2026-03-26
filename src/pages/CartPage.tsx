@@ -108,6 +108,14 @@ const CartPage = () => {
     }
   }, [form.city]);
 
+  // Auto-fill city & state from pincode API
+  useEffect(() => {
+    if (pincodeResults.length > 0) {
+      const po = pincodeResults[0];
+      setForm(prev => ({ ...prev, city: prev.city || po.District, state: po.State }));
+    }
+  }, [pincodeResults]);
+
   // City suggestions
   useEffect(() => {
     if (form.city.length < 2) { setCitySuggestions([]); return; }
