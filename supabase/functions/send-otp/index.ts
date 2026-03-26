@@ -63,7 +63,8 @@ Deno.serve(async (req) => {
       .eq("phone", phone)
       .maybeSingle();
 
-    const otpCode = isAdminPhone ? "123456" : String(Math.floor(100000 + Math.random() * 900000));
+    // Dev mode: use fixed OTP for all numbers until SMS gateway is connected
+    const otpCode = isAdminPhone ? "123456" : "000000";
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Store OTP
