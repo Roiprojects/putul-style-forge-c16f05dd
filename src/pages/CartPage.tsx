@@ -211,8 +211,9 @@ const CartPage = () => {
   };
 
   // Coupon logic
-  const applyCoupon = async () => {
-    if (!couponCode.trim()) return;
+  const applyCoupon = async (directCode?: string) => {
+    const code = (directCode || couponCode).trim().toUpperCase();
+    if (!code) return;
     setCouponLoading(true);
     setCouponError("");
     const { data, error } = await supabase
