@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import type { Product } from "@/data/products";
@@ -14,6 +14,7 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
 
   const checkScroll = () => {
     if (!scrollRef.current) return;
@@ -28,6 +29,28 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
     el?.addEventListener("scroll", checkScroll);
     return () => el?.removeEventListener("scroll", checkScroll);
   }, []);
+
+  // Auto-scroll continuously
+  useEffect(() => {
+    if (isPaused || !scrollRef.current) return;
+    const el = scrollRef.current;
+    let animId: number;
+    const speed = 0.5; // px per frame
+
+    const step = () => {
+      if (!el) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (el.scrollLeft >= maxScroll - 1) {
+        el.scrollLeft = 0;
+      } else {
+        el.scrollLeft += speed;
+      }
+      animId = requestAnimationFrame(step);
+    };
+
+    animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [isPaused, products.length]);
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
@@ -78,6 +101,10 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
         {/* Scrollable row */}
         <div
           ref={scrollRef}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onTouchStart={() => setIsPaused(true)}
+          onTouchEnd={() => setIsPaused(false)}
           className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth pb-2"
         >
           {products.map((product, i) => (
