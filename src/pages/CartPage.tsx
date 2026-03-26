@@ -383,6 +383,28 @@ const CartPage = () => {
                       <p className="text-sm font-semibold uppercase tracking-wider">Your Information</p>
                     </div>
 
+                    {/* Saved Addresses */}
+                    {savedAddresses.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Saved Addresses</p>
+                        <div className="space-y-2">
+                          {savedAddresses.map((addr) => (
+                            <button
+                              key={addr.id}
+                              type="button"
+                              onClick={() => selectSavedAddress(addr)}
+                              className="w-full text-left p-3 border border-border rounded-lg hover:border-foreground hover:bg-accent/50 transition-all"
+                            >
+                              <p className="text-xs font-medium">{addr.name} — {addr.phone}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">
+                                {addr.house_no}, {addr.street}{addr.landmark ? `, ${addr.landmark}` : ""}, {addr.city}, {addr.state} — {addr.pincode}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div>
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Full Name</label>
                       <Input
