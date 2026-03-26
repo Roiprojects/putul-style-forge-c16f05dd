@@ -25,6 +25,9 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
+import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 
 // Admin
 import AdminLayout from "@/components/admin/AdminLayout";
