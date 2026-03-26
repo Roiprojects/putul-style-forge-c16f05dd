@@ -68,6 +68,17 @@ const CartPage = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+  // Coupon state
+  const [couponCode, setCouponCode] = useState("");
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount_type: string;
+    discount_value: number;
+    max_discount: number | null;
+    min_order: number | null;
+  } | null>(null);
+  const [couponError, setCouponError] = useState("");
 
   // Listen for auth state
   useEffect(() => {
@@ -170,6 +181,65 @@ const CartPage = () => {
     setShowSavePopup(false);
     setStep("pay");
   };
+
+  // Coupon logic
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setCouponLoading(true);
+    setCouponError("");
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("code", couponCode.trim().toUpperCase())
+      .eq("is_active", true)
+      .single();
+
+    setCouponLoading(false);
+    if (error || !data) {
+      setCouponError("Invalid or expired coupon code");
+      return;
+    }
+    if (data.expiry_date && new Date(data.expiry_date) < new Date()) {
+      setCouponError("This coupon has expired");
+      return;
+    }
+    if (data.usage_limit && data.used_count >= data.usage_limit) {
+      setCouponError("Coupon usage limit reached");
+      return;
+    }
+    if (data.min_order && cartTotal < data.min_order) {
+      setCouponError(`Minimum order ₹${data.min_order} required`);
+      return;
+    }
+    setAppliedCoupon({
+      code: data.code,
+      discount_type: data.discount_type,
+      discount_value: data.discount_value,
+      max_discount: data.max_discount,
+      min_order: data.min_order,
+    });
+    setCouponCode("");
+    toast.success(`Coupon "${data.code}" applied!`);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError("");
+  };
+
+  const couponDiscount = useMemo(() => {
+    if (!appliedCoupon) return 0;
+    let disc = 0;
+    if (appliedCoupon.discount_type === "percentage") {
+      disc = (cartTotal * appliedCoupon.discount_value) / 100;
+      if (appliedCoupon.max_discount) disc = Math.min(disc, appliedCoupon.max_discount);
+    } else {
+      disc = appliedCoupon.discount_value;
+    }
+    return Math.min(disc, cartTotal);
+  }, [appliedCoupon, cartTotal]);
+
+  const finalTotal = cartTotal - couponDiscount;
 
   const handleProceedToPay = () => {
     toast.success("Redirecting to payment...");
@@ -473,7 +543,7 @@ const CartPage = () => {
                     onClick={handleProceedToPay}
                     className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
                   >
-                    Proceed to Pay — ₹{cartTotal.toLocaleString()}
+                    Proceed to Pay — ₹{finalTotal.toLocaleString()}
                   </button>
 
                   <button
@@ -499,11 +569,45 @@ const CartPage = () => {
                 <span className="text-muted-foreground">Shipping</span>
                 <span className="text-secondary">Free</span>
               </div>
+              {appliedCoupon && couponDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="flex items-center gap-1">
+                    Coupon ({appliedCoupon.code})
+                    <button onClick={removeCoupon} className="text-destructive hover:underline text-[10px] ml-1">Remove</button>
+                  </span>
+                  <span>-₹{couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="border-t border-border pt-3 flex justify-between font-semibold text-base">
                 <span>Total</span>
-                <span>₹{cartTotal.toLocaleString()}</span>
+                <span>₹{finalTotal.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Coupon input */}
+            {step === "cart" && !appliedCoupon && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Have a coupon?</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={couponCode}
+                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                    placeholder="Enter code"
+                    className="border-border text-xs h-9 uppercase"
+                    maxLength={20}
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 h-9 bg-foreground text-background text-xs font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+                {couponError && <p className="text-[11px] text-destructive mt-1.5">{couponError}</p>}
+              </div>
+            )}
 
             {step === "cart" && (
               <>

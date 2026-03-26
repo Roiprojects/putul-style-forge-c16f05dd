@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 import { Heart, ShoppingBag } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import { toast } from "sonner";
 
 const WishlistPage = () => {
   const { wishlist, toggleWishlist, addToCart } = useStore();
+  const { data: products = [] } = useProducts();
   const wishlistProducts = products.filter(p => wishlist.includes(p.id));
 
   if (wishlistProducts.length === 0) {
