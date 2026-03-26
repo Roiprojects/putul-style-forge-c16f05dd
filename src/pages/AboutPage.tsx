@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { motion, type Transition } from "framer-motion";
+import type { Easing } from "framer-motion";
 import gallery6 from "@/assets/gallery-6.jpg";
 import aboutLifestyle1 from "@/assets/about-lifestyle-1.jpg";
 import aboutLifestyle2 from "@/assets/about-lifestyle-2.jpg";
