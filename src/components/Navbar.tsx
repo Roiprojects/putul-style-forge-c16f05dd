@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
+import SearchDropdown from "@/components/SearchDropdown";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import putulLogo from "@/assets/putul-logo.png";
 
@@ -26,6 +27,7 @@ const Navbar = () => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -34,6 +36,7 @@ const Navbar = () => {
     if (searchQuery.trim()) {
       navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchQuery("");
+      setShowSearchDropdown(false);
     }
   };
 
@@ -105,11 +108,18 @@ const Navbar = () => {
                 <input
                   type="text"
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true); }}
+                  onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                   placeholder="Search for products, brands and more"
                   className="w-full h-9 pl-10 pr-4 text-[12px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                 />
                 <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <AnimatePresence>
+                  {showSearchDropdown && searchQuery.trim() && (
+                    <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); }} />
+                  )}
+                </AnimatePresence>
               </div>
             </form>
             <div className="flex items-center gap-1">
@@ -236,12 +246,19 @@ const Navbar = () => {
                   <input
                     type="text"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true); }}
+                    onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                    onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                     placeholder="Search products..."
                     autoFocus
                     className="w-full h-9 pl-9 pr-4 text-xs bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                   />
                   <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                  <AnimatePresence>
+                    {showSearchDropdown && searchQuery.trim() && (
+                      <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); setMobileSearchOpen(false); }} />
+                    )}
+                  </AnimatePresence>
                 </div>
               </motion.form>
             )}
