@@ -77,6 +77,7 @@ const Navbar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showUserMenu]);
 
+  const handleLogout = async () => {
     await supabase.auth.signOut();
     setShowUserMenu(false);
     setMobileOpen(false);
