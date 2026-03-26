@@ -75,6 +75,7 @@ const CartPage = () => {
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
   // Coupon state
   const [couponCode, setCouponCode] = useState("");
   const [couponLoading, setCouponLoading] = useState(false);
@@ -108,6 +109,34 @@ const CartPage = () => {
     supabase.auth.getSession().then(({ data: { session } }) => setUser(session?.user ?? null));
     return () => subscription.unsubscribe();
   }, []);
+
+  // Fetch saved addresses
+  useEffect(() => {
+    if (!user) { setSavedAddresses([]); return; }
+    supabase
+      .from("saved_addresses")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (data) setSavedAddresses(data);
+      });
+  }, [user, addressSaved]);
+
+  const selectSavedAddress = (addr: any) => {
+    setForm({
+      name: addr.name,
+      phone: addr.phone,
+      houseNo: addr.house_no,
+      street: addr.street,
+      area: "",
+      landmark: addr.landmark || "",
+      city: addr.city,
+      state: addr.state,
+      pincode: addr.pincode,
+    });
+    toast.success("Address filled!");
+  };
 
   const fullAddress = useMemo(() => {
     const parts = [form.houseNo, form.street, form.area, form.landmark, form.city, form.state, form.pincode].filter(Boolean);
@@ -353,6 +382,28 @@ const CartPage = () => {
                       <div className="w-8 h-8 bg-foreground text-background flex items-center justify-center text-xs font-bold">1</div>
                       <p className="text-sm font-semibold uppercase tracking-wider">Your Information</p>
                     </div>
+
+                    {/* Saved Addresses */}
+                    {savedAddresses.length > 0 && (
+                      <div className="mb-4">
+                        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Saved Addresses</p>
+                        <div className="space-y-2">
+                          {savedAddresses.map((addr) => (
+                            <button
+                              key={addr.id}
+                              type="button"
+                              onClick={() => selectSavedAddress(addr)}
+                              className="w-full text-left p-3 border border-border rounded-lg hover:border-foreground hover:bg-accent/50 transition-all"
+                            >
+                              <p className="text-xs font-medium">{addr.name} — {addr.phone}</p>
+                              <p className="text-[11px] text-muted-foreground mt-0.5">
+                                {addr.house_no}, {addr.street}{addr.landmark ? `, ${addr.landmark}` : ""}, {addr.city}, {addr.state} — {addr.pincode}
+                              </p>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     <div>
                       <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Full Name</label>
