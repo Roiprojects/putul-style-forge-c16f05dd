@@ -46,7 +46,7 @@ const HeroSlider = () => {
             <img
               src={heroBanners[current].image}
               alt={heroBanners[current].title}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full object-cover object-center"
             />
           </Link>
         </motion.div>
