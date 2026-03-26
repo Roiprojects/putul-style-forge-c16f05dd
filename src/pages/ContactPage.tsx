@@ -13,7 +13,7 @@ const ContactPage = () => {
   };
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
+    <div className="min-h-screen">
       {/* Header */}
       <div className="bg-primary text-primary-foreground py-12 md:py-16">
         <div className="container mx-auto px-4 md:px-8 text-center">

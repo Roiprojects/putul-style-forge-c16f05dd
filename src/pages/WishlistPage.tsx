@@ -21,7 +21,7 @@ const WishlistPage = () => {
   }
 
   return (
-    <div className="pt-20 md:pt-24 min-h-screen">
+    <div className="min-h-screen">
       <div className="container mx-auto px-4 md:px-8 py-8">
         <h1 className="font-heading text-3xl md:text-4xl font-semibold mb-8">My Wishlist</h1>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
