@@ -219,7 +219,7 @@ const CartPage = () => {
     const { data, error } = await supabase
       .from("coupons")
       .select("*")
-      .eq("code", couponCode.trim().toUpperCase())
+      .eq("code", code)
       .eq("is_active", true)
       .single();
 
