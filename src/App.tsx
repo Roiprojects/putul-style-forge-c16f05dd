@@ -25,6 +25,9 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrderDetailPage from "./pages/OrderDetailPage";
 import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
+import TermsOfServicePage from "./pages/TermsOfServicePage";
+import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 
 // Admin
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -133,6 +136,9 @@ const App = () => (
                     <Route path="/orders/:id" element={<OrderDetailPage />} />
                     <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
                     <Route path="/profile" element={<ProfilePage />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+                    <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
                     <Route path="*" element={<NotFound />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
