@@ -67,7 +67,7 @@ const AdminHomepage = () => {
       section_type: s.section_type,
       title: s.title || "",
       subtitle: s.subtitle || "",
-      image_urls: (s.image_urls || []).join(", "),
+      image_urls: s.image_urls || [],
       is_enabled: s.is_enabled,
     });
     setDialogOpen(true);
