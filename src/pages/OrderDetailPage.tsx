@@ -56,6 +56,8 @@ const OrderDetailPage = () => {
   const [items, setItems] = useState<OrderItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [productImages, setProductImages] = useState<Record<string, string>>({});
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [showHelpChat, setShowHelpChat] = useState(false);
 
   useEffect(() => {
     if (!id) return;
