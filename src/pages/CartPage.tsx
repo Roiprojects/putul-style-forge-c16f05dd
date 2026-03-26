@@ -68,6 +68,7 @@ const CartPage = () => {
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showAreaSuggestions, setShowAreaSuggestions] = useState(false);
   const { results: areaSuggestions, loading: areaLoading } = useAreaSearch(form.street);
+  const { results: pincodeResults } = usePincodeSearch(form.pincode);
   const [user, setUser] = useState<any>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [savingAddress, setSavingAddress] = useState(false);
