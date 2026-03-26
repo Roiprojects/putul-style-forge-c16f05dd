@@ -569,11 +569,45 @@ const CartPage = () => {
                 <span className="text-muted-foreground">Shipping</span>
                 <span className="text-secondary">Free</span>
               </div>
+              {appliedCoupon && couponDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span className="flex items-center gap-1">
+                    Coupon ({appliedCoupon.code})
+                    <button onClick={removeCoupon} className="text-destructive hover:underline text-[10px] ml-1">Remove</button>
+                  </span>
+                  <span>-₹{couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
               <div className="border-t border-border pt-3 flex justify-between font-semibold text-base">
                 <span>Total</span>
-                <span>₹{cartTotal.toLocaleString()}</span>
+                <span>₹{finalTotal.toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Coupon input */}
+            {step === "cart" && !appliedCoupon && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Have a coupon?</p>
+                <div className="flex gap-2">
+                  <Input
+                    value={couponCode}
+                    onChange={(e) => { setCouponCode(e.target.value.toUpperCase()); setCouponError(""); }}
+                    placeholder="Enter code"
+                    className="border-border text-xs h-9 uppercase"
+                    maxLength={20}
+                    onKeyDown={(e) => e.key === "Enter" && applyCoupon()}
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponLoading || !couponCode.trim()}
+                    className="px-4 h-9 bg-foreground text-background text-xs font-medium tracking-wide hover:bg-foreground/90 transition-colors disabled:opacity-50 whitespace-nowrap"
+                  >
+                    {couponLoading ? "..." : "Apply"}
+                  </button>
+                </div>
+                {couponError && <p className="text-[11px] text-destructive mt-1.5">{couponError}</p>}
+              </div>
+            )}
 
             {step === "cart" && (
               <>
