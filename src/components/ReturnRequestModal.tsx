@@ -45,7 +45,7 @@ const REFUND_MODES = [
 
 type Step = "items" | "reason" | "refund" | "review";
 
-const ReturnRequestModal = ({ open, onClose, orderId, items, productImages }: ReturnRequestModalProps) => {
+const ReturnRequestModal = ({ open, onClose, orderId, items, productImages, orderSubtotal, orderDiscount, orderTotal }: ReturnRequestModalProps) => {
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [reason, setReason] = useState("");
