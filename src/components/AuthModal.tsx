@@ -76,11 +76,12 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
   );
 
   const selectedCountry = countryCodes.find((c) => c.code === countryCode);
+  const phoneLen = selectedCountry?.phoneLength ?? 10;
 
   const handleSendOTP = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (phone.length !== 10) {
-      toast.error("Please enter a valid 10-digit mobile number.");
+    if (phone.length !== phoneLen) {
+      toast.error(`Please enter a valid ${phoneLen}-digit mobile number.`);
       return;
     }
     setLoading(true);
