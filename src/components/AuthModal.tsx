@@ -225,8 +225,52 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
                         Mobile Number
                       </label>
                       <div className="flex gap-2">
-                        <div className="flex items-center justify-center px-3 border border-border rounded-lg bg-muted text-sm font-medium text-foreground">
-                          +91
+                        <div className="relative" ref={countryDropdownRef}>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setShowCountryDropdown(!showCountryDropdown);
+                              setCountrySearch("");
+                            }}
+                            className="flex items-center gap-1 px-2.5 h-full border border-border rounded-lg bg-muted text-sm font-medium text-foreground hover:bg-accent transition-colors min-w-[72px] py-2.5"
+                          >
+                            <span>{countryCode}</span>
+                            <ChevronDown size={12} className={`transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                          </button>
+                          {showCountryDropdown && (
+                            <div className="absolute top-full left-0 mt-1 w-56 max-h-52 overflow-y-auto bg-popover border border-border rounded-lg shadow-lg z-50">
+                              <div className="sticky top-0 bg-popover p-1.5">
+                                <input
+                                  type="text"
+                                  placeholder="Search country..."
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  className="w-full px-2.5 py-1.5 text-xs border border-border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-secondary"
+                                  autoFocus
+                                />
+                              </div>
+                              {filteredCountries.map((c) => (
+                                <button
+                                  key={c.country}
+                                  type="button"
+                                  onClick={() => {
+                                    setCountryCode(c.code);
+                                    setShowCountryDropdown(false);
+                                    setCountrySearch("");
+                                  }}
+                                  className={`w-full text-left px-3 py-2 text-sm hover:bg-accent transition-colors flex items-center justify-between ${
+                                    countryCode === c.code ? "bg-accent/50 font-medium" : ""
+                                  }`}
+                                >
+                                  <span>{c.name}</span>
+                                  <span className="text-muted-foreground text-xs">{c.code}</span>
+                                </button>
+                              ))}
+                              {filteredCountries.length === 0 && (
+                                <p className="text-xs text-muted-foreground text-center py-3">No results</p>
+                              )}
+                            </div>
+                          )}
                         </div>
                         <input
                           type="tel"
