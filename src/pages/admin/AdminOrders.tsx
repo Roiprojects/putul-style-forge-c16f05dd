@@ -38,7 +38,25 @@ const AdminOrders = () => {
     setReturns(enriched);
   };
 
-  useEffect(() => { fetchOrders(); fetchReturns(); }, []);
+  useEffect(() => {
+    fetchOrders();
+    fetchReturns();
+
+    // Realtime subscription for instant sync
+    const channel = supabase
+      .channel('admin-orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchOrders();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'returns' }, () => {
+        fetchReturns();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const updateStatus = async (orderId: string, status: string) => {
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
