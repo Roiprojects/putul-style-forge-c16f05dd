@@ -13,7 +13,18 @@ const AdminPayments = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetch(); }, []);
+  useEffect(() => {
+    fetch();
+
+    const channel = supabase
+      .channel('admin-payments-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetch();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, []);
 
   const toggle = async (m: any) => {
     const { error } = await supabase.from("payment_settings").update({ is_enabled: !m.is_enabled }).eq("id", m.id);

@@ -32,42 +32,61 @@ const AdminDashboard = () => {
   });
   const [loading, setLoading] = useState(true);
 
+  const fetchStats = async () => {
+    const [productsRes, ordersRes, lowStockRes, recentOrdersRes, topProductsRes] =
+      await Promise.all([
+        supabase.from("admin_products").select("id", { count: "exact", head: true }),
+        supabase.from("orders").select("id, total", { count: "exact" }),
+        supabase
+          .from("admin_products")
+          .select("id", { count: "exact", head: true })
+          .lt("stock", 10),
+        supabase
+          .from("orders")
+          .select("*")
+          .order("created_at", { ascending: false })
+          .limit(5),
+        supabase
+          .from("admin_products")
+          .select("*")
+          .order("reviews_count", { ascending: false })
+          .limit(5),
+      ]);
+
+    const totalRevenue =
+      ordersRes.data?.reduce((sum, o) => sum + Number(o.total || 0), 0) ?? 0;
+
+    setStats({
+      totalProducts: productsRes.count ?? 0,
+      totalOrders: ordersRes.count ?? 0,
+      totalRevenue,
+      lowStockCount: lowStockRes.count ?? 0,
+      recentOrders: recentOrdersRes.data ?? [],
+      topProducts: topProductsRes.data ?? [],
+    });
+    setLoading(false);
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      const [productsRes, ordersRes, lowStockRes, recentOrdersRes, topProductsRes] =
-        await Promise.all([
-          supabase.from("admin_products").select("id", { count: "exact", head: true }),
-          supabase.from("orders").select("id, total", { count: "exact" }),
-          supabase
-            .from("admin_products")
-            .select("id", { count: "exact", head: true })
-            .lt("stock", 10),
-          supabase
-            .from("orders")
-            .select("*")
-            .order("created_at", { ascending: false })
-            .limit(5),
-          supabase
-            .from("admin_products")
-            .select("*")
-            .order("reviews_count", { ascending: false })
-            .limit(5),
-        ]);
-
-      const totalRevenue =
-        ordersRes.data?.reduce((sum, o) => sum + Number(o.total || 0), 0) ?? 0;
-
-      setStats({
-        totalProducts: productsRes.count ?? 0,
-        totalOrders: ordersRes.count ?? 0,
-        totalRevenue,
-        lowStockCount: lowStockRes.count ?? 0,
-        recentOrders: recentOrdersRes.data ?? [],
-        topProducts: topProductsRes.data ?? [],
-      });
-      setLoading(false);
-    };
     fetchStats();
+
+    // Realtime subscription for instant sync
+    const channel = supabase
+      .channel('admin-dashboard-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => {
+        fetchStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'returns' }, () => {
+        fetchStats();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'order_items' }, () => {
+        fetchStats();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const statCards = [

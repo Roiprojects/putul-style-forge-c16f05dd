@@ -50,6 +50,7 @@ import AdminReviews from "@/pages/admin/AdminReviews";
 import AdminAnalytics from "@/pages/admin/AdminAnalytics";
 import AdminRoles from "@/pages/admin/AdminRoles";
 import AdminSettings from "@/pages/admin/AdminSettings";
+import AdminRefunds from "@/pages/admin/AdminRefunds";
 import AdminLogin from "@/pages/admin/AdminLogin";
 
 const queryClient = new QueryClient();
@@ -115,6 +116,7 @@ const App = () => (
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="shipping" element={<AdminShipping />} />
               <Route path="payments" element={<AdminPayments />} />
+              <Route path="refunds" element={<AdminRefunds />} />
               <Route path="roles" element={<AdminRoles />} />
               <Route path="settings" element={<AdminSettings />} />
             </Route>

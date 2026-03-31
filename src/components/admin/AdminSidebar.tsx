@@ -18,6 +18,7 @@ import {
   BarChart2,
   Shield,
   Settings,
+  RotateCcw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -39,6 +40,7 @@ const navItems = [
   { label: "Analytics", icon: BarChart2, to: "/admin/analytics" },
   { label: "Shipping", icon: Truck, to: "/admin/shipping" },
   { label: "Payments", icon: CreditCard, to: "/admin/payments" },
+  { label: "Refunds", icon: RotateCcw, to: "/admin/refunds" },
   { label: "Roles", icon: Shield, to: "/admin/roles" },
   { label: "Settings", icon: Settings, to: "/admin/settings" },
 ];
