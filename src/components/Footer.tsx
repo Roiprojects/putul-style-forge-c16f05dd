@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import putulFooterLogo from "@/assets/putul-footer-logo-new.png";
 
 const Footer = () => (
