@@ -78,7 +78,7 @@ const FloatingButtons = () => {
         </motion.button>
       </div>
 
-      <HelpChatbox open={chatOpen} onClose={() => setChatOpen(false)} />
+      <AIChatbox open={chatOpen} onClose={() => setChatOpen(false)} />
     </>
   );
 };
