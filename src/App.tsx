@@ -12,6 +12,7 @@ import FloatingButtons from "@/components/FloatingButtons";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import CustomCursor from "@/components/CustomCursor";
 import ScrollToTop from "@/components/ScrollToTop";
+import ScrollToTopButton from "@/components/ScrollToTopButton";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
