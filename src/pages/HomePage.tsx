@@ -74,12 +74,14 @@ const HomePage = () => {
               Why Choose Putul
             </h2>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
             {[
               { icon: "🏆", title: "Premium Quality", desc: "Handpicked materials for lasting comfort" },
               { icon: "🚚", title: "Free Shipping", desc: "On every order, no minimum" },
               { icon: "💎", title: "Best Prices", desc: "Luxury quality at affordable prices" },
               { icon: "↩️", title: "Easy Returns", desc: "Hassle-free 7-day return policy" },
+              { icon: "💵", title: "Cash on Delivery", desc: "Pay when you receive your order" },
+              { icon: "🔒", title: "Secure Payments", desc: "100% safe & trusted transactions" },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
