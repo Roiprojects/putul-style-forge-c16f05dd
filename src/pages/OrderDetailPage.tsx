@@ -430,6 +430,9 @@ const OrderDetailPage = () => {
           orderId={order.id}
           items={items}
           productImages={productImages}
+          orderSubtotal={order.subtotal}
+          orderDiscount={order.discount ?? 0}
+          orderTotal={order.total}
         />
 
         {/* Help Chatbox */}

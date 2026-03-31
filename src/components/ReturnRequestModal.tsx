@@ -21,6 +21,9 @@ interface ReturnRequestModalProps {
   orderId: string;
   items: OrderItem[];
   productImages: Record<string, string>;
+  orderSubtotal: number;
+  orderDiscount: number;
+  orderTotal: number;
 }
 
 const RETURN_REASONS = [
