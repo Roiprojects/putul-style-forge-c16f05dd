@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram, Facebook } from "lucide-react";
 import putulFooterLogo from "@/assets/putul-footer-logo-new.png";
 
 const Footer = () => (
@@ -14,15 +14,12 @@ const Footer = () => (
           <p className="text-xs text-background/40 leading-relaxed mb-4 max-w-xs">
             Premium men's footwear for the modern man. Step into style, walk with confidence.
           </p>
-          <div className="flex gap-3">
+          <div className="flex gap-3 justify-center">
             <a href="https://www.instagram.com/putul.fashion/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Instagram">
               <Instagram size={15} strokeWidth={1.3} />
             </a>
             <a href="https://www.facebook.com/PUTUL.Fashions" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Facebook">
               <Facebook size={15} strokeWidth={1.3} />
-            </a>
-            <a href="https://twitter.com/putulfashion" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Twitter">
-              <Twitter size={15} strokeWidth={1.3} />
             </a>
           </div>
         </div>
