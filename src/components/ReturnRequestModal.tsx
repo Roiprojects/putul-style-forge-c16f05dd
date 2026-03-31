@@ -58,9 +58,14 @@ const ReturnRequestModal = ({ open, onClose, orderId, items, productImages, orde
     setSelectedItems((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
-  const refundAmount = items
+  const selectedItemsTotal = items
     .filter((i) => selectedItems.includes(i.id))
     .reduce((sum, i) => sum + i.total_price, 0);
+
+  // Calculate proportional refund: if a discount was applied to the order,
+  // the refund should be proportional to what the user actually paid
+  const discountRatio = orderSubtotal > 0 ? (orderSubtotal - orderDiscount) / orderSubtotal : 1;
+  const refundAmount = Math.round(selectedItemsTotal * discountRatio * 100) / 100;
 
   const finalReason = reason === "Other" ? otherReason : reason;
 
