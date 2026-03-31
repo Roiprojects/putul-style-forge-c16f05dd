@@ -790,11 +790,50 @@ const CartPage = () => {
                     </div>
                   </div>
 
+                  {/* Payment Method Selection */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Payment Method</p>
+                    <div className="space-y-2">
+                      <label
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="razorpay"
+                          checked={paymentMethod === "razorpay"}
+                          onChange={() => setPaymentMethod("razorpay")}
+                          className="accent-secondary"
+                        />
+                        <div>
+                          <p className="text-sm font-medium">Online Payment (Razorpay)</p>
+                          <p className="text-[10px] text-muted-foreground">UPI, Cards, Net Banking</p>
+                        </div>
+                      </label>
+                      <label
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "cod" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="cod"
+                          checked={paymentMethod === "cod"}
+                          onChange={() => setPaymentMethod("cod")}
+                          className="accent-secondary"
+                        />
+                        <div>
+                          <p className="text-sm font-medium">Cash on Delivery</p>
+                          <p className="text-[10px] text-muted-foreground">+10% COD surcharge applied</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   <button
                     onClick={handleProceedToPay}
                     className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
                   >
-                    Proceed to Pay — ₹{finalTotal.toLocaleString()}
+                    {paymentMethod === "cod" ? "Place Order (COD)" : "Proceed to Pay"} — ₹{finalTotal.toLocaleString()}
                   </button>
 
                   <button
