@@ -105,6 +105,17 @@ const OrderDetailPage = () => {
       }
     }
 
+    // Fetch return request if any
+    const { data: returnData } = await supabase
+      .from("returns")
+      .select("id, status, reason, refund_amount, admin_notes, created_at")
+      .eq("order_id", id!)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (returnData && returnData.length > 0) {
+      setReturnRequest(returnData[0] as ReturnRequest);
+    }
+
     setLoading(false);
   };
 
