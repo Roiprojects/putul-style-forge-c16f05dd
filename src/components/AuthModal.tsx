@@ -276,12 +276,12 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
                         <input
                           type="tel"
                           inputMode="numeric"
-                          maxLength={10}
+                          maxLength={phoneLen}
                           required
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, phoneLen))}
                           className="flex-1 border border-border bg-background rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all"
-                          placeholder="Enter 10-digit number"
+                          placeholder={`Enter ${phoneLen}-digit number`}
                           autoFocus
                         />
                       </div>
