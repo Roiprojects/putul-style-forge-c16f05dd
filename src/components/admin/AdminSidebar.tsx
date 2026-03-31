@@ -18,6 +18,7 @@ import {
   BarChart2,
   Shield,
   Settings,
+  RotateCcw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
