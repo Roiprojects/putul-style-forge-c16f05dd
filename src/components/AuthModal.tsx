@@ -15,10 +15,14 @@ type Step = "phone" | "otp";
 const AuthModal = ({ open, onClose }: AuthModalProps) => {
   const [step, setStep] = useState<Step>("phone");
   const [phone, setPhone] = useState("");
+  const [countryCode, setCountryCode] = useState("+91");
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
 
   const reset = useCallback(() => {
     setStep("phone");
