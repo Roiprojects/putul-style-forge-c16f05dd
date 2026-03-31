@@ -414,7 +414,47 @@ const OrderDetailPage = () => {
               </div>
             </motion.div>
 
-            {/* Need Help */}
+            {/* Return/Refund Status */}
+            {returnRequest && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.22 }}
+                className="border border-border rounded-xl p-5"
+              >
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Return Status</p>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                      returnRequest.status === "refunded" ? "bg-green-50 text-green-700" :
+                      returnRequest.status === "approved" ? "bg-blue-50 text-blue-700" :
+                      returnRequest.status === "rejected" ? "bg-red-50 text-red-700" :
+                      "bg-amber-50 text-amber-700"
+                    }`}>
+                      {returnRequest.status.charAt(0).toUpperCase() + returnRequest.status.slice(1)}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {new Date(returnRequest.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </span>
+                  </div>
+                  <p className="text-xs text-muted-foreground">{returnRequest.reason}</p>
+                  {returnRequest.refund_amount != null && returnRequest.refund_amount > 0 && (
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Refund Amount</span>
+                      <span className="font-medium">₹{returnRequest.refund_amount.toLocaleString("en-IN")}</span>
+                    </div>
+                  )}
+                  {returnRequest.admin_notes && (
+                    <div className="pt-2 border-t border-border">
+                      <p className="text-[10px] text-muted-foreground">Admin Note</p>
+                      <p className="text-xs mt-0.5">{returnRequest.admin_notes}</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
