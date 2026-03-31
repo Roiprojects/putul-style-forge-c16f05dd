@@ -21,6 +21,9 @@ interface ReturnRequestModalProps {
   orderId: string;
   items: OrderItem[];
   productImages: Record<string, string>;
+  orderSubtotal: number;
+  orderDiscount: number;
+  orderTotal: number;
 }
 
 const RETURN_REASONS = [
@@ -42,7 +45,7 @@ const REFUND_MODES = [
 
 type Step = "items" | "reason" | "refund" | "review";
 
-const ReturnRequestModal = ({ open, onClose, orderId, items, productImages }: ReturnRequestModalProps) => {
+const ReturnRequestModal = ({ open, onClose, orderId, items, productImages, orderSubtotal, orderDiscount, orderTotal }: ReturnRequestModalProps) => {
   const [step, setStep] = useState<Step>("items");
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [reason, setReason] = useState("");
@@ -55,9 +58,14 @@ const ReturnRequestModal = ({ open, onClose, orderId, items, productImages }: Re
     setSelectedItems((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
   };
 
-  const refundAmount = items
+  const selectedItemsTotal = items
     .filter((i) => selectedItems.includes(i.id))
     .reduce((sum, i) => sum + i.total_price, 0);
+
+  // Calculate proportional refund: if a discount was applied to the order,
+  // the refund should be proportional to what the user actually paid
+  const discountRatio = orderSubtotal > 0 ? (orderSubtotal - orderDiscount) / orderSubtotal : 1;
+  const refundAmount = Math.round(selectedItemsTotal * discountRatio * 100) / 100;
 
   const finalReason = reason === "Other" ? otherReason : reason;
 
