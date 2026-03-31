@@ -27,9 +27,24 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
   const reset = useCallback(() => {
     setStep("phone");
     setPhone("");
+    setCountryCode("+91");
+    setShowCountryDropdown(false);
+    setCountrySearch("");
     setOtp(["", "", "", "", "", ""]);
     setLoading(false);
     setCountdown(0);
+  }, []);
+
+  // Close country dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (countryDropdownRef.current && !countryDropdownRef.current.contains(e.target as Node)) {
+        setShowCountryDropdown(false);
+        setCountrySearch("");
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
   }, []);
 
   const handleClose = () => {
