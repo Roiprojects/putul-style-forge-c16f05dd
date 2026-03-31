@@ -93,6 +93,7 @@ const CartPage = () => {
   const [couponError, setCouponError] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [showRazorpay, setShowRazorpay] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
 
   // Fetch available coupons
   useEffect(() => {
