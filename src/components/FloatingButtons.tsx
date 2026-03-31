@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { ArrowUp, Phone } from "lucide-react";
+import { Phone, MessageCircle, X, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import HelpChatbox from "@/components/HelpChatbox";
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
@@ -9,51 +10,75 @@ const WhatsAppIcon = () => (
 );
 
 const FloatingButtons = () => {
-  const [showScrollTop, setShowScrollTop] = useState(false);
+  const [open, setOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => setShowScrollTop(window.scrollY > 600);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const handler = () => setChatOpen(true);
+    window.addEventListener("toggle-chatbot", handler);
+    return () => window.removeEventListener("toggle-chatbot", handler);
   }, []);
 
   return (
     <>
-      {/* Left side — WhatsApp & Call */}
-      <div className="fixed bottom-6 left-5 z-50 flex flex-col gap-2.5">
-        <a
-          href="https://wa.me/918000685588"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-          aria-label="WhatsApp"
+      <div className="fixed bottom-6 left-5 z-50">
+        <AnimatePresence>
+          {open && (
+            <>
+              <motion.a
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -140, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2, delay: 0.1 }}
+                href="https://wa.me/918000685588"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="WhatsApp"
+              >
+                <WhatsAppIcon />
+              </motion.a>
+              <motion.a
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -95, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2, delay: 0.05 }}
+                href="tel:+918000685588"
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="Call us"
+              >
+                <Phone size={16} strokeWidth={1.5} />
+              </motion.a>
+              <motion.button
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -50, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => {
+                  setOpen(false);
+                  setChatOpen(true);
+                }}
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="AI Chatbot"
+              >
+                <Bot size={16} strokeWidth={1.5} />
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
+
+        <motion.button
+          onClick={() => setOpen(!open)}
+          animate={{ rotate: open ? 135 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="w-11 h-11 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          aria-label="Contact options"
         >
-          <WhatsAppIcon />
-        </a>
-        <a
-          href="tel:+918000685588"
-          className="w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-          aria-label="Call us"
-        >
-          <Phone size={16} strokeWidth={1.5} />
-        </a>
+          {open ? <X size={18} strokeWidth={2} /> : <MessageCircle size={18} strokeWidth={1.5} />}
+        </motion.button>
       </div>
 
-      {/* Right side — Scroll to top */}
-      <AnimatePresence>
-        {showScrollTop && (
-          <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="fixed bottom-6 right-5 z-50 w-10 h-10 bg-foreground text-background flex items-center justify-center shadow-lg hover:bg-secondary transition-colors"
-            aria-label="Scroll to top"
-          >
-            <ArrowUp size={16} strokeWidth={1.5} />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      <HelpChatbox open={chatOpen} onClose={() => setChatOpen(false)} />
     </>
   );
 };
