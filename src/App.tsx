@@ -146,6 +146,7 @@ const App = () => (
                   <Footer />
                   <MobileBottomNav />
                   <FloatingButtons />
+                  <ScrollToTopButton />
                 </>
               }
             />
