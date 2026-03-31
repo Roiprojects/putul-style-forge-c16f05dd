@@ -74,7 +74,7 @@ const FloatingButtons = () => {
           className="w-11 h-11 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="Contact options"
         >
-          {open ? <X size={18} strokeWidth={2} /> : <BotMessageSquare size={18} strokeWidth={1.5} />}
+          {open ? <X size={18} strokeWidth={2} /> : <MessageCircle size={18} strokeWidth={1.5} />}
         </motion.button>
       </div>
 
