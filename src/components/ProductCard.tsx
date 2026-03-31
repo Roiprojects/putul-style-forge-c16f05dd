@@ -15,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { formatPrice, isINR } = useCurrency();
   const wishlisted = isInWishlist(product.id);
   const [isHovered, setIsHovered] = useState(false);
   const [phase, setPhase] = useState<"idle" | "sizes" | "added">("idle");
