@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, X, BotMessageSquare } from "lucide-react";
+import { Phone, X, BotMessageSquare, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AIChatbox from "@/components/AIChatbox";
 
