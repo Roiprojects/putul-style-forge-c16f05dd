@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Phone, MessageCircle, X, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import HelpChatbox from "@/components/HelpChatbox";
+import AIChatbox from "@/components/AIChatbox";
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
