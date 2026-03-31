@@ -154,6 +154,7 @@ const App = () => (
             />
           </Routes>
         </BrowserRouter>
+        </CurrencyProvider>
       </StoreProvider>
     </TooltipProvider>
   </QueryClientProvider>

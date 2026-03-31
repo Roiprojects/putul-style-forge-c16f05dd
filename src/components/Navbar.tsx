@@ -136,7 +136,8 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             </form>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
+              <CurrencySelector />
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
