@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Star, ArrowRight, Check } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Product } from "@/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";

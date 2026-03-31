@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import { toast } from "sonner";
 
