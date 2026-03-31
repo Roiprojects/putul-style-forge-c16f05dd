@@ -321,7 +321,7 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
                       </p>
                       <div className="flex items-center gap-2 mt-1">
                         <span className="text-sm font-semibold text-foreground">
-                          +91 {phone}
+                          {countryCode} {phone}
                         </span>
                         <button
                           onClick={() => {
