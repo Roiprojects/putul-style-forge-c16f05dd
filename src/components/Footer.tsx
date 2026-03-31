@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Instagram, Facebook, Twitter } from "lucide-react";
-import putulFooterLogo from "@/assets/putul-footer-logo.png";
+import putulFooterLogo from "@/assets/putul-footer-logo-new.png";
 
 const Footer = () => (
   <footer className="bg-foreground text-background pb-16 md:pb-0">
@@ -9,7 +9,7 @@ const Footer = () => (
       <div className="py-10 md:py-14 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
         {/* Brand */}
         <div className="col-span-2 md:col-span-1">
-          <img src={putulFooterLogo} alt="Putul Logo" className="h-14 w-auto mb-2 invert ml-5" />
+          <img src={putulFooterLogo} alt="Putul Logo" className="h-14 w-auto mb-2 invert brightness-0 invert ml-5" />
           <h2 className="font-heading text-2xl font-semibold tracking-[0.1em] text-background mb-3">PUTUL</h2>
           <p className="text-xs text-background/40 leading-relaxed mb-4 max-w-xs">
             Premium men's footwear for the modern man. Step into style, walk with confidence.
