@@ -61,7 +61,7 @@ const FloatingButtons = () => {
                 className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
                 aria-label="AI Chatbot"
               >
-                <Bot size={16} strokeWidth={1.5} />
+                <BotMessageSquare size={16} strokeWidth={1.5} />
               </motion.button>
             </>
           )}
