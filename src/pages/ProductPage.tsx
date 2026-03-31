@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
 import { useProduct, useProducts } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import { toast } from "sonner";
 
@@ -12,6 +13,7 @@ const ProductPage = () => {
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
+  const { formatPrice, isINR } = useCurrency();
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
@@ -137,15 +139,19 @@ const ProductPage = () => {
               </span>
             </div>
 
-            <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-2xl font-bold text-foreground">₹{product.price.toLocaleString()}</span>
+            <div className="flex items-baseline gap-3 mb-2">
+              <span className="text-2xl font-bold text-foreground">{formatPrice(product.price)}</span>
               {product.originalPrice && (
                 <>
-                  <span className="text-sm text-muted-foreground line-through">₹{product.originalPrice.toLocaleString()}</span>
+                  <span className="text-sm text-muted-foreground line-through">{formatPrice(product.originalPrice)}</span>
                   <span className="text-sm font-semibold text-green-600">({discount}% off)</span>
                 </>
               )}
             </div>
+            {!isINR && (
+              <p className="text-xs text-muted-foreground mb-6">≈ ₹{product.price.toLocaleString()} INR</p>
+            )}
+            {isINR && <div className="mb-6" />}
 
             <hr className="mb-6" />
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">{product.description}</p>

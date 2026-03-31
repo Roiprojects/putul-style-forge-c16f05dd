@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { StoreProvider } from "@/contexts/StoreContext";
+import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -87,6 +88,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <StoreProvider>
+        <CurrencyProvider>
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
@@ -152,6 +154,7 @@ const App = () => (
             />
           </Routes>
         </BrowserRouter>
+        </CurrencyProvider>
       </StoreProvider>
     </TooltipProvider>
   </QueryClientProvider>

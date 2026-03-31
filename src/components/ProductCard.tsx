@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Heart, Star, ArrowRight, Check } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 import type { Product } from "@/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -14,6 +15,7 @@ interface ProductCardProps {
 
 const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
+  const { formatPrice, isINR } = useCurrency();
   const wishlisted = isInWishlist(product.id);
   const [isHovered, setIsHovered] = useState(false);
   const [phase, setPhase] = useState<"idle" | "sizes" | "added">("idle");
@@ -198,14 +200,17 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             </div>
           </div>
           <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-[13px] font-bold text-foreground tabular-nums">₹{product.price.toLocaleString()}</span>
+            <span className="text-[13px] font-bold text-foreground tabular-nums">{formatPrice(product.price)}</span>
             {product.originalPrice && (
-              <span className="text-[10px] text-muted-foreground line-through tabular-nums">₹{product.originalPrice.toLocaleString()}</span>
+              <span className="text-[10px] text-muted-foreground line-through tabular-nums">{formatPrice(product.originalPrice)}</span>
             )}
             {discount > 0 && (
               <span className="text-[9px] font-bold text-green-600 tracking-wide">({discount}% OFF)</span>
             )}
           </div>
+          {!isINR && (
+            <p className="text-[8px] text-muted-foreground mt-0.5">≈ ₹{product.price.toLocaleString()} INR</p>
+          )}
         </div>
       </Link>
     </motion.div>

@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import SearchDropdown from "@/components/SearchDropdown";
+import CurrencySelector from "@/components/CurrencySelector";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import putulLogo from "@/assets/putul-logo.png";
 
@@ -135,7 +136,8 @@ const Navbar = () => {
                 </AnimatePresence>
               </div>
             </form>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
+              <CurrencySelector />
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
