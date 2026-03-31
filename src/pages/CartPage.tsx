@@ -310,7 +310,8 @@ const CartPage = () => {
     return Math.min(disc, cartTotal);
   }, [appliedCoupon, cartTotal]);
 
-  const finalTotal = cartTotal - couponDiscount;
+  const codSurcharge = paymentMethod === "cod" ? Math.round((cartTotal - couponDiscount) * 0.1) : 0;
+  const finalTotal = cartTotal - couponDiscount + codSurcharge;
 
   const handleProceedToPay = () => {
     setShowRazorpay(true);
