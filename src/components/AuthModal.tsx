@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { X, Loader2, Phone, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { X, Loader2, Phone, ArrowLeft, CheckCircle2, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { countryCodes } from "@/data/countryCodes";
 
 interface AuthModalProps {
   open: boolean;
