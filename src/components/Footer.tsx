@@ -14,7 +14,7 @@ const Footer = () => (
           <p className="text-xs text-background/40 leading-relaxed mb-4 max-w-xs">
             Premium men's footwear for the modern man. Step into style, walk with confidence.
           </p>
-          <div className="flex gap-3 justify-center">
+          <div className="flex gap-3 justify-start">
             <a href="https://www.instagram.com/putul.fashion/" target="_blank" rel="noopener noreferrer" className="w-9 h-9 border border-background/15 flex items-center justify-center rounded-full hover:border-secondary hover:text-secondary transition-all" aria-label="Instagram">
               <Instagram size={15} strokeWidth={1.3} />
             </a>
