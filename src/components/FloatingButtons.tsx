@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Phone, X, BotMessageSquare } from "lucide-react";
+import { Phone, X, BotMessageSquare, MessageCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AIChatbox from "@/components/AIChatbox";
 
@@ -74,7 +74,7 @@ const FloatingButtons = () => {
           className="w-11 h-11 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
           aria-label="Contact options"
         >
-          {open ? <X size={18} strokeWidth={2} /> : <BotMessageSquare size={18} strokeWidth={1.5} />}
+          {open ? <X size={18} strokeWidth={2} /> : <MessageCircle size={18} strokeWidth={1.5} />}
         </motion.button>
       </div>
 
