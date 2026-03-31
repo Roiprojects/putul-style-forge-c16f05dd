@@ -93,6 +93,7 @@ const CartPage = () => {
   const [couponError, setCouponError] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [showRazorpay, setShowRazorpay] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
 
   // Fetch available coupons
   useEffect(() => {
@@ -309,10 +310,61 @@ const CartPage = () => {
     return Math.min(disc, cartTotal);
   }, [appliedCoupon, cartTotal]);
 
-  const finalTotal = cartTotal - couponDiscount;
+  const codSurcharge = paymentMethod === "cod" ? Math.round((cartTotal - couponDiscount) * 0.1) : 0;
+  const finalTotal = cartTotal - couponDiscount + codSurcharge;
 
-  const handleProceedToPay = () => {
-    setShowRazorpay(true);
+  const handleProceedToPay = async () => {
+    if (paymentMethod === "cod") {
+      // Direct COD order
+      const { data: orderData, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user?.id || null,
+          customer_name: form.name,
+          customer_email: user?.email || `${form.phone}@phone.putul.app`,
+          customer_phone: form.phone,
+          shipping_address: fullAddress,
+          subtotal: cartTotal,
+          discount: couponDiscount,
+          total: finalTotal,
+          payment_method: "cod",
+          payment_status: "pending",
+          status: "confirmed",
+          notes: `COD surcharge: ₹${codSurcharge}`,
+        })
+        .select()
+        .single();
+
+      if (orderError || !orderData) {
+        toast.error("Order failed. Please try again.");
+        return;
+      }
+
+      const orderItems = cart.map(item => ({
+        order_id: orderData.id,
+        product_id: item.product.id,
+        product_name: item.product.name,
+        size: item.size,
+        quantity: item.quantity,
+        unit_price: item.product.price,
+        total_price: item.product.price * item.quantity,
+      }));
+
+      await supabase.from("order_items").insert(orderItems);
+      clearCart();
+      navigate("/order-confirmation", {
+        state: {
+          orderId: orderData.id,
+          paymentId: "COD",
+          amount: finalTotal,
+          items: cart.map(i => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price })),
+          address: fullAddress,
+          customerName: form.name,
+        },
+      });
+    } else {
+      setShowRazorpay(true);
+    }
   };
 
   const handlePaymentSuccess = async (paymentId: string) => {
@@ -738,11 +790,50 @@ const CartPage = () => {
                     </div>
                   </div>
 
+                  {/* Payment Method Selection */}
+                  <div className="mb-6">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Payment Method</p>
+                    <div className="space-y-2">
+                      <label
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="razorpay"
+                          checked={paymentMethod === "razorpay"}
+                          onChange={() => setPaymentMethod("razorpay")}
+                          className="accent-secondary"
+                        />
+                        <div>
+                          <p className="text-sm font-medium">Online Payment (Razorpay)</p>
+                          <p className="text-[10px] text-muted-foreground">UPI, Cards, Net Banking</p>
+                        </div>
+                      </label>
+                      <label
+                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "cod" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                      >
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="cod"
+                          checked={paymentMethod === "cod"}
+                          onChange={() => setPaymentMethod("cod")}
+                          className="accent-secondary"
+                        />
+                        <div>
+                          <p className="text-sm font-medium">Cash on Delivery</p>
+                          <p className="text-[10px] text-muted-foreground">+10% COD surcharge applied</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
                   <button
                     onClick={handleProceedToPay}
                     className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
                   >
-                    Proceed to Pay — ₹{finalTotal.toLocaleString()}
+                    {paymentMethod === "cod" ? "Place Order (COD)" : "Proceed to Pay"} — ₹{finalTotal.toLocaleString()}
                   </button>
 
                   <button
@@ -768,13 +859,19 @@ const CartPage = () => {
                 <span className="text-muted-foreground">Shipping</span>
                 <span className="text-secondary">Free</span>
               </div>
-              {appliedCoupon && couponDiscount > 0 && (
+               {appliedCoupon && couponDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span className="flex items-center gap-1">
                     Coupon ({appliedCoupon.code})
                     <button onClick={removeCoupon} className="text-destructive hover:underline text-[10px] ml-1">Remove</button>
                   </span>
                   <span>-₹{couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
+              {codSurcharge > 0 && (
+                <div className="flex justify-between text-amber-600">
+                  <span>COD Surcharge (10%)</span>
+                  <span>+₹{codSurcharge.toLocaleString()}</span>
                 </div>
               )}
               <div className="border-t border-border pt-3 flex justify-between font-semibold text-base">
