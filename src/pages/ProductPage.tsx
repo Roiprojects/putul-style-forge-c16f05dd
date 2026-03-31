@@ -13,6 +13,7 @@ const ProductPage = () => {
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
+  const { formatPrice, isINR } = useCurrency();
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
