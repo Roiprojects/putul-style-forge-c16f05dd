@@ -88,6 +88,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <StoreProvider>
+        <CurrencyProvider>
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
