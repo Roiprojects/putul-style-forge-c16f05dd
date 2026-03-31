@@ -49,6 +49,15 @@ const STATUS_STEPS = [
   { key: "delivered", label: "Delivered", icon: CheckCircle },
 ];
 
+interface ReturnRequest {
+  id: string;
+  status: string;
+  reason: string;
+  refund_amount: number | null;
+  admin_notes: string | null;
+  created_at: string;
+}
+
 const OrderDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -58,6 +67,7 @@ const OrderDetailPage = () => {
   const [productImages, setProductImages] = useState<Record<string, string>>({});
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showHelpChat, setShowHelpChat] = useState(false);
+  const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
 
   useEffect(() => {
     if (!id) return;
