@@ -76,11 +76,12 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
   );
 
   const selectedCountry = countryCodes.find((c) => c.code === countryCode);
+  const phoneLen = selectedCountry?.phoneLength ?? 10;
 
   const handleSendOTP = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (phone.length !== 10) {
-      toast.error("Please enter a valid 10-digit mobile number.");
+    if (phone.length !== phoneLen) {
+      toast.error(`Please enter a valid ${phoneLen}-digit mobile number.`);
       return;
     }
     setLoading(true);
@@ -275,12 +276,12 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
                         <input
                           type="tel"
                           inputMode="numeric"
-                          maxLength={10}
+                          maxLength={phoneLen}
                           required
                           value={phone}
-                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                          onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, phoneLen))}
                           className="flex-1 border border-border bg-background rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-secondary/50 focus:border-secondary transition-all"
-                          placeholder="Enter 10-digit number"
+                          placeholder={`Enter ${phoneLen}-digit number`}
                           autoFocus
                         />
                       </div>
@@ -288,7 +289,7 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
 
                     <button
                       type="submit"
-                      disabled={loading || phone.length !== 10}
+                      disabled={loading || phone.length !== phoneLen}
                       className="btn-primary w-full py-3 flex items-center justify-center gap-2 rounded-lg disabled:opacity-50 transition-all"
                     >
                       {loading ? (
