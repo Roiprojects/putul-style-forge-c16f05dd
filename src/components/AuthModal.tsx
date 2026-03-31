@@ -289,7 +289,7 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
 
                     <button
                       type="submit"
-                      disabled={loading || phone.length !== 10}
+                      disabled={loading || phone.length !== phoneLen}
                       className="btn-primary w-full py-3 flex items-center justify-center gap-2 rounded-lg disabled:opacity-50 transition-all"
                     >
                       {loading ? (
