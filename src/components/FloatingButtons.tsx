@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Phone, MessageCircle, X, Bot } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import HelpChatbox from "@/components/HelpChatbox";
 
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-4.5 h-4.5">
@@ -10,66 +11,75 @@ const WhatsAppIcon = () => (
 
 const FloatingButtons = () => {
   const [open, setOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setChatOpen(true);
+    window.addEventListener("toggle-chatbot", handler);
+    return () => window.removeEventListener("toggle-chatbot", handler);
+  }, []);
 
   return (
-    <div className="fixed bottom-6 left-5 z-50">
-      <AnimatePresence>
-        {open && (
-          <>
-            <motion.a
-              initial={{ opacity: 0, y: 0, scale: 0.5 }}
-              animate={{ opacity: 1, y: -140, scale: 1 }}
-              exit={{ opacity: 0, y: 0, scale: 0.5 }}
-              transition={{ duration: 0.2, delay: 0.1 }}
-              href="https://wa.me/918000685588"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-              aria-label="WhatsApp"
-            >
-              <WhatsAppIcon />
-            </motion.a>
-            <motion.a
-              initial={{ opacity: 0, y: 0, scale: 0.5 }}
-              animate={{ opacity: 1, y: -95, scale: 1 }}
-              exit={{ opacity: 0, y: 0, scale: 0.5 }}
-              transition={{ duration: 0.2, delay: 0.05 }}
-              href="tel:+918000685588"
-              className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-              aria-label="Call us"
-            >
-              <Phone size={16} strokeWidth={1.5} />
-            </motion.a>
-            <motion.button
-              initial={{ opacity: 0, y: 0, scale: 0.5 }}
-              animate={{ opacity: 1, y: -50, scale: 1 }}
-              exit={{ opacity: 0, y: 0, scale: 0.5 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => {
-                setOpen(false);
-                // Trigger HelpChatbox - dispatch custom event
-                window.dispatchEvent(new CustomEvent("toggle-chatbot"));
-              }}
-              className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
-              aria-label="AI Chatbot"
-            >
-              <Bot size={16} strokeWidth={1.5} />
-            </motion.button>
-          </>
-        )}
-      </AnimatePresence>
+    <>
+      <div className="fixed bottom-6 left-5 z-50">
+        <AnimatePresence>
+          {open && (
+            <>
+              <motion.a
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -140, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2, delay: 0.1 }}
+                href="https://wa.me/918000685588"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="WhatsApp"
+              >
+                <WhatsAppIcon />
+              </motion.a>
+              <motion.a
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -95, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2, delay: 0.05 }}
+                href="tel:+918000685588"
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-foreground text-background flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="Call us"
+              >
+                <Phone size={16} strokeWidth={1.5} />
+              </motion.a>
+              <motion.button
+                initial={{ opacity: 0, y: 0, scale: 0.5 }}
+                animate={{ opacity: 1, y: -50, scale: 1 }}
+                exit={{ opacity: 0, y: 0, scale: 0.5 }}
+                transition={{ duration: 0.2 }}
+                onClick={() => {
+                  setOpen(false);
+                  setChatOpen(true);
+                }}
+                className="absolute bottom-0 left-0 w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                aria-label="AI Chatbot"
+              >
+                <Bot size={16} strokeWidth={1.5} />
+              </motion.button>
+            </>
+          )}
+        </AnimatePresence>
 
-      {/* Main toggle button */}
-      <motion.button
-        onClick={() => setOpen(!open)}
-        animate={{ rotate: open ? 135 : 0 }}
-        transition={{ duration: 0.2 }}
-        className="w-11 h-11 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
-        aria-label="Contact options"
-      >
-        {open ? <X size={18} strokeWidth={2} /> : <MessageCircle size={18} strokeWidth={1.5} />}
-      </motion.button>
-    </div>
+        <motion.button
+          onClick={() => setOpen(!open)}
+          animate={{ rotate: open ? 135 : 0 }}
+          transition={{ duration: 0.2 }}
+          className="w-11 h-11 rounded-full bg-secondary text-secondary-foreground flex items-center justify-center shadow-lg hover:scale-105 transition-transform"
+          aria-label="Contact options"
+        >
+          {open ? <X size={18} strokeWidth={2} /> : <MessageCircle size={18} strokeWidth={1.5} />}
+        </motion.button>
+      </div>
+
+      <HelpChatbox open={chatOpen} onClose={() => setChatOpen(false)} />
+    </>
   );
 };
 
