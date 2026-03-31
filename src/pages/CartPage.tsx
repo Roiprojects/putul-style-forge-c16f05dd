@@ -878,6 +878,7 @@ const CartPage = () => {
                 <span>Total</span>
                 <span>₹{finalTotal.toLocaleString()}</span>
               </div>
+              <p className="text-[9px] text-muted-foreground mt-1">All charges are in Indian Rupees (INR)</p>
             </div>
 
             {/* Coupon section */}
