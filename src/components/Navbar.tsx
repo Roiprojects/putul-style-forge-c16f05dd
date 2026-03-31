@@ -186,39 +186,50 @@ const Navbar = () => {
           </div>
 
           {/* Mobile layout */}
-          <div className="flex lg:hidden items-center justify-between h-14">
-            <div className="flex items-center gap-0">
-              <button
-                onClick={() => setMobileSearchOpen(!mobileSearchOpen)}
-                className="p-2 text-foreground hover:text-secondary transition-colors"
-                aria-label="Search"
-              >
-                <Search size={20} strokeWidth={1.5} />
-              </button>
-              <Link to="/wishlist" className="p-2 text-foreground hover:text-secondary transition-colors relative">
-                <Heart size={20} strokeWidth={1.5} />
+          <div className="flex lg:hidden items-center justify-between h-14 gap-2">
+            {/* Left: Logo */}
+            <Link to="/" className="flex-shrink-0">
+              <img src={putulLogo} alt="Putul Fashions" className="h-9 w-auto" />
+            </Link>
+
+            {/* Center: Search bar */}
+            <form onSubmit={(e) => { handleSearch(e); setMobileSearchOpen(false); }} className="flex-1 min-w-0 mx-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSearchDropdown(true); }}
+                  onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
+                  onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
+                  placeholder="Search products..."
+                  className="w-full h-8 pl-8 pr-3 text-[11px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                />
+                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <AnimatePresence>
+                  {showSearchDropdown && searchQuery.trim() && (
+                    <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); }} />
+                  )}
+                </AnimatePresence>
+              </div>
+            </form>
+
+            {/* Right icons */}
+            <div className="flex items-center gap-0 flex-shrink-0">
+              <Link to="/wishlist" className="p-1.5 text-foreground hover:text-secondary transition-colors relative">
+                <Heart size={19} strokeWidth={1.5} />
                 {wishlist.length > 0 && (
-                  <span className="absolute top-0.5 right-0 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
                     {wishlist.length}
                   </span>
                 )}
               </Link>
-            </div>
-
-            {/* Centered logo */}
-            <Link to="/" className="absolute left-1/2 -translate-x-1/2">
-              <img src={putulLogo} alt="Putul Fashions" className="h-10 w-auto" />
-            </Link>
-
-            {/* Right icons */}
-            <div className="flex items-center gap-0">
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
-                  className="p-2 text-foreground hover:text-secondary transition-colors"
+                  className="p-1.5 text-foreground hover:text-secondary transition-colors"
                   aria-label={user ? "Account menu" : "Sign in"}
                 >
-                  <User size={20} strokeWidth={1.5} />
+                  <User size={19} strokeWidth={1.5} />
                 </button>
                 {user && (
                   <AnimatePresence>
@@ -242,16 +253,16 @@ const Navbar = () => {
                   </AnimatePresence>
                 )}
               </div>
-              <Link to="/cart" className="p-2 text-foreground hover:text-secondary transition-colors relative">
-                <ShoppingBag size={20} strokeWidth={1.5} />
+              <Link to="/cart" className="p-1.5 text-foreground hover:text-secondary transition-colors relative">
+                <ShoppingBag size={19} strokeWidth={1.5} />
                 {cartCount > 0 && (
-                  <span className="absolute top-0.5 right-0 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
                     {cartCount}
                   </span>
                 )}
               </Link>
-              <button className="p-2 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
-                {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+              <button className="p-1.5 text-foreground" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Toggle menu">
+                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
             </div>
           </div>
