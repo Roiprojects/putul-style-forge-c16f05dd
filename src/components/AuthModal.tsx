@@ -66,7 +66,16 @@ const AuthModal = ({ open, onClose }: AuthModalProps) => {
     }
   }, [step]);
 
-  const fullPhone = `+91${phone}`;
+  const fullPhone = `${countryCode}${phone}`;
+
+  const filteredCountries = countryCodes.filter(
+    (c) =>
+      c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+      c.code.includes(countrySearch) ||
+      c.country.toLowerCase().includes(countrySearch.toLowerCase())
+  );
+
+  const selectedCountry = countryCodes.find((c) => c.code === countryCode);
 
   const handleSendOTP = async (e?: React.FormEvent) => {
     e?.preventDefault();
