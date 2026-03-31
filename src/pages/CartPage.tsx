@@ -859,13 +859,19 @@ const CartPage = () => {
                 <span className="text-muted-foreground">Shipping</span>
                 <span className="text-secondary">Free</span>
               </div>
-              {appliedCoupon && couponDiscount > 0 && (
+               {appliedCoupon && couponDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span className="flex items-center gap-1">
                     Coupon ({appliedCoupon.code})
                     <button onClick={removeCoupon} className="text-destructive hover:underline text-[10px] ml-1">Remove</button>
                   </span>
                   <span>-₹{couponDiscount.toLocaleString()}</span>
+                </div>
+              )}
+              {codSurcharge > 0 && (
+                <div className="flex justify-between text-amber-600">
+                  <span>COD Surcharge (10%)</span>
+                  <span>+₹{codSurcharge.toLocaleString()}</span>
                 </div>
               )}
               <div className="border-t border-border pt-3 flex justify-between font-semibold text-base">
