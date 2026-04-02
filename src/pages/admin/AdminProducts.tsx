@@ -7,8 +7,10 @@ import { motion } from "framer-motion";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
@@ -20,7 +22,12 @@ const AdminProducts = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("admin_categories").select("id, name").order("name");
+    setCategories(data ?? []);
+  };
+
+  useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
@@ -44,11 +51,14 @@ const AdminProducts = () => {
     }
   };
 
-  const filtered = products.filter(
-    (p) =>
+  const filtered = products.filter((p) => {
+    const matchesSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku?.toLowerCase().includes(search.toLowerCase())
-  );
+      p.sku?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" || p.category_id === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="p-6 md:p-8 max-w-7xl">
@@ -67,16 +77,39 @@ const AdminProducts = () => {
         </Link>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-6 max-w-sm">
-        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-        <input
-          type="text"
-          placeholder="Search products..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-ring"
-        />
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3 mb-6">
+        <div className="relative flex-1 max-w-sm">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-10 pr-4 py-2.5 text-sm border border-border rounded-lg bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+        </div>
+        <div className="flex gap-1 flex-wrap">
+          <button
+            onClick={() => setCategoryFilter("all")}
+            className={`px-3 py-2 text-[11px] font-medium rounded-lg transition-colors ${
+              categoryFilter === "all" ? "bg-foreground text-background" : "text-muted-foreground hover:bg-accent"
+            }`}
+          >
+            All
+          </button>
+          {categories.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => setCategoryFilter(c.id)}
+              className={`px-3 py-2 text-[11px] font-medium rounded-lg transition-colors ${
+                categoryFilter === c.id ? "bg-foreground text-background" : "text-muted-foreground hover:bg-accent"
+              }`}
+            >
+              {c.name}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Table */}
