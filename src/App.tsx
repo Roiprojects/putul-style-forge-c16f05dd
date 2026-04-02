@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { useRealtimeStorefront } from "@/hooks/useProducts";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -85,6 +86,11 @@ const InactivityTimer = () => {
   return null;
 };
 
+const RealtimeSync = () => {
+  useRealtimeStorefront();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -94,6 +100,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <InactivityTimer />
+          <RealtimeSync />
           <Routes>
             {/* Admin login - hidden route */}
             <Route path="/store-portal-access" element={<AdminLogin />} />

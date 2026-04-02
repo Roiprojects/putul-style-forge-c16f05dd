@@ -4,14 +4,13 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import PromoBanners from "@/components/PromoBanners";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import TestimonialSection from "@/components/TestimonialSection";
-import { useProducts, useRealtimeStorefront } from "@/hooks/useProducts";
+import { useProducts } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
 
 const HomePage = () => {
   const { data: products = [] } = useProducts();
-  useRealtimeStorefront();
 
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
   const newArrivals = products.filter((p) => p.newArrival).slice(0, 8);
