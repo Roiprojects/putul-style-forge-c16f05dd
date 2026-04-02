@@ -86,6 +86,11 @@ const InactivityTimer = () => {
   return null;
 };
 
+const RealtimeSync = () => {
+  useRealtimeStorefront();
+  return null;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
