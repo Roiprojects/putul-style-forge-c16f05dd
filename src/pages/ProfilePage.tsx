@@ -52,6 +52,10 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState("");
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [editAddrForm, setEditAddrForm] = useState<Partial<Address>>({});
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
