@@ -51,11 +51,14 @@ const AdminProducts = () => {
     }
   };
 
-  const filtered = products.filter(
-    (p) =>
+  const filtered = products.filter((p) => {
+    const matchesSearch =
       p.name.toLowerCase().includes(search.toLowerCase()) ||
-      p.sku?.toLowerCase().includes(search.toLowerCase())
-  );
+      p.sku?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      categoryFilter === "all" || p.category_id === categoryFilter;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div className="p-6 md:p-8 max-w-7xl">
