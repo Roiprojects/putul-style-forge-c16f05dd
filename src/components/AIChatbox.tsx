@@ -141,7 +141,7 @@ const AIChatbox = ({ open, onClose }: AIChatboxProps) => {
               <Bot size={18} />
               <div>
                 <p className="text-sm font-semibold">Putul Assistant</p>
-                <p className="text-[10px] opacity-80">AI-powered help</p>
+                <p className="text-[10px] opacity-80"></p>
               </div>
             </div>
             <button onClick={onClose} className="p-1 hover:bg-black/10 rounded-full transition-colors">
