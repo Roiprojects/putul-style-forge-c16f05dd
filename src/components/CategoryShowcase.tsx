@@ -1,8 +1,23 @@
+import { useMemo } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { categories } from "@/data/products";
+import { useCategories, useProducts } from "@/hooks/useProducts";
 
 const CategoryShowcase = () => {
+  const { data: categories = [] } = useCategories();
+  const { data: products = [] } = useProducts();
+
+  const categoryCards = useMemo(
+    () =>
+      categories.map((category) => ({
+        ...category,
+        productCount: products.filter((product) => product.category === category.slug).length,
+      })),
+    [categories, products]
+  );
+
+  if (categoryCards.length === 0) return null;
+
   return (
     <section className="py-10 md:py-14 bg-accent/50">
       <div className="container mx-auto px-4 md:px-8">
@@ -14,9 +29,9 @@ const CategoryShowcase = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-5">
-          {categories.map((cat, i) => (
+          {categoryCards.map((cat, i) => (
             <motion.div
-              key={cat.slug}
+              key={cat.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -24,20 +39,24 @@ const CategoryShowcase = () => {
             >
               <Link
                 to={`/shop?category=${cat.slug}`}
-                className="group block relative overflow-hidden rounded-lg aspect-[4/5]"
+                className="group block relative overflow-hidden rounded-lg aspect-[4/5] bg-background"
               >
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  loading="lazy"
-                />
+                {cat.image_url ? (
+                  <img
+                    src={cat.image_url}
+                    alt={cat.name}
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-accent" />
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
                   <h3 className="font-heading text-lg md:text-xl font-semibold text-background tracking-wide">
                     {cat.name}
                   </h3>
-                  <p className="text-[10px] text-background/60 tracking-wide mt-0.5">
+                  <p className="text-[10px] text-background/70 tracking-wide mt-0.5">
                     {cat.productCount} Products
                   </p>
                 </div>
