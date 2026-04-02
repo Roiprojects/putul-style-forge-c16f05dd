@@ -111,11 +111,48 @@ const ProfilePage = () => {
     }
   };
 
+  const handleUpdateEmail = async () => {
+    if (!newEmail.trim() || !newEmail.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Confirmation email sent to your new address. Please verify it.");
+      setEditingEmail(false);
+    }
+  };
+
   const handleDeleteAddress = async (id: string) => {
     const { error } = await supabase.from("saved_addresses").delete().eq("id", id);
     if (!error) {
       setAddresses(prev => prev.filter(a => a.id !== id));
       toast.success("Address deleted");
+    }
+  };
+
+  const handleUpdateAddress = async (id: string) => {
+    const { error } = await supabase
+      .from("saved_addresses")
+      .update({
+        name: editAddrForm.name,
+        phone: editAddrForm.phone,
+        house_no: editAddrForm.house_no,
+        street: editAddrForm.street,
+        landmark: editAddrForm.landmark,
+        city: editAddrForm.city,
+        state: editAddrForm.state,
+        pincode: editAddrForm.pincode,
+      })
+      .eq("id", id);
+    if (!error) {
+      setAddresses(prev => prev.map(a => a.id === id ? { ...a, ...editAddrForm } as Address : a));
+      setEditingAddress(null);
+      toast.success("Address updated!");
+    } else {
+      toast.error(error.message);
     }
   };
 
