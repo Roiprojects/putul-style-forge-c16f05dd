@@ -13,7 +13,7 @@ const HomePage = () => {
   const { data: products = [] } = useProducts();
 
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
-  const newArrivals = products.filter((p) => p.newArrival).slice(0, 8);
+  const newArrivals = products.slice(0, 8);
   const trending = products.filter((p) => p.trending).slice(0, 8);
 
   return (

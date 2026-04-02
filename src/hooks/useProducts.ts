@@ -23,7 +23,12 @@ interface DbProduct {
 
 const mapToProduct = (p: DbProduct): Product => {
   const images = p.images || [];
-  const tags = p.tags || [];
+  const tags = (p.tags || []).map((tag) =>
+    tag
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, "-")
+  );
   const discount = p.original_price
     ? Math.round(((p.original_price - p.price) / p.original_price) * 100)
     : 0;
@@ -48,7 +53,7 @@ const mapToProduct = (p: DbProduct): Product => {
     description: p.description || "",
     fabric: p.fabric || "",
     trending: tags.includes("trending"),
-    bestSeller: tags.includes("best-seller"),
+    bestSeller: tags.includes("bestseller") || tags.includes("best-seller"),
     newArrival: tags.includes("new-arrival"),
     badge,
   };
