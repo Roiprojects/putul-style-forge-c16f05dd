@@ -108,14 +108,14 @@ const AdminSidebar = () => {
       <div className="p-2 border-t border-sidebar-border">
         <Link
           to="/"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] font-semibold text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors"
         >
           <ChevronLeft size={14} />
           {!collapsed && <span>Back to Store</span>}
         </Link>
         <button
           onClick={handleLogout}
-          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] text-sidebar-foreground/50 hover:text-destructive hover:bg-sidebar-accent/50 transition-colors"
+          className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-[12px] font-semibold text-sidebar-foreground/70 hover:text-destructive hover:bg-sidebar-accent/50 transition-colors"
         >
           <LogOut size={14} />
           {!collapsed && <span>Sign Out</span>}
