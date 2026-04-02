@@ -21,6 +21,33 @@ interface DbProduct {
   admin_categories: { slug: string; name: string } | null;
 }
 
+const SIZE_ORDER: Record<string, number> = {
+  xxs: 1, xs: 2, s: 3, m: 4, l: 5, xl: 6, xxl: 7, xxxl: 8,
+  "2xl": 7, "3xl": 8, "4xl": 9, "5xl": 10,
+  free: 99, "free size": 99,
+};
+
+const sortSizes = (sizes: string[]): string[] => {
+  return [...sizes].sort((a, b) => {
+    const aLower = a.toLowerCase().trim();
+    const bLower = b.toLowerCase().trim();
+    const aOrder = SIZE_ORDER[aLower];
+    const bOrder = SIZE_ORDER[bLower];
+    const aNum = parseFloat(aLower);
+    const bNum = parseFloat(bLower);
+
+    // Both are named sizes
+    if (aOrder !== undefined && bOrder !== undefined) return aOrder - bOrder;
+    // One named, one not
+    if (aOrder !== undefined) return -1;
+    if (bOrder !== undefined) return 1;
+    // Both numeric
+    if (!isNaN(aNum) && !isNaN(bNum)) return aNum - bNum;
+    // Fallback alphabetical
+    return aLower.localeCompare(bLower);
+  });
+};
+
 const mapToProduct = (p: DbProduct): Product => {
   const images = p.images || [];
   const tags = (p.tags || []).map((tag) =>
@@ -48,7 +75,7 @@ const mapToProduct = (p: DbProduct): Product => {
     category: p.admin_categories?.slug || "",
     rating: p.rating || 0,
     reviews: p.reviews_count || 0,
-    sizes: p.sizes || [],
+    sizes: sortSizes(p.sizes || []),
     colors: p.colors || [],
     description: p.description || "",
     fabric: p.fabric || "",
