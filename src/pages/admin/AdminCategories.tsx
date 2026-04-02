@@ -32,6 +32,7 @@ const AdminCategories = () => {
   const [form, setForm] = useState<CategoryForm>(empty);
   const [saving, setSaving] = useState(false);
   const [uploadingCatImage, setUploadingCatImage] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const catFileRef = useRef<HTMLInputElement>(null);
 
   const handleCatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
