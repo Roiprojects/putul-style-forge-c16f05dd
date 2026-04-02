@@ -339,7 +339,6 @@ const AdminCategories = () => {
           )}
         </div>
       </div>
-    </div>
 
       <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
         <AlertDialogContent>
