@@ -1,8 +1,21 @@
 import { Star } from "lucide-react";
+import { useFeaturedReviews } from "@/hooks/useProducts";
 import { testimonials } from "@/data/products";
 
 const TestimonialSection = () => {
-  const doubled = [...testimonials, ...testimonials];
+  const { data: dbReviews = [] } = useFeaturedReviews();
+
+  // Use DB reviews if available, fallback to static data
+  const reviews = dbReviews.length > 0
+    ? dbReviews.map((r) => ({
+        name: r.author_name,
+        text: r.comment || "",
+        rating: r.rating,
+        date: new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }),
+      }))
+    : testimonials.map((t) => ({ name: t.name, text: t.text, rating: 5, date: t.date }));
+
+  const doubled = [...reviews, ...reviews];
 
   return (
     <section className="py-6 md:py-8 overflow-hidden">
@@ -20,16 +33,17 @@ const TestimonialSection = () => {
               key={`${t.name}-${i}`}
               className="flex-shrink-0 w-[200px] bg-background border border-border rounded-md overflow-hidden"
             >
-              <div className="aspect-[4/3] overflow-hidden bg-accent">
-                <img src={t.image} alt={t.name} className="w-full h-full object-cover" loading="lazy" />
-              </div>
-              <div className="p-2">
+              <div className="p-3">
                 <div className="flex gap-0.5 mb-1.5">
                   {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} size={8} className="fill-secondary text-secondary" />
+                    <Star
+                      key={j}
+                      size={8}
+                      className={j < t.rating ? "fill-secondary text-secondary" : "text-muted-foreground/30"}
+                    />
                   ))}
                 </div>
-                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2 line-clamp-2">
+                <p className="text-[10px] text-muted-foreground leading-relaxed mb-2 line-clamp-3">
                   "{t.text}"
                 </p>
                 <div className="flex items-center gap-1.5">

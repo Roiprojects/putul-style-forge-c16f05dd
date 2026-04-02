@@ -1,4 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Product } from "@/data/products";
 
@@ -53,6 +54,30 @@ const mapToProduct = (p: DbProduct): Product => {
   };
 };
 
+/** Realtime hook that invalidates product & category queries on DB changes */
+export const useRealtimeStorefront = () => {
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const channel = supabase
+      .channel("storefront-sync")
+      .on("postgres_changes", { event: "*", schema: "public", table: "admin_products" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["products"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "admin_categories" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["categories"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["featured-reviews"] });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
+};
+
 export const useProducts = () => {
   return useQuery({
     queryKey: ["products"],
@@ -66,7 +91,7 @@ export const useProducts = () => {
       if (error) throw error;
       return (data as unknown as DbProduct[]).map(mapToProduct);
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
   });
 };
 
@@ -100,6 +125,25 @@ export const useCategories = () => {
       if (error) throw error;
       return data;
     },
-    staleTime: 10 * 60 * 1000,
+    staleTime: 30 * 1000,
+  });
+};
+
+export const useFeaturedReviews = () => {
+  return useQuery({
+    queryKey: ["featured-reviews"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("reviews")
+        .select("id, author_name, comment, rating, created_at")
+        .eq("status", "approved")
+        .eq("is_featured", true)
+        .order("created_at", { ascending: false })
+        .limit(12);
+
+      if (error) throw error;
+      return data ?? [];
+    },
+    staleTime: 30 * 1000,
   });
 };
