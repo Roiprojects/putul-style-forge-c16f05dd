@@ -114,13 +114,18 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
-    const { error } = await supabase.from("admin_categories").delete().eq("id", id);
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("admin_categories").delete().eq("id", deleteTarget.id);
     if (error) toast.error(error.message);
     else {
       toast.success("Category deleted");
       fetchCategories();
     }
+    setDeleteTarget(null);
   };
 
   const moveCategory = async (index: number, direction: -1 | 1) => {
