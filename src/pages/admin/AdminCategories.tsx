@@ -4,6 +4,16 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X, Loader2, GripVertical, Upload } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CategoryForm {
   name: string;
@@ -22,6 +32,7 @@ const AdminCategories = () => {
   const [form, setForm] = useState<CategoryForm>(empty);
   const [saving, setSaving] = useState(false);
   const [uploadingCatImage, setUploadingCatImage] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
   const catFileRef = useRef<HTMLInputElement>(null);
 
   const handleCatImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,13 +114,18 @@ const AdminCategories = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"?`)) return;
-    const { error } = await supabase.from("admin_categories").delete().eq("id", id);
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("admin_categories").delete().eq("id", deleteTarget.id);
     if (error) toast.error(error.message);
     else {
       toast.success("Category deleted");
       fetchCategories();
     }
+    setDeleteTarget(null);
   };
 
   const moveCategory = async (index: number, direction: -1 | 1) => {
@@ -323,6 +339,21 @@ const AdminCategories = () => {
           )}
         </div>
       </div>
+
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Category</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteTarget?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
