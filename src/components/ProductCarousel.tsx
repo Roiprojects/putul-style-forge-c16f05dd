@@ -39,10 +39,9 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
 
     const step = () => {
       if (!el) return;
-      // Half the scroll width is the original set; when we pass it, reset seamlessly
-      const halfScroll = (el.scrollWidth - el.clientWidth) / 2;
-      if (halfScroll > 0 && el.scrollLeft >= halfScroll) {
-        el.scrollLeft -= halfScroll;
+      const singleSetWidth = el.scrollWidth / 2;
+      if (el.scrollLeft >= singleSetWidth) {
+        el.scrollLeft -= singleSetWidth;
       }
       el.scrollLeft += speed;
       animId = requestAnimationFrame(step);
