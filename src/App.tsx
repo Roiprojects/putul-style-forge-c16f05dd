@@ -100,6 +100,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <InactivityTimer />
+          <RealtimeSync />
           <Routes>
             {/* Admin login - hidden route */}
             <Route path="/store-portal-access" element={<AdminLogin />} />
