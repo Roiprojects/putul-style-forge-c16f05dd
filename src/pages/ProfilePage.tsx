@@ -286,9 +286,22 @@ const ProfilePage = () => {
                       <span className="text-muted-foreground">Phone</span>
                       <span className="font-medium">{profile?.phone || user.user_metadata?.phone || "—"}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Email</span>
-                      <span className="font-medium text-xs">{user.email?.includes("@phone.") ? "—" : user.email}</span>
+                      {editingEmail ? (
+                        <div className="flex items-center gap-2">
+                          <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="h-7 text-xs w-44" placeholder="new@email.com" autoFocus />
+                          <button onClick={handleUpdateEmail} className="text-xs font-medium text-secondary hover:underline">Save</button>
+                          <button onClick={() => setEditingEmail(false)} className="text-xs text-muted-foreground hover:underline">Cancel</button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-xs">{user.email?.includes("@phone.") ? "—" : user.email}</span>
+                          <button onClick={() => { setNewEmail(user.email || ""); setEditingEmail(true); }}>
+                            <Edit2 size={11} className="text-muted-foreground hover:text-foreground transition-colors" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
