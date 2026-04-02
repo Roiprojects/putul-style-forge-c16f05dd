@@ -107,9 +107,9 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
           onTouchEnd={() => setIsPaused(false)}
           className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth pb-2"
         >
-          {products.map((product, i) => (
-            <div key={product.id} className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]">
-              <ProductCard product={product} index={i} />
+          {[...products, ...products].map((product, i) => (
+            <div key={`${product.id}-${i}`} className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]">
+              <ProductCard product={product} index={i % products.length} />
             </div>
           ))}
         </div>
