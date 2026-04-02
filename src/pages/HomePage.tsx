@@ -11,6 +11,7 @@ import { motion } from "framer-motion";
 
 const HomePage = () => {
   const { data: products = [] } = useProducts();
+  useRealtimeStorefront();
 
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 8);
   const newArrivals = products.filter((p) => p.newArrival).slice(0, 8);
