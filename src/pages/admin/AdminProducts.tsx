@@ -33,14 +33,21 @@ const AdminProducts = () => {
 
   useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    const { error } = await supabase.from("admin_products").delete().eq("id", id);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const handleDelete = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("admin_products").delete().eq("id", deleteTarget.id);
     if (error) toast.error(error.message);
     else {
       toast.success("Product deleted");
       fetchProducts();
     }
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (id: string, currentState: boolean) => {

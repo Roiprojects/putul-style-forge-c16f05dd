@@ -62,11 +62,18 @@ const AdminCoupons = () => {
     else { toast.success(editing ? "Coupon updated" : "Coupon created"); setShowForm(false); fetch(); }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this coupon?")) return;
-    const { error } = await supabase.from("coupons").delete().eq("id", id);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const remove = (id: string) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("coupons").delete().eq("id", deleteTarget);
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); fetch(); }
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (c: any) => {
