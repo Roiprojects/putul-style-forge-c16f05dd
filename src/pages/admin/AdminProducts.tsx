@@ -7,8 +7,10 @@ import { motion } from "framer-motion";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
 
   const fetchProducts = async () => {
     const { data, error } = await supabase
