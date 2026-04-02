@@ -30,21 +30,21 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
     return () => el?.removeEventListener("scroll", checkScroll);
   }, []);
 
-  // Auto-scroll continuously
+  // Auto-scroll continuously with seamless loop
   useEffect(() => {
     if (isPaused || !scrollRef.current) return;
     const el = scrollRef.current;
     let animId: number;
-    const speed = 0.5; // px per frame
+    const speed = 0.5;
 
     const step = () => {
       if (!el) return;
-      const maxScroll = el.scrollWidth - el.clientWidth;
-      if (el.scrollLeft >= maxScroll - 1) {
-        el.scrollLeft = 0;
-      } else {
-        el.scrollLeft += speed;
+      // Half the scroll width is the original set; when we pass it, reset seamlessly
+      const halfScroll = (el.scrollWidth - el.clientWidth) / 2;
+      if (halfScroll > 0 && el.scrollLeft >= halfScroll) {
+        el.scrollLeft -= halfScroll;
       }
+      el.scrollLeft += speed;
       animId = requestAnimationFrame(step);
     };
 
@@ -107,9 +107,9 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
           onTouchEnd={() => setIsPaused(false)}
           className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-none scroll-smooth pb-2"
         >
-          {products.map((product, i) => (
-            <div key={product.id} className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]">
-              <ProductCard product={product} index={i} />
+          {[...products, ...products].map((product, i) => (
+            <div key={`${product.id}-${i}`} className="flex-shrink-0 w-[55vw] sm:w-[40vw] md:w-[28vw] lg:w-[22vw] xl:w-[18vw]">
+              <ProductCard product={product} index={i % products.length} />
             </div>
           ))}
         </div>
