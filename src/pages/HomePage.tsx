@@ -4,7 +4,7 @@ import CategoryShowcase from "@/components/CategoryShowcase";
 import PromoBanners from "@/components/PromoBanners";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import TestimonialSection from "@/components/TestimonialSection";
-import { useProducts, useRealtimeStorefront } from "@/hooks/useProducts";
+import { useProducts } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
 import { motion } from "framer-motion";
