@@ -3,6 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const emptyCoupon = {
   code: "", discount_type: "percentage", discount_value: 0,
@@ -58,11 +62,18 @@ const AdminCoupons = () => {
     else { toast.success(editing ? "Coupon updated" : "Coupon created"); setShowForm(false); fetch(); }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this coupon?")) return;
-    const { error } = await supabase.from("coupons").delete().eq("id", id);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const remove = (id: string) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("coupons").delete().eq("id", deleteTarget);
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); fetch(); }
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (c: any) => {
@@ -202,6 +213,20 @@ const AdminCoupons = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Coupon</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this coupon? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -3,6 +3,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const emptyZone = {
   name: "", states: "", base_charge: 0,
@@ -56,11 +60,18 @@ const AdminShipping = () => {
     else { toast.success(editing ? "Zone updated" : "Zone created"); setShowForm(false); fetch(); }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this zone?")) return;
-    const { error } = await supabase.from("shipping_zones").delete().eq("id", id);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const remove = (id: string) => {
+    setDeleteTarget(id);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("shipping_zones").delete().eq("id", deleteTarget);
     if (error) toast.error(error.message);
     else { toast.success("Deleted"); fetch(); }
+    setDeleteTarget(null);
   };
 
   return (
@@ -179,6 +190,20 @@ const AdminShipping = () => {
           </motion.div>
         )}
       </AnimatePresence>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Shipping Zone</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this zone? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

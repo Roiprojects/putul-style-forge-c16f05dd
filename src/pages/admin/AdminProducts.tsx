@@ -4,6 +4,10 @@ import { Link } from "react-router-dom";
 import { Plus, Search, Pencil, Trash2, MoreHorizontal } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const AdminProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -29,14 +33,21 @@ const AdminProducts = () => {
 
   useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
-    const { error } = await supabase.from("admin_products").delete().eq("id", id);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+
+  const handleDelete = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { error } = await supabase.from("admin_products").delete().eq("id", deleteTarget.id);
     if (error) toast.error(error.message);
     else {
       toast.success("Product deleted");
       fetchProducts();
     }
+    setDeleteTarget(null);
   };
 
   const toggleActive = async (id: string, currentState: boolean) => {
@@ -218,6 +229,20 @@ const AdminProducts = () => {
           </table>
         </div>
       </div>
+      <AlertDialog open={!!deleteTarget} onOpenChange={(open) => !open && setDeleteTarget(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Product</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{deleteTarget?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
