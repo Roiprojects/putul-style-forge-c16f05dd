@@ -200,12 +200,18 @@ const OrderDetailPage = () => {
               Placed on {orderDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
             </p>
           </div>
-          <button
-            onClick={handleDownloadInvoice}
-            className="flex items-center gap-2 text-xs font-medium border border-border rounded-lg px-3 py-2 hover:bg-accent transition-colors"
-          >
-            <Download size={14} /> Invoice
-          </button>
+          {order.payment_status === "paid" ? (
+            <button
+              onClick={handleDownloadInvoice}
+              className="flex items-center gap-2 text-xs font-medium border border-border rounded-lg px-3 py-2 hover:bg-accent transition-colors"
+            >
+              <Download size={14} /> Invoice
+            </button>
+          ) : (
+            <span className="flex items-center gap-2 text-xs text-muted-foreground border border-border rounded-lg px-3 py-2 opacity-60 cursor-not-allowed" title="Invoice available after payment">
+              <FileText size={14} /> Invoice (Unpaid)
+            </span>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

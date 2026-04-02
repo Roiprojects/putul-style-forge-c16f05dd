@@ -251,9 +251,15 @@ const AdminOrders = () => {
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-semibold">Order Details</h2>
                 <div className="flex items-center gap-2">
-                  <button onClick={() => printInvoice(selectedOrder, orderItems)} className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Print Invoice">
-                    <Printer size={16} />
-                  </button>
+                   {selectedOrder.payment_status === "paid" ? (
+                     <button onClick={() => printInvoice(selectedOrder, orderItems)} className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors" title="Print Invoice">
+                       <Printer size={16} />
+                     </button>
+                   ) : (
+                     <span className="p-2 rounded-lg text-muted-foreground opacity-40 cursor-not-allowed" title="Invoice available after payment">
+                       <Printer size={16} />
+                     </span>
+                   )}
                   <button onClick={() => setSelectedOrder(null)} className="text-muted-foreground hover:text-foreground"><X size={18} /></button>
                 </div>
               </div>
