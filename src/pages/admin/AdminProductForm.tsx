@@ -97,6 +97,10 @@ const AdminProductForm = () => {
       toast.error("Name and price are required");
       return;
     }
+    if (form.original_price && Number(form.original_price) < Number(form.price)) {
+      toast.error("MRP cannot be less than selling price");
+      return;
+    }
     setSaving(true);
 
     const payload = {
