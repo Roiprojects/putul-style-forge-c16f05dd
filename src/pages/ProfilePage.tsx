@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   User, Package, MapPin, Heart, LogOut, ChevronRight, 
-  Edit2, Trash2, ShoppingBag, Clock, CheckCircle, Truck, X
+  Edit2, Trash2, ShoppingBag, Clock, CheckCircle, Truck, X, Mail, Save
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/contexts/StoreContext";
@@ -52,6 +52,10 @@ const ProfilePage = () => {
   const [loading, setLoading] = useState(true);
   const [editingName, setEditingName] = useState(false);
   const [newName, setNewName] = useState("");
+  const [editingEmail, setEditingEmail] = useState(false);
+  const [newEmail, setNewEmail] = useState("");
+  const [editingAddress, setEditingAddress] = useState<string | null>(null);
+  const [editAddrForm, setEditAddrForm] = useState<Partial<Address>>({});
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -107,11 +111,48 @@ const ProfilePage = () => {
     }
   };
 
+  const handleUpdateEmail = async () => {
+    if (!newEmail.trim() || !newEmail.includes("@")) {
+      toast.error("Please enter a valid email");
+      return;
+    }
+    const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success("Confirmation email sent to your new address. Please verify it.");
+      setEditingEmail(false);
+    }
+  };
+
   const handleDeleteAddress = async (id: string) => {
     const { error } = await supabase.from("saved_addresses").delete().eq("id", id);
     if (!error) {
       setAddresses(prev => prev.filter(a => a.id !== id));
       toast.success("Address deleted");
+    }
+  };
+
+  const handleUpdateAddress = async (id: string) => {
+    const { error } = await supabase
+      .from("saved_addresses")
+      .update({
+        name: editAddrForm.name,
+        phone: editAddrForm.phone,
+        house_no: editAddrForm.house_no,
+        street: editAddrForm.street,
+        landmark: editAddrForm.landmark,
+        city: editAddrForm.city,
+        state: editAddrForm.state,
+        pincode: editAddrForm.pincode,
+      })
+      .eq("id", id);
+    if (!error) {
+      setAddresses(prev => prev.map(a => a.id === id ? { ...a, ...editAddrForm } as Address : a));
+      setEditingAddress(null);
+      toast.success("Address updated!");
+    } else {
+      toast.error(error.message);
     }
   };
 
@@ -245,9 +286,22 @@ const ProfilePage = () => {
                       <span className="text-muted-foreground">Phone</span>
                       <span className="font-medium">{profile?.phone || user.user_metadata?.phone || "—"}</span>
                     </div>
-                    <div className="flex justify-between text-sm">
+                    <div className="flex justify-between items-center text-sm">
                       <span className="text-muted-foreground">Email</span>
-                      <span className="font-medium text-xs">{user.email?.includes("@phone.") ? "—" : user.email}</span>
+                      {editingEmail ? (
+                        <div className="flex items-center gap-2">
+                          <Input value={newEmail} onChange={(e) => setNewEmail(e.target.value)} className="h-7 text-xs w-44" placeholder="new@email.com" autoFocus />
+                          <button onClick={handleUpdateEmail} className="text-xs font-medium text-secondary hover:underline">Save</button>
+                          <button onClick={() => setEditingEmail(false)} className="text-xs text-muted-foreground hover:underline">Cancel</button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-xs">{user.email?.includes("@phone.") ? "—" : user.email}</span>
+                          <button onClick={() => { setNewEmail(user.email || ""); setEditingEmail(true); }}>
+                            <Edit2 size={11} className="text-muted-foreground hover:text-foreground transition-colors" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -362,20 +416,53 @@ const ProfilePage = () => {
                             Default
                           </span>
                         )}
-                        <p className="text-sm font-semibold">{addr.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
-                        <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                          {addr.house_no}, {addr.street}
-                          {addr.landmark ? `, ${addr.landmark}` : ""}
-                          <br />
-                          {addr.city}, {addr.state} — {addr.pincode}
-                        </p>
-                        <button
-                          onClick={() => handleDeleteAddress(addr.id)}
-                          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {editingAddress === addr.id ? (
+                          <div className="space-y-2.5">
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input value={editAddrForm.name || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" className="h-8 text-xs" />
+                              <Input value={editAddrForm.phone || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" className="h-8 text-xs" />
+                            </div>
+                            <Input value={editAddrForm.house_no || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, house_no: e.target.value }))} placeholder="House No" className="h-8 text-xs" />
+                            <Input value={editAddrForm.street || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, street: e.target.value }))} placeholder="Street / Area" className="h-8 text-xs" />
+                            <Input value={editAddrForm.landmark || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, landmark: e.target.value }))} placeholder="Landmark (optional)" className="h-8 text-xs" />
+                            <div className="grid grid-cols-3 gap-2">
+                              <Input value={editAddrForm.city || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, city: e.target.value }))} placeholder="City" className="h-8 text-xs" />
+                              <Input value={editAddrForm.state || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, state: e.target.value }))} placeholder="State" className="h-8 text-xs" />
+                              <Input value={editAddrForm.pincode || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, pincode: e.target.value }))} placeholder="Pincode" className="h-8 text-xs" />
+                            </div>
+                            <div className="flex gap-2 pt-1">
+                              <button onClick={() => handleUpdateAddress(addr.id)} className="flex items-center gap-1 text-xs font-medium text-secondary hover:underline">
+                                <Save size={12} /> Save
+                              </button>
+                              <button onClick={() => setEditingAddress(null)} className="text-xs text-muted-foreground hover:underline">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-sm font-semibold">{addr.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
+                            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                              {addr.house_no}, {addr.street}
+                              {addr.landmark ? `, ${addr.landmark}` : ""}
+                              <br />
+                              {addr.city}, {addr.state} — {addr.pincode}
+                            </p>
+                            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => { setEditingAddress(addr.id); setEditAddrForm(addr); }}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAddress(addr.id)}
+                                className="text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
