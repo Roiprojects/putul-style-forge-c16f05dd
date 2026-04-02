@@ -22,7 +22,12 @@ const AdminProducts = () => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchProducts(); }, []);
+  const fetchCategories = async () => {
+    const { data } = await supabase.from("admin_categories").select("id, name").order("name");
+    setCategories(data ?? []);
+  };
+
+  useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
