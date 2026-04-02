@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { 
   User, Package, MapPin, Heart, LogOut, ChevronRight, 
-  Edit2, Trash2, ShoppingBag, Clock, CheckCircle, Truck, X
+  Edit2, Trash2, ShoppingBag, Clock, CheckCircle, Truck, X, Mail, Save
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useStore } from "@/contexts/StoreContext";
