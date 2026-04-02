@@ -416,20 +416,53 @@ const ProfilePage = () => {
                             Default
                           </span>
                         )}
-                        <p className="text-sm font-semibold">{addr.name}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
-                        <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
-                          {addr.house_no}, {addr.street}
-                          {addr.landmark ? `, ${addr.landmark}` : ""}
-                          <br />
-                          {addr.city}, {addr.state} — {addr.pincode}
-                        </p>
-                        <button
-                          onClick={() => handleDeleteAddress(addr.id)}
-                          className="absolute bottom-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:text-destructive"
-                        >
-                          <Trash2 size={14} />
-                        </button>
+                        {editingAddress === addr.id ? (
+                          <div className="space-y-2.5">
+                            <div className="grid grid-cols-2 gap-2">
+                              <Input value={editAddrForm.name || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, name: e.target.value }))} placeholder="Name" className="h-8 text-xs" />
+                              <Input value={editAddrForm.phone || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, phone: e.target.value }))} placeholder="Phone" className="h-8 text-xs" />
+                            </div>
+                            <Input value={editAddrForm.house_no || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, house_no: e.target.value }))} placeholder="House No" className="h-8 text-xs" />
+                            <Input value={editAddrForm.street || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, street: e.target.value }))} placeholder="Street / Area" className="h-8 text-xs" />
+                            <Input value={editAddrForm.landmark || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, landmark: e.target.value }))} placeholder="Landmark (optional)" className="h-8 text-xs" />
+                            <div className="grid grid-cols-3 gap-2">
+                              <Input value={editAddrForm.city || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, city: e.target.value }))} placeholder="City" className="h-8 text-xs" />
+                              <Input value={editAddrForm.state || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, state: e.target.value }))} placeholder="State" className="h-8 text-xs" />
+                              <Input value={editAddrForm.pincode || ""} onChange={(e) => setEditAddrForm(f => ({ ...f, pincode: e.target.value }))} placeholder="Pincode" className="h-8 text-xs" />
+                            </div>
+                            <div className="flex gap-2 pt-1">
+                              <button onClick={() => handleUpdateAddress(addr.id)} className="flex items-center gap-1 text-xs font-medium text-secondary hover:underline">
+                                <Save size={12} /> Save
+                              </button>
+                              <button onClick={() => setEditingAddress(null)} className="text-xs text-muted-foreground hover:underline">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-sm font-semibold">{addr.name}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{addr.phone}</p>
+                            <p className="text-xs text-muted-foreground mt-2 leading-relaxed">
+                              {addr.house_no}, {addr.street}
+                              {addr.landmark ? `, ${addr.landmark}` : ""}
+                              <br />
+                              {addr.city}, {addr.state} — {addr.pincode}
+                            </p>
+                            <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={() => { setEditingAddress(addr.id); setEditAddrForm(addr); }}
+                                className="text-muted-foreground hover:text-foreground"
+                              >
+                                <Edit2 size={14} />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteAddress(addr.id)}
+                                className="text-muted-foreground hover:text-destructive"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     ))}
                   </div>
