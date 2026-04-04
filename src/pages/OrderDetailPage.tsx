@@ -420,6 +420,17 @@ const OrderDetailPage = () => {
                     {order.payment_method || "—"} · <span className={order.payment_status === "paid" ? "text-green-600 font-medium" : "text-amber-600"}>{order.payment_status || "pending"}</span>
                   </span>
                 </div>
+                {/* Pay Now button for COD orders with pending payment */}
+                {order.payment_method?.toLowerCase() === "cod" && order.payment_status !== "paid" && order.status.toLowerCase() !== "cancelled" && (
+                  <button
+                    onClick={() => { setPayingNow(true); setShowPayNow(true); }}
+                    disabled={payingNow}
+                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold border-2 border-foreground text-foreground rounded-lg hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Wallet size={14} />
+                    {payingNow ? "Processing..." : "Pay Now Online"}
+                  </button>
+                )}
               </div>
             </motion.div>
 
