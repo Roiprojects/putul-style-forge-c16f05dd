@@ -870,7 +870,7 @@ const CartPage = () => {
               )}
               {codSurcharge > 0 && (
                 <div className="flex justify-between text-amber-600">
-                  <span>COD Surcharge (10%)</span>
+                  <span>COD Surcharge </span>
                   <span>+₹{codSurcharge.toLocaleString()}</span>
                 </div>
               )}
