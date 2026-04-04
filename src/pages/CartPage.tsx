@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
 import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
-import FakeRazorpay from "@/components/FakeRazorpay";
+import RazorpayCheckout from "@/components/RazorpayCheckout";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
@@ -989,9 +989,10 @@ const CartPage = () => {
       </div>
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       {showRazorpay && (
-        <FakeRazorpay
+        <RazorpayCheckout
           amount={finalTotal}
           customerName={form.name}
+          customerEmail={user?.email || `${form.phone}@phone.putul.app`}
           customerPhone={form.phone}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowRazorpay(false)}
