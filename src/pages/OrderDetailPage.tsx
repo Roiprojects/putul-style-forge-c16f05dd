@@ -417,7 +417,7 @@ const OrderDetailPage = () => {
                 <div className="flex items-center gap-2 text-xs">
                   <CreditCard size={12} className="text-muted-foreground" />
                   <span className="text-muted-foreground">
-                    {order.payment_method || "—"} · <span className={order.payment_status === "paid" ? "text-green-600 font-medium" : "text-amber-600"}>{order.payment_status || "pending"}</span>
+                    {(order.payment_method || "—").replace(/razorpay/gi, "Online Payment")} · <span className={order.payment_status === "paid" ? "text-green-600 font-medium" : "text-amber-600"}>{order.payment_status || "pending"}</span>
                   </span>
                 </div>
                 {/* Pay Now button for COD orders with pending payment */}
