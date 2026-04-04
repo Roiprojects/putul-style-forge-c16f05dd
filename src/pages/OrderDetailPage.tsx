@@ -69,6 +69,8 @@ const OrderDetailPage = () => {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showHelpChat, setShowHelpChat] = useState(false);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
+  const [showPayNow, setShowPayNow] = useState(false);
+  const [payingNow, setPayingNow] = useState(false);
 
   useEffect(() => {
     if (!id) return;
