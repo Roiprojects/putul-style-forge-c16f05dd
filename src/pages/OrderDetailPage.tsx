@@ -2,10 +2,11 @@ import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { 
   ArrowLeft, Package, MapPin, CreditCard, Clock, CheckCircle, Truck, 
-  FileText, Download, Phone, Mail, ShoppingBag, Star, ChevronRight, MessageCircle, RotateCcw
+  FileText, Download, Phone, Mail, ShoppingBag, Star, ChevronRight, MessageCircle, RotateCcw, Wallet
 } from "lucide-react";
 import ReturnRequestModal from "@/components/ReturnRequestModal";
 import HelpChatbox from "@/components/HelpChatbox";
+import RazorpayCheckout from "@/components/RazorpayCheckout";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -68,6 +69,8 @@ const OrderDetailPage = () => {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showHelpChat, setShowHelpChat] = useState(false);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
+  const [showPayNow, setShowPayNow] = useState(false);
+  const [payingNow, setPayingNow] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -417,6 +420,17 @@ const OrderDetailPage = () => {
                     {order.payment_method || "—"} · <span className={order.payment_status === "paid" ? "text-green-600 font-medium" : "text-amber-600"}>{order.payment_status || "pending"}</span>
                   </span>
                 </div>
+                {/* Pay Now button for COD orders with pending payment */}
+                {order.payment_method?.toLowerCase() === "cod" && order.payment_status !== "paid" && order.status.toLowerCase() !== "cancelled" && (
+                  <button
+                    onClick={() => { setPayingNow(true); setShowPayNow(true); }}
+                    disabled={payingNow}
+                    className="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs font-semibold border-2 border-foreground text-foreground rounded-lg hover:bg-foreground hover:text-background transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <Wallet size={14} />
+                    {payingNow ? "Processing..." : "Pay Now Online"}
+                  </button>
+                )}
               </div>
             </motion.div>
 
@@ -509,6 +523,37 @@ const OrderDetailPage = () => {
           orderId={order.id}
           orderStatus={order.status}
         />
+
+        {/* Pay Now Razorpay Modal */}
+        {showPayNow && order && (
+          <RazorpayCheckout
+            amount={order.total}
+            customerName={order.customer_name}
+            customerEmail={order.customer_email.includes("@phone.") ? "" : order.customer_email}
+            customerPhone={order.customer_phone || ""}
+            onSuccess={async (paymentId: string) => {
+              setShowPayNow(false);
+              // Update order payment status
+              const { error } = await supabase.from("orders").update({
+                payment_status: "paid",
+                payment_method: "Online Payment (was COD)",
+                notes: (order.notes || "") + ` | Paid online on ${new Date().toLocaleDateString("en-IN")} | Razorpay: ${paymentId}`,
+              }).eq("id", order.id);
+
+              if (error) {
+                toast.error("Payment recorded but failed to update order. Contact support.");
+                setPayingNow(false);
+              } else {
+                toast.success("Payment successful! Order updated.");
+                fetchOrder(); // refresh
+              }
+            }}
+            onClose={() => {
+              setShowPayNow(false);
+              setPayingNow(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );

@@ -268,7 +268,7 @@ const AdminOrders = () => {
                   <div><p className="text-[11px] text-muted-foreground">Customer</p><p className="font-medium">{selectedOrder.customer_name}</p></div>
                   <div><p className="text-[11px] text-muted-foreground">Email</p><p>{selectedOrder.customer_email}</p></div>
                   <div><p className="text-[11px] text-muted-foreground">Phone</p><p>{selectedOrder.customer_phone || "—"}</p></div>
-                  <div><p className="text-[11px] text-muted-foreground">Payment</p><p>{selectedOrder.payment_method || "—"} ({selectedOrder.payment_status})</p></div>
+                  <div><p className="text-[11px] text-muted-foreground">Payment</p><p>{selectedOrder.payment_method?.includes("was COD") ? <><span className="text-green-600 font-medium">Paid Online</span> <span className="text-[10px] text-muted-foreground">(originally COD)</span></> : (selectedOrder.payment_method || "—")} ({selectedOrder.payment_status})</p></div>
                 </div>
                 {selectedOrder.shipping_address && (
                   <div><p className="text-[11px] text-muted-foreground">Shipping Address</p><p>{selectedOrder.shipping_address}</p></div>
