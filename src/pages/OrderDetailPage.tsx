@@ -194,7 +194,7 @@ const OrderDetailPage = () => {
       <div className="container mx-auto px-4 md:px-8 max-w-4xl">
         {/* Back + Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="p-2 hover:bg-accent rounded-lg transition-colors">
+          <button onClick={() => { window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior }); navigate(-1); }} className="p-2 hover:bg-accent rounded-lg transition-colors">
             <ArrowLeft size={18} />
           </button>
           <div className="flex-1">
