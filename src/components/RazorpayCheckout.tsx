@@ -104,10 +104,10 @@ const RazorpayCheckout = ({ amount, customerName, customerEmail, customerPhone, 
     >
       <div className="flex flex-col items-center gap-4 text-white">
         <div className="w-12 h-12 border-3 border-white border-t-transparent rounded-full animate-spin" />
-        <p className="text-sm font-medium">Initializing Razorpay...</p>
+        <p className="text-sm font-medium">Initializing Payment...</p>
         <div className="flex items-center gap-1.5">
           <Shield size={12} className="opacity-60" />
-          <p className="text-[10px] opacity-60">Secured by Razorpay</p>
+          <p className="text-[10px] opacity-60">Secure Payment</p>
         </div>
       </div>
     </motion.div>,
