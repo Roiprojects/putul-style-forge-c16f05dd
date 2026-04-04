@@ -989,9 +989,10 @@ const CartPage = () => {
       </div>
       <AuthModal open={showAuthModal} onClose={() => setShowAuthModal(false)} />
       {showRazorpay && (
-        <FakeRazorpay
+        <RazorpayCheckout
           amount={finalTotal}
           customerName={form.name}
+          customerEmail={user?.email || `${form.phone}@phone.putul.app`}
           customerPhone={form.phone}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowRazorpay(false)}
