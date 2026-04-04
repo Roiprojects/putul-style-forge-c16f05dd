@@ -523,6 +523,37 @@ const OrderDetailPage = () => {
           orderId={order.id}
           orderStatus={order.status}
         />
+
+        {/* Pay Now Razorpay Modal */}
+        {showPayNow && order && (
+          <RazorpayCheckout
+            amount={order.total}
+            customerName={order.customer_name}
+            customerEmail={order.customer_email.includes("@phone.") ? "" : order.customer_email}
+            customerPhone={order.customer_phone || ""}
+            onSuccess={async (paymentId: string) => {
+              setShowPayNow(false);
+              // Update order payment status
+              const { error } = await supabase.from("orders").update({
+                payment_status: "paid",
+                payment_method: "Online Payment (was COD)",
+                notes: (order.notes || "") + ` | Paid online on ${new Date().toLocaleDateString("en-IN")} | Razorpay: ${paymentId}`,
+              }).eq("id", order.id);
+
+              if (error) {
+                toast.error("Payment recorded but failed to update order. Contact support.");
+                setPayingNow(false);
+              } else {
+                toast.success("Payment successful! Order updated.");
+                fetchOrder(); // refresh
+              }
+            }}
+            onClose={() => {
+              setShowPayNow(false);
+              setPayingNow(false);
+            }}
+          />
+        )}
       </div>
     </div>
   );
