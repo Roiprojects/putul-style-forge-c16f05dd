@@ -345,6 +345,7 @@ const CartPage = () => {
         product_id: item.product.id,
         product_name: item.product.name,
         size: item.size,
+        color: item.color || null,
         quantity: item.quantity,
         unit_price: item.product.price,
         total_price: item.product.price * item.quantity,
