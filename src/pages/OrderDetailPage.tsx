@@ -88,6 +88,7 @@ const OrderDetailPage = () => {
   useEffect(() => {
     if (!id) return;
     fetchOrder();
+    fetchTracking();
   }, [id]);
 
   const fetchOrder = async () => {
