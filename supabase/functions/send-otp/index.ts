@@ -85,56 +85,53 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Send SMS via Authkey (skip for admin test numbers)
+    // Send SMS via SMSAlert (skip for admin test numbers)
     if (!isAdminPhone) {
-      const authkeyApiKey = Deno.env.get("AUTHKEY_API_KEY");
-      if (!authkeyApiKey) {
-        console.error("AUTHKEY_API_KEY not configured");
+      const smsAlertApiKey = Deno.env.get("SMSALERT_API_KEY");
+      if (!smsAlertApiKey) {
+        console.error("SMSALERT_API_KEY not configured");
         return new Response(
           JSON.stringify({ error: "SMS service not configured." }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      // Extract country code and mobile number from phone string like +919876543210
-      const countryCodeMatch = phone.match(/^\+(\d{1,4})(\d{4,14})$/);
-      if (!countryCodeMatch) {
-        return new Response(
-          JSON.stringify({ error: "Invalid phone format." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
-      const countryCode = countryCodeMatch[1];
-      const mobileNumber = countryCodeMatch[2];
-      const senderId = "PUTULF";
-      const dltTemplateId = "100729198774591805604";
-
+      // Strip the '+' and send full number with country code (e.g. 919876543210)
+      const cleanPhone = phone.replace(/^\+/, "");
       const smsMessage = `Your Account verification code is ${otpCode} for PUTUL`;
 
-      const authkeyUrl = new URL("https://api.authkey.io/request");
-      authkeyUrl.searchParams.set("authkey", authkeyApiKey);
-      authkeyUrl.searchParams.set("mobile", mobileNumber);
-      authkeyUrl.searchParams.set("country_code", countryCode);
-      authkeyUrl.searchParams.set("sms", smsMessage);
-      authkeyUrl.searchParams.set("sender", senderId);
-      authkeyUrl.searchParams.set("pe_id", "");
-      authkeyUrl.searchParams.set("template_id", dltTemplateId);
+      const smsAlertUrl = new URL("https://www.smsalert.co.in/api/push.json");
+      smsAlertUrl.searchParams.set("apikey", smsAlertApiKey);
+      smsAlertUrl.searchParams.set("sender", "PUTULF");
+      smsAlertUrl.searchParams.set("mobileno", cleanPhone);
+      smsAlertUrl.searchParams.set("text", smsMessage);
 
       try {
-        const smsResponse = await fetch(authkeyUrl.toString());
+        const smsResponse = await fetch(smsAlertUrl.toString(), { method: "POST" });
         const smsResult = await smsResponse.text();
-        console.log(`[Authkey SMS] Phone: ${mobileNumber}, Response: ${smsResult}`);
+        console.log(`[SMSAlert] Phone: ${cleanPhone}, Response: ${smsResult}`);
 
-        if (!smsResponse.ok) {
-          console.error("Authkey SMS failed:", smsResult);
-          return new Response(
-            JSON.stringify({ error: "Failed to send OTP. Please try again." }),
-            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-          );
+        // Parse response to check status
+        try {
+          const parsed = JSON.parse(smsResult);
+          if (parsed.status !== "success") {
+            console.error("SMSAlert failed:", smsResult);
+            return new Response(
+              JSON.stringify({ error: "Failed to send OTP. Please try again." }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
+        } catch {
+          console.error("SMSAlert non-JSON response:", smsResult);
+          if (!smsResponse.ok) {
+            return new Response(
+              JSON.stringify({ error: "Failed to send OTP. Please try again." }),
+              { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
         }
       } catch (smsError) {
-        console.error("Authkey SMS error:", smsError);
+        console.error("SMSAlert error:", smsError);
         return new Response(
           JSON.stringify({ error: "SMS service unavailable. Please try again." }),
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
