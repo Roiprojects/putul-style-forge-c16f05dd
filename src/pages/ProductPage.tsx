@@ -362,51 +362,50 @@ const ProductPage = () => {
               )}
             </div>
 
-            <div className="flex gap-3 mb-3">
+            <div className="flex gap-2 mb-8">
               {cartQty > 0 ? (
-                <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden">
+                <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden h-10">
                   <button
                     onClick={() => updateQuantity(product.id, selectedSize, cartQty - 1, selectedColor || undefined)}
-                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                    className="px-3 py-2 hover:bg-accent transition-colors"
                   >
-                    <Minus size={16} />
+                    <Minus size={14} />
                   </button>
-                  <span className="px-6 text-sm font-semibold tabular-nums">{cartQty}</span>
+                  <span className="px-4 text-xs font-semibold tabular-nums">{cartQty}</span>
                   <button
                     onClick={() => updateQuantity(product.id, selectedSize, cartQty + 1, selectedColor || undefined)}
-                    className="px-4 py-3.5 hover:bg-accent transition-colors"
+                    className="px-3 py-2 hover:bg-accent transition-colors"
                   >
-                    <Plus size={16} />
+                    <Plus size={14} />
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
-                  className="btn-primary flex-1 flex items-center justify-center gap-2 py-3.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 flex items-center justify-center gap-1.5 h-10 bg-foreground text-background text-xs font-semibold uppercase tracking-[0.1em] rounded-full transition-all hover:bg-foreground/90 active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <ShoppingBag size={16} />
+                  <ShoppingBag size={14} />
                   {isOutOfStock ? "Out of Stock" : "Add to Cart"}
                 </button>
               )}
               <button
+                onClick={handleBuyNow}
+                disabled={isOutOfStock}
+                className="group/buy flex-1 flex items-center justify-center gap-1.5 h-10 border-2 border-secondary text-secondary text-xs font-semibold uppercase tracking-[0.1em] rounded-full transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Zap size={14} className="transition-transform duration-300 group-hover/buy:rotate-12" />
+                Buy Now
+              </button>
+              <button
                 onClick={() => { toggleWishlist(product.id); toast.success(wishlisted ? "Removed" : "Added to wishlist"); }}
-                className={`px-4 border rounded transition-all ${
+                className={`w-10 h-10 flex items-center justify-center border rounded-full transition-all shrink-0 ${
                   wishlisted ? "border-secondary text-secondary" : "border-border text-muted-foreground hover:border-foreground hover:text-foreground"
                 }`}
               >
-                <Heart size={18} className={wishlisted ? "fill-current" : ""} strokeWidth={1.5} />
+                <Heart size={16} className={wishlisted ? "fill-current" : ""} strokeWidth={1.5} />
               </button>
             </div>
-
-            <button
-              onClick={handleBuyNow}
-              disabled={isOutOfStock}
-              className="group/buy w-full flex items-center justify-center gap-2 py-3 mb-8 border-2 border-secondary text-secondary font-semibold text-xs uppercase tracking-[0.15em] rounded-full transition-all duration-300 hover:bg-secondary hover:text-secondary-foreground active:scale-[0.97] disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <Zap size={14} className="transition-transform duration-300 group-hover/buy:rotate-12" />
-              Buy Now
-            </button>
 
             <div className="grid grid-cols-4 gap-4 border-t border-border pt-6">
               {[
