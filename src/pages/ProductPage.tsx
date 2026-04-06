@@ -362,7 +362,7 @@ const ProductPage = () => {
               )}
             </div>
 
-            <div className="flex gap-3 mb-8">
+            <div className="flex gap-3 mb-3">
               {cartQty > 0 ? (
                 <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden">
                   <button
@@ -398,6 +398,15 @@ const ProductPage = () => {
                 <Heart size={18} className={wishlisted ? "fill-current" : ""} strokeWidth={1.5} />
               </button>
             </div>
+
+            <button
+              onClick={handleBuyNow}
+              disabled={isOutOfStock}
+              className="w-full flex items-center justify-center gap-2 py-3.5 mb-8 bg-secondary text-secondary-foreground font-semibold text-sm tracking-wide rounded transition-all hover:bg-secondary/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Zap size={16} />
+              Buy Now
+            </button>
 
             <div className="grid grid-cols-3 gap-4 border-t border-border pt-6">
               {[
