@@ -227,14 +227,6 @@ const Navbar = () => {
 
             {/* Right icons */}
             <div className="flex items-center gap-0 flex-shrink-0">
-              <Link to="/wishlist" className="p-1.5 text-foreground hover:text-secondary transition-colors relative">
-                <Heart size={19} strokeWidth={1.5} />
-                {wishlist.length > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-secondary text-secondary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
-                    {wishlist.length}
-                  </span>
-                )}
-              </Link>
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
