@@ -343,6 +343,58 @@ const AdminOrders = () => {
                   <span>Total</span>
                   <span>₹{Number(selectedOrder.total).toLocaleString()}</span>
                 </div>
+
+                {/* Shiprocket Shipping Section */}
+                <hr className="border-border" />
+                <h3 className="font-semibold flex items-center gap-2"><Truck size={16} /> Shipping</h3>
+                
+                {selectedOrder.shiprocket_order_id ? (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Shiprocket Order</p>
+                        <p className="font-mono">{selectedOrder.shiprocket_order_id}</p>
+                      </div>
+                      {selectedOrder.awb_code && (
+                        <div>
+                          <p className="text-muted-foreground">AWB</p>
+                          <p className="font-mono">{selectedOrder.awb_code}</p>
+                        </div>
+                      )}
+                      {selectedOrder.courier_name && (
+                        <div>
+                          <p className="text-muted-foreground">Courier</p>
+                          <p>{selectedOrder.courier_name}</p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedOrder.shiprocket_shipment_id && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "label")}
+                          className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
+                        >
+                          <Download size={12} /> Label
+                        </button>
+                        <button
+                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "invoice")}
+                          className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
+                        >
+                          <Download size={12} /> Invoice
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleCreateShipment(selectedOrder.id)}
+                    disabled={shiprocketLoading}
+                    className="flex items-center gap-2 text-xs px-4 py-2 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                  >
+                    <Package size={14} />
+                    {shiprocketLoading ? "Creating..." : "Create Shipment"}
+                  </button>
+                )}
               </div>
             </motion.div>
           </motion.div>
