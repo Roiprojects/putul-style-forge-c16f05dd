@@ -21,7 +21,7 @@ const FloatingButtons = () => {
 
   return (
     <>
-      <div className="fixed bottom-6 left-5 z-50">
+      <div className="fixed bottom-20 md:bottom-6 left-5 z-50">
         <AnimatePresence>
           {open && (
             <>
