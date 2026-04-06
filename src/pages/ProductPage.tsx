@@ -402,7 +402,7 @@ const ProductPage = () => {
             <button
               onClick={handleBuyNow}
               disabled={isOutOfStock}
-              className="w-full flex items-center justify-center gap-1.5 py-2 mb-8 bg-secondary text-secondary-foreground font-medium text-xs tracking-wide rounded transition-all hover:bg-secondary/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-1/2 mx-auto flex items-center justify-center gap-1.5 py-2 mb-8 bg-secondary text-secondary-foreground font-medium text-xs tracking-wide rounded transition-all hover:bg-secondary/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Zap size={16} />
               Buy Now
