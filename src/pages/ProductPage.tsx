@@ -1,7 +1,7 @@
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap } from "lucide-react";
 import { useProduct, useProducts, useProductVariants } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -11,6 +11,7 @@ import type { ProductVariant } from "@/data/products";
 
 const ProductPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
@@ -177,6 +178,28 @@ const ProductPage = () => {
     toast.success(`${product.name} added to cart`);
   };
 
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+    if (hasVariants && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+    if (isOutOfStock) {
+      toast.error("This combination is out of stock");
+      return;
+    }
+    // Add to cart if not already there
+    if (cartQty === 0) {
+      for (let i = 0; i < quantity; i++) {
+        addToCart(product, selectedSize, selectedColor || undefined);
+      }
+    }
+    navigate("/cart");
+  };
+
   const colorsToShow = hasVariants ? variantColors : product.colors.map(c => ({ color: c, colorCode: undefined }));
   const sizesToShow = hasVariants ? [...new Set(variants.map(v => v.size))] : product.sizes;
 
@@ -339,7 +362,7 @@ const ProductPage = () => {
               )}
             </div>
 
-            <div className="flex gap-3 mb-8">
+            <div className="flex gap-3 mb-3">
               {cartQty > 0 ? (
                 <div className="flex-1 flex items-center justify-center border border-foreground rounded overflow-hidden">
                   <button
@@ -375,6 +398,15 @@ const ProductPage = () => {
                 <Heart size={18} className={wishlisted ? "fill-current" : ""} strokeWidth={1.5} />
               </button>
             </div>
+
+            <button
+              onClick={handleBuyNow}
+              disabled={isOutOfStock}
+              className="w-full flex items-center justify-center gap-2 py-3.5 mb-8 bg-secondary text-secondary-foreground font-semibold text-sm tracking-wide rounded transition-all hover:bg-secondary/90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Zap size={16} />
+              Buy Now
+            </button>
 
             <div className="grid grid-cols-3 gap-4 border-t border-border pt-6">
               {[
