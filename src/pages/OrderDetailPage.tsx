@@ -29,6 +29,17 @@ interface OrderDetail {
   tracking_number: string | null;
   invoice_number: string | null;
   notes: string | null;
+  awb_code?: string | null;
+  courier_name?: string | null;
+  shiprocket_order_id?: string | null;
+  shiprocket_shipment_id?: string | null;
+  tracking_url?: string | null;
+}
+
+interface TrackingActivity {
+  date: string;
+  activity: string;
+  location: string;
 }
 
 interface OrderItem {
