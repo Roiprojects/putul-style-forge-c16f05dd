@@ -178,6 +178,28 @@ const ProductPage = () => {
     toast.success(`${product.name} added to cart`);
   };
 
+  const handleBuyNow = () => {
+    if (!selectedSize) {
+      toast.error("Please select a size");
+      return;
+    }
+    if (hasVariants && !selectedColor) {
+      toast.error("Please select a color");
+      return;
+    }
+    if (isOutOfStock) {
+      toast.error("This combination is out of stock");
+      return;
+    }
+    // Add to cart if not already there
+    if (cartQty === 0) {
+      for (let i = 0; i < quantity; i++) {
+        addToCart(product, selectedSize, selectedColor || undefined);
+      }
+    }
+    navigate("/cart");
+  };
+
   const colorsToShow = hasVariants ? variantColors : product.colors.map(c => ({ color: c, colorCode: undefined }));
   const sizesToShow = hasVariants ? [...new Set(variants.map(v => v.size))] : product.sizes;
 
