@@ -82,6 +82,8 @@ const OrderDetailPage = () => {
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
   const [showPayNow, setShowPayNow] = useState(false);
   const [payingNow, setPayingNow] = useState(false);
+  const [trackingActivities, setTrackingActivities] = useState<TrackingActivity[]>([]);
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
