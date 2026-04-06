@@ -136,6 +136,26 @@ const OrderDetailPage = () => {
     setLoading(false);
   };
 
+  const fetchTracking = async () => {
+    if (!id) return;
+    // First get order to check if it has AWB
+    const { data: ord } = await supabase.from("orders").select("awb_code, shiprocket_shipment_id").eq("id", id).single();
+    if (!ord?.awb_code && !ord?.shiprocket_shipment_id) return;
+    
+    setTrackingLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-tracking", {
+        body: { awb_code: ord.awb_code, shipment_id: ord.shiprocket_shipment_id },
+      });
+      if (data?.activities) {
+        setTrackingActivities(data.activities);
+      }
+    } catch (e) {
+      console.error("Tracking fetch failed:", e);
+    }
+    setTrackingLoading(false);
+  };
+
   const getStatusIndex = (status: string) => {
     const s = status.toLowerCase();
     if (s === "delivered") return 4;
