@@ -413,6 +413,7 @@ const ProductPage = () => {
                 { icon: Truck, label: "Free Shipping" },
                 { icon: Shield, label: "Premium Quality" },
                 { icon: RefreshCcw, label: "Easy Returns" },
+                { icon: Banknote, label: "Cash on Delivery" },
               ].map((f) => (
                 <div key={f.label} className="text-center">
                   <f.icon size={18} className="mx-auto mb-1.5 text-secondary" strokeWidth={1.3} />
