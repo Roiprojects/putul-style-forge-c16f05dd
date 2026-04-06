@@ -83,6 +83,41 @@ const AdminOrders = () => {
     else toast.success("Tracking updated");
   };
 
+  const handleCreateShipment = async (orderId: string) => {
+    setShiprocketLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-create-order", {
+        body: { order_id: orderId },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Shipment created! AWB: " + (data?.awb_code || "Pending"));
+        fetchOrders();
+        if (selectedOrder?.id === orderId) viewOrder({ ...selectedOrder });
+      }
+    } catch (e: any) {
+      toast.error("Failed to create shipment: " + (e.message || "Unknown error"));
+    }
+    setShiprocketLoading(false);
+  };
+
+  const handleDownloadLabel = async (shipmentId: string, type: "label" | "invoice") => {
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-labels", {
+        body: { shipment_id: shipmentId, type },
+      });
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        toast.error("Label not available yet");
+      }
+    } catch {
+      toast.error("Failed to fetch " + type);
+    }
+  };
+
   const printInvoice = (order: any, items: any[]) => {
     const w = window.open("", "_blank");
     if (!w) return;
