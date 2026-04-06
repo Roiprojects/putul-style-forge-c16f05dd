@@ -401,6 +401,8 @@ export type Database = {
       }
       orders: {
         Row: {
+          awb_code: string | null
+          courier_name: string | null
           created_at: string
           customer_email: string
           customer_name: string
@@ -408,19 +410,26 @@ export type Database = {
           discount: number | null
           id: string
           invoice_number: string | null
+          manifest_url: string | null
           notes: string | null
           payment_method: string | null
           payment_status: string | null
           shipping_address: string | null
           shipping_cost: number | null
+          shipping_label_url: string | null
+          shiprocket_order_id: string | null
+          shiprocket_shipment_id: string | null
           status: string
           subtotal: number
           total: number
           tracking_number: string | null
+          tracking_url: string | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          awb_code?: string | null
+          courier_name?: string | null
           created_at?: string
           customer_email: string
           customer_name: string
@@ -428,19 +437,26 @@ export type Database = {
           discount?: number | null
           id?: string
           invoice_number?: string | null
+          manifest_url?: string | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
           shipping_address?: string | null
           shipping_cost?: number | null
+          shipping_label_url?: string | null
+          shiprocket_order_id?: string | null
+          shiprocket_shipment_id?: string | null
           status?: string
           subtotal?: number
           total?: number
           tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          awb_code?: string | null
+          courier_name?: string | null
           created_at?: string
           customer_email?: string
           customer_name?: string
@@ -448,15 +464,20 @@ export type Database = {
           discount?: number | null
           id?: string
           invoice_number?: string | null
+          manifest_url?: string | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
           shipping_address?: string | null
           shipping_cost?: number | null
+          shipping_label_url?: string | null
+          shiprocket_order_id?: string | null
+          shiprocket_shipment_id?: string | null
           status?: string
           subtotal?: number
           total?: number
           tracking_number?: string | null
+          tracking_url?: string | null
           updated_at?: string
           user_id?: string | null
         }
