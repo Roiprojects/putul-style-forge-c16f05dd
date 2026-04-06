@@ -1,7 +1,7 @@
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap } from "lucide-react";
 import { useProduct, useProducts, useProductVariants } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
