@@ -457,7 +457,7 @@ const CartPage = () => {
                 >
                   {cart.map((item, i) => (
                     <motion.div
-                      key={`${item.product.id}-${item.size}`}
+                      key={`${item.product.id}-${item.size}-${item.color || ''}`}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
@@ -469,18 +469,20 @@ const CartPage = () => {
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
                           <Link to={`/product/${item.product.id}`} className="font-medium text-sm hover:text-secondary transition-colors">{item.product.name}</Link>
-                          <p className="text-xs text-muted-foreground mt-1">Size: {item.size}</p>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Size: {item.size}{item.color ? ` · Color: ${item.color}` : ''}
+                          </p>
                         </div>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center border border-border">
-                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1)} className="p-2"><Minus size={12} /></button>
+                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity - 1, item.color)} className="p-2"><Minus size={12} /></button>
                             <span className="px-3 text-sm">{item.quantity}</span>
-                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1)} className="p-2"><Plus size={12} /></button>
+                            <button onClick={() => updateQuantity(item.product.id, item.size, item.quantity + 1, item.color)} className="p-2"><Plus size={12} /></button>
                           </div>
                           <span className="font-semibold text-sm">₹{(item.product.price * item.quantity).toLocaleString()}</span>
                         </div>
                       </div>
-                      <button onClick={() => removeFromCart(item.product.id, item.size)} className="text-muted-foreground hover:text-destructive self-start">
+                      <button onClick={() => removeFromCart(item.product.id, item.size, item.color)} className="text-muted-foreground hover:text-destructive self-start">
                         <X size={16} />
                       </button>
                     </motion.div>
