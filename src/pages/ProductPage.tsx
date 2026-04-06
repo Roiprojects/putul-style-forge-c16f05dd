@@ -408,7 +408,7 @@ const ProductPage = () => {
               Buy Now
             </button>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-border pt-6">
+            <div className="grid grid-cols-4 gap-4 border-t border-border pt-6">
               {[
                 { icon: Truck, label: "Free Shipping" },
                 { icon: Shield, label: "Premium Quality" },
