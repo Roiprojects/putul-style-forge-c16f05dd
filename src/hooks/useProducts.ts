@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Product } from "@/data/products";
+import type { Product, ProductVariant } from "@/data/products";
 
 interface DbProduct {
   id: string;
