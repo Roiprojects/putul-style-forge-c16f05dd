@@ -27,32 +27,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [cart, setCart] = useState<CartItem[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
 
-  const addToCart = useCallback((product: Product, size: string) => {
+  const addToCart = useCallback((product: Product, size: string, color?: string) => {
     setCart(prev => {
-      const existing = prev.find(i => i.product.id === product.id && i.size === size);
+      const existing = prev.find(i => i.product.id === product.id && i.size === size && i.color === color);
       if (existing) {
         return prev.map(i =>
-          i.product.id === product.id && i.size === size
+          i.product.id === product.id && i.size === size && i.color === color
             ? { ...i, quantity: i.quantity + 1 }
             : i
         );
       }
-      return [...prev, { product, quantity: 1, size }];
+      return [...prev, { product, quantity: 1, size, color }];
     });
   }, []);
 
-  const removeFromCart = useCallback((productId: string, size: string) => {
-    setCart(prev => prev.filter(i => !(i.product.id === productId && i.size === size)));
+  const removeFromCart = useCallback((productId: string, size: string, color?: string) => {
+    setCart(prev => prev.filter(i => !(i.product.id === productId && i.size === size && i.color === color)));
   }, []);
 
-  const updateQuantity = useCallback((productId: string, size: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, size: string, quantity: number, color?: string) => {
     if (quantity <= 0) {
-      removeFromCart(productId, size);
+      removeFromCart(productId, size, color);
       return;
     }
     setCart(prev =>
       prev.map(i =>
-        i.product.id === productId && i.size === size ? { ...i, quantity } : i
+        i.product.id === productId && i.size === size && i.color === color ? { ...i, quantity } : i
       )
     );
   }, [removeFromCart]);
