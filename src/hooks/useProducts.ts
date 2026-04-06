@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import type { Product } from "@/data/products";
+import type { Product, ProductVariant } from "@/data/products";
 
 interface DbProduct {
   id: string;
@@ -95,12 +95,17 @@ export const useRealtimeStorefront = () => {
       .channel("storefront-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "admin_products" }, () => {
         queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ["product"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "admin_categories" }, () => {
         queryClient.invalidateQueries({ queryKey: ["categories"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => {
         queryClient.invalidateQueries({ queryKey: ["featured-reviews"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "product_variants" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["product"] });
+        queryClient.invalidateQueries({ queryKey: ["product-variants"] });
       })
       .subscribe();
 
@@ -142,6 +147,31 @@ export const useProduct = (id: string | undefined) => {
       return mapToProduct(data as unknown as DbProduct);
     },
     enabled: !!id,
+  });
+};
+
+export const useProductVariants = (productId: string | undefined) => {
+  return useQuery({
+    queryKey: ["product-variants", productId],
+    queryFn: async (): Promise<ProductVariant[]> => {
+      if (!productId) return [];
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", productId);
+
+      if (error) throw error;
+      return (data ?? []).map((v: any) => ({
+        id: v.id,
+        color: v.color,
+        colorCode: v.color_code || undefined,
+        size: v.size,
+        stock: v.stock,
+        priceAdjustment: v.price_adjustment || 0,
+        images: v.images || [],
+      }));
+    },
+    enabled: !!productId,
   });
 };
 

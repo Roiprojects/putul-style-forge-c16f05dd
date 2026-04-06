@@ -522,8 +522,10 @@ export type Database = {
       product_variants: {
         Row: {
           color: string
+          color_code: string | null
           created_at: string
           id: string
+          images: string[] | null
           price_adjustment: number | null
           product_id: string
           size: string
@@ -532,8 +534,10 @@ export type Database = {
         }
         Insert: {
           color: string
+          color_code?: string | null
           created_at?: string
           id?: string
+          images?: string[] | null
           price_adjustment?: number | null
           product_id: string
           size: string
@@ -542,8 +546,10 @@ export type Database = {
         }
         Update: {
           color?: string
+          color_code?: string | null
           created_at?: string
           id?: string
+          images?: string[] | null
           price_adjustment?: number | null
           product_id?: string
           size?: string

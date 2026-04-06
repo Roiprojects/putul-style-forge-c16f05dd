@@ -13,6 +13,16 @@ const catImg = (path: string, w = 500) =>
 const bannerImg = (path: string) =>
   `${CDN2}/tr:f-webp,w-1920,fo-auto/${path}`;
 
+export interface ProductVariant {
+  id: string;
+  color: string;
+  colorCode?: string;
+  size: string;
+  stock: number;
+  priceAdjustment: number;
+  images: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -32,6 +42,7 @@ export interface Product {
   bestSeller?: boolean;
   newArrival?: boolean;
   badge?: string;
+  variants?: ProductVariant[];
 }
 
 export interface Category {
