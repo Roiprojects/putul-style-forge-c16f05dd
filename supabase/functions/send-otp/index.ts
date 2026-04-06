@@ -14,9 +14,9 @@ Deno.serve(async (req) => {
   try {
     const { phone, is_admin } = await req.json();
 
-    if (!phone || typeof phone !== "string" || !/^\+91\d{10}$/.test(phone)) {
+    if (!phone || typeof phone !== "string" || !/^\+\d{1,4}\d{4,14}$/.test(phone)) {
       return new Response(
-        JSON.stringify({ error: "Invalid phone number. Use +91XXXXXXXXXX format." }),
+        JSON.stringify({ error: "Invalid phone number format." }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -56,15 +56,18 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Use fixed OTP for admin numbers during development
+    // Check if admin phone (use fixed OTP for testing)
     const { data: isAdminPhone } = await supabase
       .from("admin_phones")
       .select("id")
       .eq("phone", phone)
       .maybeSingle();
 
-    // Dev mode: use fixed OTP for all numbers until SMS gateway is connected
-    const otpCode = isAdminPhone ? "123456" : "000000";
+    // Generate random 6-digit OTP (fixed for admin phones in dev)
+    const otpCode = isAdminPhone
+      ? "123456"
+      : String(Math.floor(100000 + Math.random() * 900000));
+
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
     // Store OTP
@@ -82,8 +85,64 @@ Deno.serve(async (req) => {
       );
     }
 
-    // TODO: Replace with actual SMS API (Twilio gateway) when connected
-    console.log(`[OTP] Phone: ${phone}, Code: ${otpCode}`);
+    // Send SMS via Authkey (skip for admin test numbers)
+    if (!isAdminPhone) {
+      const authkeyApiKey = Deno.env.get("AUTHKEY_API_KEY");
+      if (!authkeyApiKey) {
+        console.error("AUTHKEY_API_KEY not configured");
+        return new Response(
+          JSON.stringify({ error: "SMS service not configured." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      // Extract country code and mobile number from phone string like +919876543210
+      const countryCodeMatch = phone.match(/^\+(\d{1,4})(\d{4,14})$/);
+      if (!countryCodeMatch) {
+        return new Response(
+          JSON.stringify({ error: "Invalid phone format." }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const countryCode = countryCodeMatch[1];
+      const mobileNumber = countryCodeMatch[2];
+      const senderId = "PUTULF";
+      const dltTemplateId = "100729198774591805604";
+
+      const smsMessage = `Your Account verification code is ${otpCode} for PUTUL`;
+
+      const authkeyUrl = new URL("https://api.authkey.io/request");
+      authkeyUrl.searchParams.set("authkey", authkeyApiKey);
+      authkeyUrl.searchParams.set("mobile", mobileNumber);
+      authkeyUrl.searchParams.set("country_code", countryCode);
+      authkeyUrl.searchParams.set("sms", smsMessage);
+      authkeyUrl.searchParams.set("sender", senderId);
+      authkeyUrl.searchParams.set("pe_id", "");
+      authkeyUrl.searchParams.set("template_id", dltTemplateId);
+
+      try {
+        const smsResponse = await fetch(authkeyUrl.toString());
+        const smsResult = await smsResponse.text();
+        console.log(`[Authkey SMS] Phone: ${mobileNumber}, Response: ${smsResult}`);
+
+        if (!smsResponse.ok) {
+          console.error("Authkey SMS failed:", smsResult);
+          return new Response(
+            JSON.stringify({ error: "Failed to send OTP. Please try again." }),
+            { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch (smsError) {
+        console.error("Authkey SMS error:", smsError);
+        return new Response(
+          JSON.stringify({ error: "SMS service unavailable. Please try again." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    } else {
+      console.log(`[OTP] Admin test phone: ${phone}, Code: ${otpCode}`);
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: "OTP sent successfully." }),
