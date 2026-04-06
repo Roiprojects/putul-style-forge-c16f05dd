@@ -11,6 +11,7 @@ import type { ProductVariant } from "@/data/products";
 
 const ProductPage = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
