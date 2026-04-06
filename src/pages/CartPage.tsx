@@ -352,6 +352,10 @@ const CartPage = () => {
       }));
 
       await supabase.from("order_items").insert(orderItems);
+
+      // Sync to Shiprocket
+      syncToShiprocket(orderData.id);
+
       clearCart();
       navigate("/order-confirmation", {
         state: {
@@ -365,6 +369,16 @@ const CartPage = () => {
       });
     } else {
       setShowRazorpay(true);
+    }
+  };
+
+  const syncToShiprocket = async (orderId: string) => {
+    try {
+      await supabase.functions.invoke("shiprocket-create-order", {
+        body: { order_id: orderId },
+      });
+    } catch (e) {
+      console.error("Shiprocket sync failed (non-blocking):", e);
     }
   };
 
@@ -409,6 +423,9 @@ const CartPage = () => {
     }));
 
     await supabase.from("order_items").insert(orderItems);
+
+    // Sync to Shiprocket
+    syncToShiprocket(orderData.id);
 
     clearCart();
     
