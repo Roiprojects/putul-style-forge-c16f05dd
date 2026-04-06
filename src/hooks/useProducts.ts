@@ -95,12 +95,17 @@ export const useRealtimeStorefront = () => {
       .channel("storefront-sync")
       .on("postgres_changes", { event: "*", schema: "public", table: "admin_products" }, () => {
         queryClient.invalidateQueries({ queryKey: ["products"] });
+        queryClient.invalidateQueries({ queryKey: ["product"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "admin_categories" }, () => {
         queryClient.invalidateQueries({ queryKey: ["categories"] });
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "reviews" }, () => {
         queryClient.invalidateQueries({ queryKey: ["featured-reviews"] });
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "product_variants" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["product"] });
+        queryClient.invalidateQueries({ queryKey: ["product-variants"] });
       })
       .subscribe();
 
