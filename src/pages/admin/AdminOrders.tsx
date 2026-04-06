@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Search, Eye, X, Printer, RotateCcw } from "lucide-react";
+import { Search, Eye, X, Printer, RotateCcw, Truck, Download, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const statusOptions = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
@@ -18,6 +18,7 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<any[]>([]);
   const [tab, setTab] = useState<TabType>("orders");
+  const [shiprocketLoading, setShiprocketLoading] = useState(false);
 
   const fetchOrders = async () => {
     const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
@@ -80,6 +81,41 @@ const AdminOrders = () => {
     const { error } = await supabase.from("orders").update({ tracking_number: tracking }).eq("id", orderId);
     if (error) toast.error(error.message);
     else toast.success("Tracking updated");
+  };
+
+  const handleCreateShipment = async (orderId: string) => {
+    setShiprocketLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-create-order", {
+        body: { order_id: orderId },
+      });
+      if (error) throw error;
+      if (data?.error) {
+        toast.error(data.error);
+      } else {
+        toast.success("Shipment created! AWB: " + (data?.awb_code || "Pending"));
+        fetchOrders();
+        if (selectedOrder?.id === orderId) viewOrder({ ...selectedOrder });
+      }
+    } catch (e: any) {
+      toast.error("Failed to create shipment: " + (e.message || "Unknown error"));
+    }
+    setShiprocketLoading(false);
+  };
+
+  const handleDownloadLabel = async (shipmentId: string, type: "label" | "invoice") => {
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-labels", {
+        body: { shipment_id: shipmentId, type },
+      });
+      if (data?.url) {
+        window.open(data.url, "_blank");
+      } else {
+        toast.error("Label not available yet");
+      }
+    } catch {
+      toast.error("Failed to fetch " + type);
+    }
   };
 
   const printInvoice = (order: any, items: any[]) => {
@@ -307,6 +343,58 @@ const AdminOrders = () => {
                   <span>Total</span>
                   <span>₹{Number(selectedOrder.total).toLocaleString()}</span>
                 </div>
+
+                {/* Shiprocket Shipping Section */}
+                <hr className="border-border" />
+                <h3 className="font-semibold flex items-center gap-2"><Truck size={16} /> Shipping</h3>
+                
+                {selectedOrder.shiprocket_order_id ? (
+                  <div className="space-y-2">
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      <div>
+                        <p className="text-muted-foreground">Shiprocket Order</p>
+                        <p className="font-mono">{selectedOrder.shiprocket_order_id}</p>
+                      </div>
+                      {selectedOrder.awb_code && (
+                        <div>
+                          <p className="text-muted-foreground">AWB</p>
+                          <p className="font-mono">{selectedOrder.awb_code}</p>
+                        </div>
+                      )}
+                      {selectedOrder.courier_name && (
+                        <div>
+                          <p className="text-muted-foreground">Courier</p>
+                          <p>{selectedOrder.courier_name}</p>
+                        </div>
+                      )}
+                    </div>
+                    {selectedOrder.shiprocket_shipment_id && (
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "label")}
+                          className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
+                        >
+                          <Download size={12} /> Label
+                        </button>
+                        <button
+                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "invoice")}
+                          className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
+                        >
+                          <Download size={12} /> Invoice
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => handleCreateShipment(selectedOrder.id)}
+                    disabled={shiprocketLoading}
+                    className="flex items-center gap-2 text-xs px-4 py-2 bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors disabled:opacity-50"
+                  >
+                    <Package size={14} />
+                    {shiprocketLoading ? "Creating..." : "Create Shipment"}
+                  </button>
+                )}
               </div>
             </motion.div>
           </motion.div>

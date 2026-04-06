@@ -29,6 +29,17 @@ interface OrderDetail {
   tracking_number: string | null;
   invoice_number: string | null;
   notes: string | null;
+  awb_code?: string | null;
+  courier_name?: string | null;
+  shiprocket_order_id?: string | null;
+  shiprocket_shipment_id?: string | null;
+  tracking_url?: string | null;
+}
+
+interface TrackingActivity {
+  date: string;
+  activity: string;
+  location: string;
 }
 
 interface OrderItem {
@@ -71,10 +82,13 @@ const OrderDetailPage = () => {
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
   const [showPayNow, setShowPayNow] = useState(false);
   const [payingNow, setPayingNow] = useState(false);
+  const [trackingActivities, setTrackingActivities] = useState<TrackingActivity[]>([]);
+  const [trackingLoading, setTrackingLoading] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     fetchOrder();
+    fetchTracking();
   }, [id]);
 
   const fetchOrder = async () => {
@@ -120,6 +134,26 @@ const OrderDetailPage = () => {
     }
 
     setLoading(false);
+  };
+
+  const fetchTracking = async () => {
+    if (!id) return;
+    // First get order to check if it has AWB
+    const { data: ord } = await supabase.from("orders").select("awb_code, shiprocket_shipment_id").eq("id", id).single();
+    if (!ord?.awb_code && !ord?.shiprocket_shipment_id) return;
+    
+    setTrackingLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("shiprocket-tracking", {
+        body: { awb_code: ord.awb_code, shipment_id: ord.shiprocket_shipment_id },
+      });
+      if (data?.activities) {
+        setTrackingActivities(data.activities);
+      }
+    } catch (e) {
+      console.error("Tracking fetch failed:", e);
+    }
+    setTrackingLoading(false);
   };
 
   const getStatusIndex = (status: string) => {
@@ -281,11 +315,58 @@ const OrderDetailPage = () => {
                 </div>
               )}
 
-              {order.tracking_number && (
-                <div className="mt-2 pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground">Tracking Number</p>
-                  <p className="text-sm font-mono font-medium mt-0.5">{order.tracking_number}</p>
+              {(order.awb_code || order.tracking_number || (order as any).courier_name) && (
+                <div className="mt-2 pt-4 border-t border-border space-y-2">
+                  {(order as any).courier_name && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Courier</p>
+                      <p className="text-sm font-medium mt-0.5">{(order as any).courier_name}</p>
+                    </div>
+                  )}
+                  {(order.awb_code || order.tracking_number) && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Tracking Number</p>
+                      <p className="text-sm font-mono font-medium mt-0.5">{order.awb_code || order.tracking_number}</p>
+                    </div>
+                  )}
+                  {(order as any).tracking_url && (
+                    <a
+                      href={(order as any).tracking_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs text-secondary hover:underline mt-1"
+                    >
+                      <Truck size={12} /> Track on courier website
+                    </a>
+                  )}
                 </div>
+              )}
+
+              {/* Live Tracking Activities */}
+              {trackingActivities.length > 0 && (
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Shipment Updates</p>
+                  <div className="space-y-3 max-h-48 overflow-y-auto">
+                    {trackingActivities.map((act, idx) => (
+                      <div key={idx} className="flex gap-3 relative">
+                        {idx < trackingActivities.length - 1 && (
+                          <div className="absolute left-[5px] top-4 w-0.5 h-full bg-border" />
+                        )}
+                        <div className={`w-2.5 h-2.5 rounded-full mt-1 shrink-0 ${idx === 0 ? "bg-green-500" : "bg-border"}`} />
+                        <div>
+                          <p className="text-xs font-medium">{act.activity}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {act.location && `${act.location} · `}
+                            {act.date ? new Date(act.date).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : ""}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {trackingLoading && (
+                <p className="text-xs text-muted-foreground mt-3">Loading tracking updates...</p>
               )}
             </motion.div>
 
