@@ -150,6 +150,31 @@ export const useProduct = (id: string | undefined) => {
   });
 };
 
+export const useProductVariants = (productId: string | undefined) => {
+  return useQuery({
+    queryKey: ["product-variants", productId],
+    queryFn: async (): Promise<ProductVariant[]> => {
+      if (!productId) return [];
+      const { data, error } = await supabase
+        .from("product_variants")
+        .select("*")
+        .eq("product_id", productId);
+
+      if (error) throw error;
+      return (data ?? []).map((v: any) => ({
+        id: v.id,
+        color: v.color,
+        colorCode: v.color_code || undefined,
+        size: v.size,
+        stock: v.stock,
+        priceAdjustment: v.price_adjustment || 0,
+        images: v.images || [],
+      }));
+    },
+    enabled: !!productId,
+  });
+};
+
 export const useCategories = () => {
   return useQuery({
     queryKey: ["categories"],
