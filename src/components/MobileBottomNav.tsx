@@ -71,6 +71,7 @@ const MobileBottomNav = () => {
               <Link
                 key={item.to}
                 to={item.to}
+                onClick={() => setBrowseOpen(false)}
                 className={`flex flex-col items-center gap-0.5 px-4 py-1 transition-colors ${
                   isActive ? "text-primary" : "text-muted-foreground"
                 }`}
