@@ -1,110 +1,65 @@
 
 
-## Shiprocket Shipping Integration
+## Integrate Authkey SMS API for Real OTP Delivery
 
-Integrate Shiprocket API for automated shipping, tracking, and courier management.
+The project already has a complete OTP auth system (send-otp, verify-otp edge functions, AuthModal, AdminLogin). The only change needed is replacing the hardcoded dev OTPs with real SMS delivery via Authkey API.
 
 ---
 
-### Phase 1: Secrets and Database
+### Step 1: Store Authkey API Key
 
-**1. Store Shiprocket credentials**
-- Use `add_secret` to securely store `SHIPROCKET_EMAIL` and `SHIPROCKET_PASSWORD` (used for token-based auth)
+Use `add_secret` to store `AUTHKEY_API_KEY` — the API key from your Authkey dashboard.
 
-**2. Database migration — add shipping columns to `orders` table**
-```sql
-ALTER TABLE orders ADD COLUMN shiprocket_order_id text;
-ALTER TABLE orders ADD COLUMN shiprocket_shipment_id text;
-ALTER TABLE orders ADD COLUMN awb_code text;
-ALTER TABLE orders ADD COLUMN courier_name text;
-ALTER TABLE orders ADD COLUMN shipping_label_url text;
-ALTER TABLE orders ADD COLUMN manifest_url text;
-ALTER TABLE orders ADD COLUMN tracking_url text;
+---
+
+### Step 2: Update `send-otp` Edge Function
+
+Current behavior: generates fixed OTPs (`123456` for admin, `000000` for others) and logs them to console.
+
+New behavior:
+- Generate a random 6-digit OTP for all users
+- Keep fixed `123456` for admin phones only (dev/testing fallback)
+- Call Authkey GET API to send the OTP SMS:
+
+```
+https://api.authkey.io/request?authkey=AUTHKEY&mobile=PHONE&country_code=91&sms=Your+OTP+is+CODE&sender=SENDERID
 ```
 
----
-
-### Phase 2: Edge Functions
-
-**3. `shiprocket-auth/index.ts`** — Token generation
-- POST to `https://apiv2.shiprocket.in/v1/external/auth/login` with stored credentials
-- Cache token (valid 10 days) — return existing if not expired
-
-**4. `shiprocket-serviceability/index.ts`** — Courier availability + rates
-- Input: pickup pincode, delivery pincode, weight, COD flag
-- Returns available couriers with rates and ETAs
-- Called from checkout to show real-time shipping charges
-
-**5. `shiprocket-create-order/index.ts`** — Order sync + shipment creation
-- Called after order placement
-- Creates order in Shiprocket with all product/address details
-- Requests courier assignment and AWB generation
-- Stores `shiprocket_order_id`, `shipment_id`, `awb_code`, `courier_name` back to orders table
-
-**6. `shiprocket-tracking/index.ts`** — Shipment tracking
-- Input: AWB code or shipment ID
-- Returns current tracking status and activity log
-- Maps Shiprocket statuses to app statuses (Pending → Shipped → Out for Delivery → Delivered)
-
-**7. `shiprocket-webhook/index.ts`** — Status sync (push-based)
-- Receives Shiprocket webhook callbacks for status changes
-- Auto-updates order status and tracking info in the database
-- Handles: shipped, in-transit, out-for-delivery, delivered, RTO
-
-**8. `shiprocket-labels/index.ts`** — Label and invoice download
-- Fetches shipping label PDF and invoice from Shiprocket
-- Returns downloadable URLs
+- Handle Authkey API response errors gracefully
+- Continue storing OTP in `otp_requests` table as before
 
 ---
 
-### Phase 3: Checkout Updates (`CartPage.tsx`)
+### Step 3: Phone Validation Update
 
-**9. Real-time shipping rates at checkout**
-- After user enters pincode, call `shiprocket-serviceability` to fetch rates
-- Display shipping charge (replace current "Free" hardcode)
-- Update total dynamically based on selected/auto-selected courier
-
-**10. Order placement flow update**
-- After order is inserted into DB, call `shiprocket-create-order` edge function
-- Store returned AWB and tracking info on the order
-- Show tracking number on order confirmation page
+Current `send-otp` only accepts `+91` format. Update to:
+- Extract country code and number from the full phone string
+- Pass correct `country_code` param to Authkey API
+- Support international numbers already handled by the AuthModal country selector
 
 ---
 
-### Phase 4: Customer-Facing Tracking (`OrderDetailPage.tsx`)
+### Step 4: No Frontend Changes Needed
 
-**11. Live tracking display**
-- Fetch tracking data via `shiprocket-tracking` on order detail page
-- Show tracking timeline with scan locations and timestamps
-- Display courier name and AWB number
-- Link to courier tracking page if available
-
----
-
-### Phase 5: Admin Panel Updates (`AdminOrders.tsx`)
-
-**12. Shipping management in admin**
-- Show Shiprocket order ID, AWB, courier name in order details
-- Add buttons: "Create Shipment" (manual), "Download Label", "Download Invoice"
-- Add courier reassignment option (calls Shiprocket API)
-- Show tracking timeline in order detail modal
-- Display shipping status synced from Shiprocket
+The existing AuthModal and AdminLogin already handle:
+- Phone input with country code selector
+- 6-digit OTP entry with auto-submit
+- Resend with 30s cooldown
+- Rate limiting (3 OTPs per 10 min)
+- Brute-force protection (5 max attempts)
+- Error messages for all edge cases
 
 ---
 
-### Files to Create/Modify
+### Files to Modify
 
 | File | Change |
 |------|--------|
-| Migration | Add shiprocket columns to `orders` |
-| `supabase/functions/shiprocket-auth/index.ts` | Token management |
-| `supabase/functions/shiprocket-serviceability/index.ts` | Rate checking |
-| `supabase/functions/shiprocket-create-order/index.ts` | Order + shipment creation |
-| `supabase/functions/shiprocket-tracking/index.ts` | Tracking lookup |
-| `supabase/functions/shiprocket-webhook/index.ts` | Push status updates |
-| `supabase/functions/shiprocket-labels/index.ts` | Label/invoice download |
-| `src/pages/CartPage.tsx` | Shipping rates at checkout |
-| `src/pages/OrderDetailPage.tsx` | Live tracking UI |
-| `src/pages/OrderConfirmationPage.tsx` | Show AWB/tracking |
-| `src/pages/admin/AdminOrders.tsx` | Shipping management tools |
+| `supabase/functions/send-otp/index.ts` | Replace dummy OTP with random generation + Authkey SMS API call |
+
+### What I Need From You
+
+- Your **Authkey API Key** (will be stored securely as a secret)
+- Your **Sender ID** registered on Authkey (e.g., `PUTUL` or similar)
+- Whether you have a **DLT template ID** registered for OTP messages (required for Indian SMS)
 
