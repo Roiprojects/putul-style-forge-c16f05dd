@@ -214,9 +214,9 @@ const Navbar = () => {
                   onFocus={() => searchQuery.trim() && setShowSearchDropdown(true)}
                   onBlur={() => setTimeout(() => setShowSearchDropdown(false), 200)}
                   placeholder="Search products..."
-                  className="w-full h-8 pl-8 pr-3 text-[11px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
+                  className="w-full h-8 pl-3 pr-8 text-[11px] bg-accent/60 border border-border rounded-md focus:outline-none focus:border-foreground/30 placeholder:text-muted-foreground/70 transition-colors"
                 />
-                <Search size={13} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                <Search size={13} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <AnimatePresence>
                   {showSearchDropdown && searchQuery.trim() && (
                     <SearchDropdown query={searchQuery} onSelect={() => { setSearchQuery(""); setShowSearchDropdown(false); }} />
