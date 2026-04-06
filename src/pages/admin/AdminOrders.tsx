@@ -18,6 +18,7 @@ const AdminOrders = () => {
   const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [orderItems, setOrderItems] = useState<any[]>([]);
   const [tab, setTab] = useState<TabType>("orders");
+  const [shiprocketLoading, setShiprocketLoading] = useState(false);
 
   const fetchOrders = async () => {
     const { data, error } = await supabase.from("orders").select("*").order("created_at", { ascending: false });
