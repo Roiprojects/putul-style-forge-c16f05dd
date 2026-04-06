@@ -1,7 +1,7 @@
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote } from "lucide-react";
 import { useProduct, useProducts, useProductVariants } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
@@ -408,11 +408,12 @@ const ProductPage = () => {
               Buy Now
             </button>
 
-            <div className="grid grid-cols-3 gap-4 border-t border-border pt-6">
+            <div className="grid grid-cols-4 gap-4 border-t border-border pt-6">
               {[
                 { icon: Truck, label: "Free Shipping" },
                 { icon: Shield, label: "Premium Quality" },
                 { icon: RefreshCcw, label: "Easy Returns" },
+                { icon: Banknote, label: "Cash on Delivery" },
               ].map((f) => (
                 <div key={f.label} className="text-center">
                   <f.icon size={18} className="mx-auto mb-1.5 text-secondary" strokeWidth={1.3} />
