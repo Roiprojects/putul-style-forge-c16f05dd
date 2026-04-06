@@ -5,6 +5,7 @@ export interface CartItem {
   product: Product;
   quantity: number;
   size: string;
+  color?: string;
 }
 
 interface StoreContextType {
