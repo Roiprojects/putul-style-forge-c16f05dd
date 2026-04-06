@@ -1,39 +1,117 @@
 
 
-## Plan: Fix Search, About Us, Footer, and Product Images
+## Size + Color Variant Matrix Feature
 
-### Issues Identified
+This adds a full variant matrix system where each color-size combination has independent stock, and the product page dynamically enables/disables options based on availability.
 
-1. **Search bar**: The mobile search works but the ShopPage category bar is `sticky top-0` which overlaps the sticky Navbar. Also, the search query from URL isn't being cleared when leaving ShopPage. The desktop search works. The main issue: when navigating to `/shop?search=...`, the ShopPage category tabs cover the top since both Navbar and category bar are `sticky top-0`.
+---
 
-2. **About Us content**: Currently describes "men's clothing" generically. Putul Fashions actually sells **men's footwear** — crocs, sports shoes, slides & slippers, loafer sandals. Need to rewrite to reflect this accurately.
+### Database Changes
 
-3. **Footer links**: Links to `/shop`, `/about`, `/contact` exist but "Privacy Policy", "Terms of Service", and "Shipping" use `href="#"` (non-functional). Social media links also use `href="#"`.
+**1. Add `color_code` and `images` columns to `product_variants` table:**
 
-4. **Product images**: Multiple products in `data/products.ts` share identical image URLs (e.g., products 8-14 reuse the same Brown Airmix sandal images or Grey clogs images). This is a hardcoded data issue. The DB products may have the same problem if they were seeded from this data.
+```sql
+ALTER TABLE product_variants ADD COLUMN color_code text;
+ALTER TABLE product_variants ADD COLUMN images text[] DEFAULT '{}'::text[];
+```
 
-### Changes
+The existing `product_variants` table already has `product_id`, `color`, `size`, `stock`, `price_adjustment`, `sku` — perfect for the variant matrix.
 
-#### 1. Fix ShopPage sticky category bar overlap
-- Change the category bar in `ShopPage.tsx` from `sticky top-0` to `sticky top-14 lg:top-16` to account for the Navbar height, so it doesn't overlap.
+**2. Enable realtime on `product_variants`:**
 
-#### 2. Rewrite About Us page
-- Update `AboutPage.tsx` content to accurately describe Putul Fashions as a **men's footwear brand** specializing in crocs, sports shoes, slides & slippers, and loafer sandals.
-- Replace generic "clothing" references with footwear-specific language about comfort, quality materials (EVA, Airmix, PVC), and affordable pricing.
-- Update mission statement and values to reflect footwear focus.
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE public.product_variants;
+```
 
-#### 3. Fix Footer buttons
-- Change "Privacy Policy", "Terms of Service", "Shipping" from `<a href="#">` to `<Link to="/...">` pointing to actual routes, or keep as anchor links but make them point to the contact page or relevant sections.
-- Update social media links to open in new tabs with proper `target="_blank"` and `rel="noopener noreferrer"`.
+---
 
-#### 4. Fix duplicate product images in database
-- Run a SQL update to fix the `images` arrays for products that share duplicate image URLs. Cross-reference with the actual putul.fashion product catalog to assign correct unique images to each product.
-- For the local `data/products.ts` file, update the duplicate entries (products 8-15) with their correct unique image paths from the CDN.
+### Admin Panel Changes (`AdminProductForm.tsx`)
+
+- Add a **Variant Matrix Manager** section below the existing colors/sizes inputs
+- When admin selects colors and sizes, auto-generate a matrix grid (table) showing every color×size combination
+- Each cell has: stock input field
+- Per-color row: image upload area, hex color code picker
+- On product save, upsert all variants to `product_variants` table
+- On edit, load existing variants and populate the matrix
+- Remove the single `stock` field (replaced by per-variant stock)
+
+---
+
+### Data Layer Changes (`useProducts.ts`)
+
+- `useProduct(id)` — also fetch `product_variants` for the product and return alongside product data
+- Add a `useProductVariants(productId)` hook for standalone use
+- Add variant data to realtime sync channel
+
+---
+
+### Product Interface Update (`products.ts`)
+
+Add optional `variants` field to `Product` interface:
+```typescript
+export interface ProductVariant {
+  id: string;
+  color: string;
+  colorCode?: string;
+  size: string;
+  stock: number;
+  priceAdjustment: number;
+  images: string[];
+}
+```
+
+---
+
+### Product Page Changes (`ProductPage.tsx`)
+
+**Color Selection:**
+- Render color swatches (circles filled with `color_code` hex, or labeled circles)
+- On color select: filter sizes to show only those with stock > 0 for that color; grey out unavailable sizes
+- Swap main image gallery to selected color's images (with smooth opacity transition)
+
+**Size Selection:**
+- On size select: filter colors to show only those with stock > 0 for that size; grey out unavailable colors
+- Either selection can happen first — the other adjusts dynamically
+
+**URL Sync:**
+- Use `useSearchParams` to read/write `?color=black&size=9`
+- On page load, restore selection from URL params
+
+**Out of Stock:**
+- If selected combination has stock = 0, show "Out of Stock" message and disable Add to Cart
+- Greyed-out options show tooltip "Out of stock"
+
+**Price:**
+- Apply `price_adjustment` from variant to base price if non-zero
+
+---
+
+### Cart Changes (`StoreContext.tsx`)
+
+- Add `color` field to `CartItem` interface
+- Update `addToCart(product, size, color)` signature
+- Unique key becomes `product.id + size + color`
+- Update `removeFromCart`, `updateQuantity` to use 3-part key
+
+---
+
+### Cart Page & Order Flow (`CartPage.tsx`)
+
+- Display selected color alongside size in cart line items
+- Include color in `order_items` insert when placing order (column already exists)
+
+---
 
 ### Files to Modify
-- `src/pages/ShopPage.tsx` — fix sticky positioning
-- `src/pages/AboutPage.tsx` — rewrite content for footwear brand
-- `src/components/Footer.tsx` — fix non-functional links
-- `src/data/products.ts` — fix duplicate images (if still used as fallback)
-- Database migration or SQL update for product images in `admin_products` table
+
+| File | Change |
+|------|--------|
+| `product_variants` (migration) | Add `color_code`, `images` columns |
+| `src/pages/admin/AdminProductForm.tsx` | Variant matrix manager UI |
+| `src/hooks/useProducts.ts` | Fetch variants, add realtime sync |
+| `src/data/products.ts` | Add `ProductVariant` interface |
+| `src/pages/ProductPage.tsx` | Color swatches, smart availability, URL sync |
+| `src/contexts/StoreContext.tsx` | Add color to cart item key |
+| `src/pages/CartPage.tsx` | Show color in cart, include in orders |
+| `src/components/ProductCard.tsx` | Optional: show color dots on cards |
 
