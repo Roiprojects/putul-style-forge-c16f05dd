@@ -245,8 +245,6 @@ export const products: Product[] = [
     hoverImage: img("cat_img/Mouse_Premium_Eva_Slides_For_Men_PN8NU4KCHQ_2026-02-26_2.jpeg"),
     images: [
       img("cat_img/Mouse_Premium_Eva_Slides_For_Men_XSYCYK151O_2026-02-26_1.jpg", 800),
-      img("cat_img/PWHTS_1771246780565_4zc4xc6irzibu9v.jpg", 800),
-      img("cat_img/Black_Premium_Eva_Slides_For_Men_HJ9HLEDB69_2026-02-26_1.jpg", 800),
       img("cat_img/Mouse_Premium_Eva_Slides_For_Men_PN8NU4KCHQ_2026-02-26_2.jpeg", 800),
     ],
     category: "slides-slippers",
