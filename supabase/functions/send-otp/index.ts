@@ -35,8 +35,8 @@ Deno.serve(async (req) => {
 
       if (!adminPhone) {
         return new Response(
-          JSON.stringify({ error: "This number is not authorized for admin access." }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ success: false, error: "This number is not authorized for admin access." }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     }
