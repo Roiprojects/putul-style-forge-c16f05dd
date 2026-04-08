@@ -21,6 +21,12 @@ interface DashboardStats {
   topProducts: any[];
 }
 
+const resolveProductImage = (path?: string) => {
+  if (!path) return "/placeholder.svg";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `https://d1311wbk6unapo.cloudfront.net/NushopCatalogue/tr:f-webp,w-300,fo-auto/69870e125223b1da7d5437a8/${path}`;
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
@@ -235,13 +241,11 @@ const AdminDashboard = () => {
                   key={product.id}
                   className="px-5 py-3 flex items-center gap-3"
                 >
-                  {product.images?.[0] && (
-                    <img
-                      src={product.images[0]}
-                      alt=""
-                      className="w-10 h-10 rounded-lg object-cover bg-accent"
-                    />
-                  )}
+                  <img
+                    src={resolveProductImage(product.images?.[0])}
+                    alt=""
+                    className="w-10 h-10 rounded-lg object-cover bg-accent"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {product.name}
@@ -299,9 +303,11 @@ const LowStockList = () => {
       {products.map((p) => (
         <div key={p.id} className="px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {p.images?.[0] && (
-              <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover bg-accent" />
-            )}
+            <img
+              src={resolveProductImage(p.images?.[0])}
+              alt=""
+              className="w-8 h-8 rounded object-cover bg-accent"
+            />
             <span className="text-sm text-foreground">{p.name}</span>
           </div>
           <span
