@@ -21,6 +21,12 @@ interface DashboardStats {
   topProducts: any[];
 }
 
+const resolveProductImage = (path?: string) => {
+  if (!path) return "/placeholder.svg";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `https://d1311wbk6unapo.cloudfront.net/NushopCatalogue/tr:f-webp,w-300,fo-auto/69870e125223b1da7d5437a8/${path}`;
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
