@@ -160,11 +160,9 @@ export const products: Product[] = [
     price: 449,
     originalPrice: 1598,
     image: img("cat_img/Grey_Mens_Casual_Slip_On_Eva_Cloges_Q10CAV6IH3_2026-02-28_1.jpeg"),
-    hoverImage: img("cat_img/White_Mens_Casual_Slip_On_Eva_Cloges_CTNX63VKI2_2026-02-28_1.jpeg"),
+    hoverImage: img("cat_img/Grey_Mens_Casual_Slip_On_Eva_Cloges_Q10CAV6IH3_2026-02-28_1.jpeg"),
     images: [
       img("cat_img/Grey_Mens_Casual_Slip_On_Eva_Cloges_Q10CAV6IH3_2026-02-28_1.jpeg", 800),
-      img("cat_img/White_Mens_Casual_Slip_On_Eva_Cloges_CTNX63VKI2_2026-02-28_1.jpeg", 800),
-      img("cat_img/Black_Mens_Casual_Slip_On_Eva_Cloges_93WV6T3IRG_2026-02-28_1.jpeg", 800),
     ],
     category: "crocs",
     rating: 4.3,
