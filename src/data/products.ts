@@ -305,11 +305,9 @@ export const products: Product[] = [
     price: 399,
     originalPrice: 1198,
     image: img("cat_img/White_Premium_Eva_Slides_For_Men_KKINZZDYEV_2026-02-26_1.webp"),
-    hoverImage: img("cat_img/Black_Premium_Eva_Slides_For_Men__02HAAO5PX4_2026-02-26_1.webp"),
+    hoverImage: img("cat_img/White_Premium_Eva_Slides_For_Men_KKINZZDYEV_2026-02-26_1.webp"),
     images: [
       img("cat_img/White_Premium_Eva_Slides_For_Men_KKINZZDYEV_2026-02-26_1.webp", 800),
-      img("cat_img/Black_Premium_Eva_Slides_For_Men__02HAAO5PX4_2026-02-26_1.webp", 800),
-      img("cat_img/SKY_Premium_Eva_Slides_For_Men_HSN6G8P27I_2026-02-26_1.webp", 800),
     ],
     category: "slides-slippers",
     rating: 4.4,
