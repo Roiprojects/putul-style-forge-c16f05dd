@@ -9,6 +9,15 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const CATALOG_CDN_BASE = "https://d1311wbk6unapo.cloudfront.net/NushopCatalogue";
+const STORE_ID = "69870e125223b1da7d5437a8";
+
+const resolveProductImage = (path?: string, width = 300) => {
+  if (!path) return "/placeholder.svg";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${CATALOG_CDN_BASE}/tr:f-webp,w-${width},fo-auto/${STORE_ID}/${path}`;
+};
+
 const AdminProducts = () => {
   const [products, setProducts] = useState<any[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
@@ -164,8 +173,8 @@ const AdminProducts = () => {
                       <div className="flex items-center gap-3">
                         {product.images?.[0] ? (
                           <img
-                            src={product.images[0]}
-                            alt=""
+                            src={resolveProductImage(product.images[0])}
+                            alt={product.name}
                             className="w-10 h-10 rounded-lg object-cover bg-accent"
                           />
                         ) : (
