@@ -48,8 +48,17 @@ const sortSizes = (sizes: string[]): string[] => {
   });
 };
 
+const CDN_BASE = "https://d1311wbk6unapo.cloudfront.net/NushopCatalogue";
+const STORE_ID = "69870e125223b1da7d5437a8";
+
+const resolveImageUrl = (path: string, w = 600): string => {
+  if (!path) return "";
+  if (path.startsWith("http://") || path.startsWith("https://")) return path;
+  return `${CDN_BASE}/tr:f-webp,w-${w},fo-auto/${STORE_ID}/${path}`;
+};
+
 const mapToProduct = (p: DbProduct): Product => {
-  const images = p.images || [];
+  const images = (p.images || []).map((img) => resolveImageUrl(img, 800));
   const tags = (p.tags || []).map((tag) =>
     tag
       .toLowerCase()
