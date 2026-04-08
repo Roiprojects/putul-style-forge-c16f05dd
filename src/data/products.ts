@@ -200,11 +200,9 @@ export const products: Product[] = [
     price: 449,
     originalPrice: 1598,
     image: img("cat_img/Blue_Premium_Eva_Clogs_For_Men_M46JSNUJOA_2026-02-25_1.webp"),
-    hoverImage: img("cat_img/PMGRYC_1771246780244_h6fuhmxff5lcizc.jpg"),
+    hoverImage: img("cat_img/Blue_Premium_Eva_Clogs_For_Men_M46JSNUJOA_2026-02-25_1.webp"),
     images: [
       img("cat_img/Blue_Premium_Eva_Clogs_For_Men_M46JSNUJOA_2026-02-25_1.webp", 800),
-      img("cat_img/PMGRYC_1771246780244_h6fuhmxff5lcizc.jpg", 800),
-      img("cat_img/Mehandi_Premium_Eva_Clogs_For_Men_E2XMS84DTW_2026-02-25_1.webp", 800),
     ],
     category: "crocs",
     rating: 4.3,
