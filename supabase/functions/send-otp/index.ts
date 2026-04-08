@@ -51,8 +51,8 @@ Deno.serve(async (req) => {
 
     if (recentOtps && recentOtps.length >= 3) {
       return new Response(
-        JSON.stringify({ error: "Too many OTP requests. Please try again later." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Too many OTP requests. Please try again later." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
