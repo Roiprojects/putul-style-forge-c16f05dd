@@ -374,7 +374,6 @@ export const products: Product[] = [
     images: [
       img("cat_img/Brown_Mens_Premium_QualityAirmix_Sandls_5RN9CR4YVZ_2026-03-05_1.jpg", 800),
       img("cat_img/Brown_Mens_Premium_QualityAirmix_Sandls_CO7TAKS2BN_2026-03-05_2.jpg", 800),
-      img("cat_img/Black_Mens_Premium_QualityAirmix_Sandls_UCLTLI0QOT_2026-03-05_1.jpeg", 800),
     ],
     category: "loafer-sandals",
     rating: 4.7,
