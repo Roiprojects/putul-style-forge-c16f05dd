@@ -241,13 +241,11 @@ const AdminDashboard = () => {
                   key={product.id}
                   className="px-5 py-3 flex items-center gap-3"
                 >
-                  {product.images?.[0] && (
-                    <img
-                      src={product.images[0]}
-                      alt=""
-                      className="w-10 h-10 rounded-lg object-cover bg-accent"
-                    />
-                  )}
+                  <img
+                    src={resolveProductImage(product.images?.[0])}
+                    alt=""
+                    className="w-10 h-10 rounded-lg object-cover bg-accent"
+                  />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {product.name}
