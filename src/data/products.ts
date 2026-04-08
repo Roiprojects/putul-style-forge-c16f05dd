@@ -220,11 +220,9 @@ export const products: Product[] = [
     price: 449,
     originalPrice: 1598,
     image: img("cat_img/PBLKC_1771246833906_jauworam6rhhsuy.jpg"),
-    hoverImage: img("cat_img/PMGRYC_1771246780244_h6fuhmxff5lcizc.jpg"),
+    hoverImage: img("cat_img/PBLKC_1771246833906_jauworam6rhhsuy.jpg"),
     images: [
       img("cat_img/PBLKC_1771246833906_jauworam6rhhsuy.jpg", 800),
-      img("cat_img/PMGRYC_1771246780244_h6fuhmxff5lcizc.jpg", 800),
-      img("cat_img/P_BLACKC_1771246835726_gslu795d6lr8h14.jpg", 800),
     ],
     category: "crocs",
     rating: 4.6,
