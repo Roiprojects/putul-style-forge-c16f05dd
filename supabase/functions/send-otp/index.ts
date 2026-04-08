@@ -16,8 +16,8 @@ Deno.serve(async (req) => {
 
     if (!phone || typeof phone !== "string" || !/^\+\d{1,4}\d{4,14}$/.test(phone)) {
       return new Response(
-        JSON.stringify({ error: "Invalid phone number format." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Invalid phone number format." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
@@ -35,8 +35,8 @@ Deno.serve(async (req) => {
 
       if (!adminPhone) {
         return new Response(
-          JSON.stringify({ error: "This number is not authorized for admin access." }),
-          { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ success: false, error: "This number is not authorized for admin access." }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
     }
@@ -51,8 +51,8 @@ Deno.serve(async (req) => {
 
     if (recentOtps && recentOtps.length >= 3) {
       return new Response(
-        JSON.stringify({ error: "Too many OTP requests. Please try again later." }),
-        { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Too many OTP requests. Please try again later." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
