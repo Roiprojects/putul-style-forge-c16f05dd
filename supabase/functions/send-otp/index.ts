@@ -16,8 +16,8 @@ Deno.serve(async (req) => {
 
     if (!phone || typeof phone !== "string" || !/^\+\d{1,4}\d{4,14}$/.test(phone)) {
       return new Response(
-        JSON.stringify({ error: "Invalid phone number format." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        JSON.stringify({ success: false, error: "Invalid phone number format." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
