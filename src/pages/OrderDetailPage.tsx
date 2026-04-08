@@ -114,9 +114,16 @@ const OrderDetailPage = () => {
         .select("id, images")
         .in("id", productIds);
       if (products) {
+        const CDN_BASE = "https://d1311wbk6unapo.cloudfront.net/NushopCatalogue";
+        const SID = "69870e125223b1da7d5437a8";
+        const resolve = (path: string) => {
+          if (!path) return "/placeholder.svg";
+          if (path.startsWith("http")) return path;
+          return `${CDN_BASE}/tr:f-webp,w-600,fo-auto/${SID}/${path}`;
+        };
         const imgMap: Record<string, string> = {};
         products.forEach((p: any) => {
-          if (p.images?.[0]) imgMap[p.id] = p.images[0];
+          if (p.images?.[0]) imgMap[p.id] = resolve(p.images[0]);
         });
         setProductImages(imgMap);
       }
