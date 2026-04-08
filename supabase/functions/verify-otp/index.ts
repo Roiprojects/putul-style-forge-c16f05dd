@@ -6,6 +6,14 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const jsonResponse = (payload: Record<string, unknown>, status = 200) =>
+  new Response(JSON.stringify(payload), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
+
+const expectedError = (message: string) => jsonResponse({ success: false, error: message }, 200);
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -15,17 +23,11 @@ Deno.serve(async (req) => {
     const { phone, otp_code, is_admin } = await req.json();
 
     if (!phone || !/^\+91\d{10}$/.test(phone)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid phone number." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return expectedError("Invalid phone number.");
     }
 
     if (!otp_code || !/^\d{6}$/.test(otp_code)) {
-      return new Response(
-        JSON.stringify({ error: "Invalid OTP format." }),
-        { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return expectedError("Invalid OTP format.");
     }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -100,10 +102,7 @@ Deno.serve(async (req) => {
     };
 
     if (is_admin && !isAdminPhoneAuthorized) {
-      return new Response(
-        JSON.stringify({ error: "Access denied. Admin privileges required." }),
-        { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+      return expectedError("Access denied. Admin privileges required.");
     }
 
     if (!isFixedAdminOtpLogin) {
@@ -119,19 +118,13 @@ Deno.serve(async (req) => {
         .maybeSingle();
 
       if (otpError || !otpRecord) {
-        return new Response(
-          JSON.stringify({ error: "OTP expired or not found. Please request a new one." }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return expectedError("OTP expired or not found. Please request a new one.");
       }
 
       const attempts = otpRecord.attempts ?? 0;
 
       if (attempts >= 5) {
-        return new Response(
-          JSON.stringify({ error: "Too many failed attempts. Please request a new OTP." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return expectedError("Too many failed attempts. Please request a new OTP.");
       }
 
       if (otpRecord.otp_code !== otp_code) {
@@ -141,10 +134,7 @@ Deno.serve(async (req) => {
           .eq("id", otpRecord.id);
 
         const remaining = 4 - attempts;
-        return new Response(
-          JSON.stringify({ error: `Invalid OTP. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.` }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return expectedError(`Invalid OTP. ${remaining} attempt${remaining !== 1 ? "s" : ""} remaining.`);
       }
 
       await serviceClient
@@ -178,10 +168,7 @@ Deno.serve(async (req) => {
 
       if (createError || !newUser.user) {
         console.error("Create user failed:", createError);
-        return new Response(
-          JSON.stringify({ error: "Failed to create account. Please try again." }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
+        return jsonResponse({ error: "Failed to create account. Please try again." }, 500);
       }
 
       userId = newUser.user.id;
@@ -201,19 +188,13 @@ Deno.serve(async (req) => {
       await assignAdminRole(userId);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        session,
-        is_new_user: !existingProfile,
-      }),
-      { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({
+      success: true,
+      session,
+      is_new_user: !existingProfile,
+    });
   } catch (error) {
     console.error("verify-otp error:", error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    return jsonResponse({ error: error instanceof Error ? error.message : "Internal server error" }, 500);
   }
 });
