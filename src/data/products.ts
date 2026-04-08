@@ -348,11 +348,9 @@ export const products: Product[] = [
     price: 399,
     originalPrice: 1198,
     image: img("cat_img/Sky_Premium_Eva_Slides_For_Men_3KV7DSGB6B_2026-02-25_1.webp"),
-    hoverImage: img("cat_img/PGREY_S_1771246790819_grmpio7u5e8euac.jpg"),
+    hoverImage: img("cat_img/Sky_Premium_Eva_Slides_For_Men_3KV7DSGB6B_2026-02-25_1.webp"),
     images: [
       img("cat_img/Sky_Premium_Eva_Slides_For_Men_3KV7DSGB6B_2026-02-25_1.webp", 800),
-      img("cat_img/PGREY_S_1771246790819_grmpio7u5e8euac.jpg", 800),
-      img("cat_img/Black_Premium_Eva_Slides_For_Men_XGODH583P6_2026-02-25_1.webp", 800),
     ],
     category: "slides-slippers",
     rating: 4.3,
