@@ -303,9 +303,11 @@ const LowStockList = () => {
       {products.map((p) => (
         <div key={p.id} className="px-5 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {p.images?.[0] && (
-              <img src={p.images[0]} alt="" className="w-8 h-8 rounded object-cover bg-accent" />
-            )}
+            <img
+              src={resolveProductImage(p.images?.[0])}
+              alt=""
+              className="w-8 h-8 rounded object-cover bg-accent"
+            />
             <span className="text-sm text-foreground">{p.name}</span>
           </div>
           <span
