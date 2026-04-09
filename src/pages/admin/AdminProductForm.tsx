@@ -19,6 +19,8 @@ interface ProductForm {
   tags: string[];
   fabric: string;
   is_active: boolean;
+  product_group: string;
+  color_code: string;
 }
 
 interface VariantRow {
@@ -45,6 +47,8 @@ const emptyForm: ProductForm = {
   tags: [],
   fabric: "",
   is_active: true,
+  product_group: "",
+  color_code: "",
 };
 
 const availableSizes = ["5", "6", "7", "8", "9", "10", "11", "S", "M", "L", "XL", "XXL"];
@@ -103,6 +107,8 @@ const AdminProductForm = () => {
             tags: data.tags || [],
             fabric: data.fabric || "",
             is_active: data.is_active ?? true,
+            product_group: (data as any).product_group || "",
+            color_code: (data as any).color_code || "",
           });
 
           // Load existing variants
@@ -196,6 +202,8 @@ const AdminProductForm = () => {
       tags: form.tags,
       fabric: form.fabric || null,
       is_active: form.is_active,
+      product_group: form.product_group || null,
+      color_code: form.color_code || null,
     };
 
     let productId = id;
@@ -377,6 +385,37 @@ const AdminProductForm = () => {
               onChange={(e) => setForm({ ...form, fabric: e.target.value })}
               className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
             />
+          </div>
+          <div className="grid md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1.5">Product Group</label>
+              <input
+                type="text"
+                placeholder="e.g. premium-eva-clogs"
+                value={form.product_group}
+                onChange={(e) => setForm({ ...form, product_group: e.target.value })}
+                className="w-full border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+              />
+              <p className="text-[10px] text-muted-foreground mt-1">Products with the same group name are linked as color variants</p>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground block mb-1.5">Color Code (Hex)</label>
+              <div className="flex gap-2">
+                <input
+                  type="color"
+                  value={form.color_code || "#888888"}
+                  onChange={(e) => setForm({ ...form, color_code: e.target.value })}
+                  className="w-10 h-10 rounded border border-border cursor-pointer"
+                />
+                <input
+                  type="text"
+                  placeholder="#000000"
+                  value={form.color_code}
+                  onChange={(e) => setForm({ ...form, color_code: e.target.value })}
+                  className="flex-1 border border-border rounded-lg px-4 py-2.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-ring"
+                />
+              </div>
+            </div>
           </div>
         </div>
 

@@ -2,11 +2,12 @@ import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom"
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote } from "lucide-react";
-import { useProduct, useProducts, useProductVariants } from "@/hooks/useProducts";
+import { useProduct, useProducts, useProductVariants, useProductSiblings } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import { toast } from "sonner";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ProductVariant } from "@/data/products";
 
 const ProductPage = () => {
@@ -16,6 +17,7 @@ const ProductPage = () => {
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
   const { data: variants = [] } = useProductVariants(id);
+  const { data: siblings = [] } = useProductSiblings(product?.productGroup, id);
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
   const { formatPrice, isINR } = useCurrency();
 
@@ -284,6 +286,50 @@ const ProductPage = () => {
 
             <hr className="mb-6" />
             <p className="text-sm text-muted-foreground leading-relaxed mb-6">{product.description}</p>
+
+            {/* Color Variant Siblings */}
+            {siblings.length > 1 && (
+              <div className="mb-6">
+                <p className="text-sm font-semibold mb-3">
+                  Available Colors
+                </p>
+                <TooltipProvider delayDuration={200}>
+                  <div className="flex flex-wrap gap-2">
+                    {siblings.map((sib) => {
+                      const isCurrent = sib.id === product.id;
+                      return (
+                        <Tooltip key={sib.id}>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={() => {
+                                if (!isCurrent) navigate(`/product/${sib.id}`);
+                              }}
+                              className={`relative w-12 h-12 rounded-full border-2 transition-all overflow-hidden ${
+                                isCurrent
+                                  ? "border-secondary ring-2 ring-secondary/30"
+                                  : "border-border hover:border-foreground"
+                              }`}
+                            >
+                              {sib.image ? (
+                                <img src={sib.image} alt={sib.name} className="w-full h-full object-cover rounded-full" />
+                              ) : (
+                                <span
+                                  className="absolute inset-1 rounded-full"
+                                  style={{ backgroundColor: sib.colorCode }}
+                                />
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p className="text-xs">{sib.colors[0] || sib.name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      );
+                    })}
+                  </div>
+                </TooltipProvider>
+              </div>
+            )}
 
             {/* Color Selection */}
             {colorsToShow.length > 0 && (

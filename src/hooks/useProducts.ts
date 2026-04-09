@@ -18,6 +18,8 @@ interface DbProduct {
   fabric: string | null;
   is_active: boolean | null;
   category_id: string | null;
+  product_group: string | null;
+  color_code: string | null;
   admin_categories: { slug: string; name: string } | null;
 }
 
@@ -92,6 +94,8 @@ const mapToProduct = (p: DbProduct): Product => {
     bestSeller: tags.includes("bestseller") || tags.includes("best-seller"),
     newArrival: tags.includes("new-arrival"),
     badge,
+    productGroup: p.product_group || undefined,
+    colorCode: p.color_code || undefined,
   };
 };
 
@@ -197,6 +201,31 @@ export const useCategories = () => {
       return data;
     },
     staleTime: 30 * 1000,
+  });
+};
+
+export const useProductSiblings = (productGroup: string | undefined | null, currentProductId?: string) => {
+  return useQuery({
+    queryKey: ["product-siblings", productGroup],
+    queryFn: async () => {
+      if (!productGroup) return [];
+      const { data, error } = await supabase
+        .from("admin_products")
+        .select("id, name, colors, images, color_code")
+        .eq("product_group", productGroup)
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      return (data ?? []).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        colors: p.colors || [],
+        image: (p.images || [])[0] ? resolveImageUrl((p.images || [])[0], 200) : "",
+        colorCode: p.color_code || "#888",
+      }));
+    },
+    enabled: !!productGroup,
   });
 };
 

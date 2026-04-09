@@ -43,6 +43,8 @@ export interface Product {
   newArrival?: boolean;
   badge?: string;
   variants?: ProductVariant[];
+  productGroup?: string;
+  colorCode?: string;
 }
 
 export interface Category {
