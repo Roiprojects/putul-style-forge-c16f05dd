@@ -200,6 +200,31 @@ export const useCategories = () => {
   });
 };
 
+export const useProductSiblings = (productGroup: string | undefined | null, currentProductId?: string) => {
+  return useQuery({
+    queryKey: ["product-siblings", productGroup],
+    queryFn: async () => {
+      if (!productGroup) return [];
+      const { data, error } = await supabase
+        .from("admin_products")
+        .select("id, name, colors, images, color_code")
+        .eq("product_group", productGroup)
+        .eq("is_active", true)
+        .order("name");
+
+      if (error) throw error;
+      return (data ?? []).map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        colors: p.colors || [],
+        image: (p.images || [])[0] ? resolveImageUrl((p.images || [])[0], 200) : "",
+        colorCode: p.color_code || "#888",
+      }));
+    },
+    enabled: !!productGroup,
+  });
+};
+
 export const useFeaturedReviews = () => {
   return useQuery({
     queryKey: ["featured-reviews"],
