@@ -94,6 +94,8 @@ const mapToProduct = (p: DbProduct): Product => {
     bestSeller: tags.includes("bestseller") || tags.includes("best-seller"),
     newArrival: tags.includes("new-arrival"),
     badge,
+    productGroup: p.product_group || undefined,
+    colorCode: p.color_code || undefined,
   };
 };
 
