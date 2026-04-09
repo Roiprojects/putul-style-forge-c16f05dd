@@ -202,6 +202,8 @@ const AdminProductForm = () => {
       tags: form.tags,
       fabric: form.fabric || null,
       is_active: form.is_active,
+      product_group: form.product_group || null,
+      color_code: form.color_code || null,
     };
 
     let productId = id;
