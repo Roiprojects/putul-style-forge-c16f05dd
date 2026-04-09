@@ -17,6 +17,8 @@ const ProductPage = () => {
   const { data: product, isLoading } = useProduct(id);
   const { data: allProducts = [] } = useProducts();
   const { data: variants = [] } = useProductVariants(id);
+  const { data: siblings = [] } = useProductSiblings(product?.productGroup, id);
+  const { data: variants = [] } = useProductVariants(id);
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
   const { formatPrice, isINR } = useCurrency();
 
