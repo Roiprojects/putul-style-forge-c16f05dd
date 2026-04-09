@@ -47,6 +47,8 @@ const emptyForm: ProductForm = {
   tags: [],
   fabric: "",
   is_active: true,
+  product_group: "",
+  color_code: "",
 };
 
 const availableSizes = ["5", "6", "7", "8", "9", "10", "11", "S", "M", "L", "XL", "XXL"];
