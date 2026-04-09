@@ -107,6 +107,8 @@ const AdminProductForm = () => {
             tags: data.tags || [],
             fabric: data.fabric || "",
             is_active: data.is_active ?? true,
+            product_group: (data as any).product_group || "",
+            color_code: (data as any).color_code || "",
           });
 
           // Load existing variants
