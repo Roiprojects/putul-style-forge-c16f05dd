@@ -18,6 +18,8 @@ interface DbProduct {
   fabric: string | null;
   is_active: boolean | null;
   category_id: string | null;
+  product_group: string | null;
+  color_code: string | null;
   admin_categories: { slug: string; name: string } | null;
 }
 
