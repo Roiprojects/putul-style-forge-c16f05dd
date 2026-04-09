@@ -1,100 +1,61 @@
 
 
-# AI-Based Product Creation & Bulk Image Upload
+# Product Color Variant Linking
 
-## Overview
-Build an admin page where you drag-and-drop product images, and AI automatically detects product types, groups images into products, assigns categories, generates titles/descriptions/tags, and creates products in the database.
+## Problem
+Products like "Black Premium Eva Clogs For Men" and "Grey Premium Eva Clogs For Men" are the same product in different colors, but stored as separate entries. There's no way to navigate between them on the product page.
 
-## Architecture
+## Solution
+Add a `product_group` column to `admin_products`. Products sharing the same group ID are color siblings. On the product page, color swatches for all siblings appear — clicking one navigates to that product's page with a smooth transition.
 
 ```text
-┌─────────────────────────────────────────────┐
-│  Admin UI: /admin/ai-upload                 │
-│  - Drag & drop zone (50+ images)            │
-│  - Upload to Supabase "media" bucket        │
-│  - Send image URLs in batches to edge fn    │
-│  - Show progress bar + live summary         │
-│  - Review/edit results before final save    │
-└──────────────┬──────────────────────────────┘
-               │
-               ▼
-┌─────────────────────────────────────────────┐
-│  Edge Function: ai-product-creator          │
-│  - Receives batch of image URLs             │
-│  - Calls Lovable AI (Gemini Flash) with     │
-│    vision to analyze images                 │
-│  - Returns: product groupings, names,       │
-│    descriptions, tags, category slugs       │
-│  - Matches categories from DB               │
-│  - Creates/updates products via service key │
-│  - Returns summary of actions taken         │
-└─────────────────────────────────────────────┘
+Product Page (Black Clogs)
+┌──────────────────────────────┐
+│  [product images]            │
+│                              │
+│  Color: Black                │
+│  ● ● ● ● ● ● ●             │  ← Each circle = a sibling product
+│  (click Grey → navigates     │     with its first image as thumbnail
+│   to Grey Clogs page)        │
+└──────────────────────────────┘
 ```
 
 ## Implementation Steps
 
-### 1. Edge Function: `ai-product-creator`
-- Accepts `{ imageUrls: string[] }` (batch of uploaded image URLs)
-- Fetches existing categories from DB
-- Sends images to Gemini 2.5 Flash (vision-capable) with a prompt asking it to:
-  - Identify product type per image
-  - Group images that show the same product
-  - Generate name, description, tags, and category match
-- Checks for duplicate images by filename against existing `admin_products.images`
-- Creates new products or appends images to existing ones
-- Returns structured summary (created, updated, skipped, errors)
+### 1. Database: Add `product_group` column
+- Add `product_group TEXT` to `admin_products`
+- Populate groups for existing products (e.g., all "Premium Eva Clogs For Men" variants get the same group ID)
+- Add `color_code` column if missing (hex values for swatch rendering)
 
-### 2. Admin Page: `AdminAIUpload.tsx`
-- Drag-and-drop zone accepting 50+ images
-- On drop: upload all images to `media` bucket with progress
-- Then send URLs in batches of ~10 to the edge function
-- Live progress bar: "Processing 20/65 images..."
-- After completion, show summary table:
-  - Products created (with names and categories)
-  - Products updated
-  - Images uploaded
-  - Duplicates skipped
-  - Errors encountered
-- Each result row links to the product edit form
+### 2. Frontend: Product page sibling swatches
+- In `ProductPage.tsx`, query sibling products: `SELECT id, name, colors, images, color_code FROM admin_products WHERE product_group = ? AND is_active = true`
+- Render color swatches showing sibling product thumbnails (first image)
+- Clicking a swatch navigates to `/product/{siblingId}` — no page reload needed (React Router)
+- Highlight the current product's color swatch with a border
+- Show color name on hover via tooltip
 
-### 3. Route & Sidebar Integration
-- Add route `/admin/ai-upload` in `App.tsx`
-- Add "AI Upload" nav item with a Sparkles icon in `AdminSidebar.tsx`
+### 3. Admin panel: Group management
+- Add a "Product Group" field in `AdminProductForm.tsx` — a text input or dropdown
+- Admin can assign a group name (e.g., "premium-eva-clogs") to link color variants together
+- Add a color code picker for hex values
 
-### 4. Handle the Uploaded Zip
-- Extract images from `Putul-2.zip` and process them through the same flow, or allow the admin to upload the zip directly (extract on client side before uploading individual images)
+### 4. Hook: Fetch siblings
+- Add `useProductSiblings(productGroup)` to `useProducts.ts`
+- Returns all products in the same group, excluding the current one
 
-## Technical Details
+## Files to Modify
 
-**AI Model**: `google/gemini-2.5-flash` (supports vision, fast, cost-effective for image classification)
-
-**Prompt Strategy**: Send up to 10 images per request with category list. Ask AI to return JSON with groupings:
-```json
-{
-  "groups": [
-    {
-      "productName": "Men Black Sports Running Shoes",
-      "description": "Lightweight sports running shoes...",
-      "tags": ["sports", "running", "men"],
-      "categorySlug": "sports-shoes",
-      "imageIndices": [0, 1, 2, 3]
-    }
-  ]
-}
-```
-
-**Duplicate Detection**: Compare uploaded filenames against existing `images` arrays in `admin_products`.
-
-**Error Handling**: Each batch processes independently; failures in one batch don't block others. Failed images are logged and reported in the summary.
-
-**Performance**: Images upload in parallel (5 concurrent), AI processing in batches of 10, products created via bulk inserts.
-
-## Files to Create/Modify
-
-| File | Action |
+| File | Change |
 |------|--------|
-| `supabase/functions/ai-product-creator/index.ts` | Create - Edge function for AI analysis + product creation |
-| `src/pages/admin/AdminAIUpload.tsx` | Create - Admin page with drag-drop UI and progress |
-| `src/App.tsx` | Modify - Add route for `/admin/ai-upload` |
-| `src/components/admin/AdminSidebar.tsx` | Modify - Add "AI Upload" nav item |
+| Migration SQL | Add `product_group` and `color_code` columns, populate existing groups |
+| `src/hooks/useProducts.ts` | Add `useProductSiblings` hook |
+| `src/pages/ProductPage.tsx` | Add sibling color swatches section with navigation |
+| `src/pages/admin/AdminProductForm.tsx` | Add product group and color code fields |
+| `src/components/ProductCard.tsx` | Optionally show available color dots on shop grid |
+
+## Data Population
+Will auto-group ~80+ products by matching product names (stripping color prefixes). Example groups:
+- "Premium Eva Clogs For Men" → Black, Beige, Blue, Green, Grey, etc.
+- "Premium Eva Slides For Men" → Black, Beige, etc.
+- "Chest Bag" → all chest bag color variants
 
