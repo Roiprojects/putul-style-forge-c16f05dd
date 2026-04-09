@@ -53,6 +53,7 @@ import AdminRoles from "@/pages/admin/AdminRoles";
 import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminRefunds from "@/pages/admin/AdminRefunds";
 import AdminLogin from "@/pages/admin/AdminLogin";
+import AdminAIUpload from "@/pages/admin/AdminAIUpload";
 
 const queryClient = new QueryClient();
 
