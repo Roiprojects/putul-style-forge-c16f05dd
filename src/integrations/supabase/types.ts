@@ -76,6 +76,7 @@ export type Database = {
       admin_products: {
         Row: {
           category_id: string | null
+          color_code: string | null
           colors: string[] | null
           created_at: string
           description: string | null
@@ -87,6 +88,7 @@ export type Database = {
           name: string
           original_price: number | null
           price: number
+          product_group: string | null
           rating: number | null
           reviews_count: number | null
           sizes: string[] | null
@@ -97,6 +99,7 @@ export type Database = {
         }
         Insert: {
           category_id?: string | null
+          color_code?: string | null
           colors?: string[] | null
           created_at?: string
           description?: string | null
@@ -108,6 +111,7 @@ export type Database = {
           name: string
           original_price?: number | null
           price: number
+          product_group?: string | null
           rating?: number | null
           reviews_count?: number | null
           sizes?: string[] | null
@@ -118,6 +122,7 @@ export type Database = {
         }
         Update: {
           category_id?: string | null
+          color_code?: string | null
           colors?: string[] | null
           created_at?: string
           description?: string | null
@@ -129,6 +134,7 @@ export type Database = {
           name?: string
           original_price?: number | null
           price?: number
+          product_group?: string | null
           rating?: number | null
           reviews_count?: number | null
           sizes?: string[] | null
