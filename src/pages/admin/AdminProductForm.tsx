@@ -19,6 +19,8 @@ interface ProductForm {
   tags: string[];
   fabric: string;
   is_active: boolean;
+  product_group: string;
+  color_code: string;
 }
 
 interface VariantRow {
