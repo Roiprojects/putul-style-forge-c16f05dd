@@ -44,6 +44,7 @@ const navItems = [
   { label: "Refunds", icon: RotateCcw, to: "/admin/refunds" },
   { label: "Roles", icon: Shield, to: "/admin/roles" },
   { label: "Settings", icon: Settings, to: "/admin/settings" },
+  { label: "AI Upload", icon: Sparkles, to: "/admin/ai-upload" },
 ];
 
 const AdminSidebar = () => {
