@@ -28,6 +28,8 @@ interface Props {
   orderId: string;
   userId: string;
   paymentMethod: string | null;
+  paymentStatus?: string | null;
+  orderStatus?: string | null;
   items: OrderItemLite[];
   onSubmitted: () => void;
 }
