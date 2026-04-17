@@ -82,6 +82,9 @@ const OrderDetailPage = () => {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showHelpChat, setShowHelpChat] = useState(false);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
+  const [cancellationRequest, setCancellationRequest] = useState<any | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [userId, setUserId] = useState<string>("");
   const [showPayNow, setShowPayNow] = useState(false);
   const [payingNow, setPayingNow] = useState(false);
   const [trackingActivities, setTrackingActivities] = useState<TrackingActivity[]>([]);
