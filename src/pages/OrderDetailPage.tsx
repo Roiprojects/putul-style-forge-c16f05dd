@@ -650,6 +650,8 @@ const OrderDetailPage = () => {
           orderId={order.id}
           userId={userId}
           paymentMethod={order.payment_method}
+          paymentStatus={order.payment_status}
+          orderStatus={order.status}
           items={items}
           onSubmitted={fetchOrder}
         />
