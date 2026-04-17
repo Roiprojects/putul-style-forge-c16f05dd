@@ -51,6 +51,7 @@ import AdminSettings from "@/pages/admin/AdminSettings";
 import AdminRefunds from "@/pages/admin/AdminRefunds";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminAIUpload from "@/pages/admin/AdminAIUpload";
+import AdminCancellations from "@/pages/admin/AdminCancellations";
 
 const queryClient = new QueryClient();
 
