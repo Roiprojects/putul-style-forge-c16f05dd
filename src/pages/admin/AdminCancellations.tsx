@@ -116,8 +116,12 @@ const AdminCancellations = () => {
                 <td className="px-4 py-3 font-mono text-xs">#{r.order_id.slice(0, 8).toUpperCase()}</td>
                 <td className="px-4 py-3">{r.orders?.customer_name || "—"}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${r.request_type === "refund" ? "bg-blue-50 text-blue-700" : "bg-purple-50 text-purple-700"}`}>
-                    {r.request_type}
+                  <span className={`px-2 py-0.5 rounded text-xs ${
+                    r.request_type === "refund" ? "bg-blue-50 text-blue-700"
+                      : r.request_type === "replacement" ? "bg-purple-50 text-purple-700"
+                      : "bg-slate-100 text-slate-700"
+                  }`}>
+                    {r.request_type === "direct_cancel" ? "direct cancel" : r.request_type}
                   </span>
                 </td>
                 <td className="px-4 py-3 max-w-[180px] truncate" title={r.reason}>{r.reason}</td>
