@@ -43,6 +43,7 @@ const navItems = [
   { label: "Shipping", icon: Truck, to: "/admin/shipping" },
   { label: "Payments", icon: CreditCard, to: "/admin/payments" },
   { label: "Refunds", icon: RotateCcw, to: "/admin/refunds" },
+  { label: "Cancellations", icon: XCircle, to: "/admin/cancellations" },
   { label: "Roles", icon: Shield, to: "/admin/roles" },
   { label: "Settings", icon: Settings, to: "/admin/settings" },
   { label: "AI Upload", icon: Sparkles, to: "/admin/ai-upload" },
