@@ -164,6 +164,8 @@ const OrderDetailPage = () => {
 
     setLoading(false);
   };
+
+  const fetchTracking = async () => {
     if (!id) return;
     // First get order to check if it has AWB
     const { data: ord } = await supabase.from("orders").select("awb_code, shiprocket_shipment_id").eq("id", id).single();
