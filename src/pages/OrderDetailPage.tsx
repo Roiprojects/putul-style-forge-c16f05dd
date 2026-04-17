@@ -7,6 +7,8 @@ import {
 import ReturnRequestModal from "@/components/ReturnRequestModal";
 import HelpChatbox from "@/components/HelpChatbox";
 import RazorpayCheckout from "@/components/RazorpayCheckout";
+import CancelOrderModal from "@/components/CancelOrderModal";
+import { XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
