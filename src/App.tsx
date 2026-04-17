@@ -96,6 +96,7 @@ const App = () => (
               <Route path="roles" element={<AdminRoles />} />
               <Route path="settings" element={<AdminSettings />} />
               <Route path="ai-upload" element={<AdminAIUpload />} />
+              <Route path="cancellations" element={<AdminCancellations />} />
             </Route>
 
             {/* Store routes */}
