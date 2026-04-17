@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,9 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, RotateCcw, Wallet } from "lucide-react";
+import { ArrowLeft, RotateCcw, Wallet, ChevronsUpDown, Check } from "lucide-react";
+import { getBanksForCountry } from "@/data/banks";
+import { cn } from "@/lib/utils";
 
 interface OrderItemLite {
   id: string;
@@ -37,6 +41,15 @@ const REASONS = [
   "Other",
 ];
 
+// Map common state names → ISO country code (Indian states default to IN)
+const INDIAN_STATES = new Set([
+  "andhra pradesh","arunachal pradesh","assam","bihar","chhattisgarh","goa","gujarat","haryana",
+  "himachal pradesh","jharkhand","karnataka","kerala","madhya pradesh","maharashtra","manipur",
+  "meghalaya","mizoram","nagaland","odisha","punjab","rajasthan","sikkim","tamil nadu","telangana",
+  "tripura","uttar pradesh","uttarakhand","west bengal","delhi","jammu and kashmir","ladakh",
+  "puducherry","chandigarh","andaman and nicobar islands","dadra and nagar haveli","lakshadweep",
+]);
+
 type Step = "reason" | "type" | "refund" | "replacement";
 
 const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items, onSubmitted }: Props) => {
@@ -48,8 +61,10 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
   // refund
   const [refundMethod, setRefundMethod] = useState<"original" | "bank" | "upi" | "">("");
   const [bankName, setBankName] = useState("");
+  const [bankPickerOpen, setBankPickerOpen] = useState(false);
   const [accountHolder, setAccountHolder] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
+  const [accountNumberConfirm, setAccountNumberConfirm] = useState("");
   const [ifsc, setIfsc] = useState("");
   const [upiId, setUpiId] = useState("");
 
@@ -60,14 +75,48 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
   const [rNote, setRNote] = useState("");
 
   const [submitting, setSubmitting] = useState(false);
+  const [country, setCountry] = useState<string>("IN");
 
   const isCOD = (paymentMethod || "").toLowerCase().includes("cod");
-  const isOnline = !isCOD; // anything else treated as online
+  const isOnline = !isCOD;
+  const isIndia = country === "IN";
+
+  // Detect country from saved address → fallback IP
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const { data: addrs } = await supabase
+          .from("saved_addresses")
+          .select("state")
+          .eq("user_id", userId)
+          .order("is_default", { ascending: false })
+          .limit(1);
+        if (!cancelled && addrs && addrs[0]?.state) {
+          if (INDIAN_STATES.has(addrs[0].state.trim().toLowerCase())) {
+            setCountry("IN");
+            return;
+          }
+        }
+        // IP fallback
+        const res = await fetch("https://ipapi.co/json/");
+        const j = await res.json();
+        if (!cancelled && j?.country_code) setCountry(j.country_code);
+      } catch {
+        // keep default IN
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [open, userId]);
+
+  const banks = useMemo(() => getBanksForCountry(country), [country]);
 
   const reset = () => {
     setStep("reason");
     setReason(""); setReasonNote(""); setRequestType("");
-    setRefundMethod(""); setBankName(""); setAccountHolder(""); setAccountNumber(""); setIfsc(""); setUpiId("");
+    setRefundMethod(""); setBankName(""); setAccountHolder("");
+    setAccountNumber(""); setAccountNumberConfirm(""); setIfsc(""); setUpiId("");
     setRSize(""); setRColor(""); setRVariant(""); setRNote("");
   };
 
@@ -77,19 +126,30 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
     onClose();
   };
 
+  const accountsMatch = accountNumber.length > 0 && accountNumber === accountNumberConfirm;
+
   const validateRefund = () => {
     if (!refundMethod) return "Please select a refund method";
     if (refundMethod === "bank") {
-      if (!accountHolder.trim() || !accountNumber.trim() || !ifsc.trim() || !bankName.trim())
+      if (!bankName.trim()) return "Please select your bank";
+      if (!accountHolder.trim() || !accountNumber.trim() || !accountNumberConfirm.trim())
         return "Please fill all bank details";
-      if (!/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(ifsc.trim())) return "Invalid IFSC code";
+      if (accountNumber !== accountNumberConfirm) return "Account numbers do not match";
       if (!/^\d{6,18}$/.test(accountNumber.trim())) return "Invalid account number";
+      if (isIndia) {
+        if (!ifsc.trim()) return "Please enter IFSC code";
+        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/i.test(ifsc.trim())) return "Invalid IFSC code";
+      }
     }
     if (refundMethod === "upi") {
       if (!/^[\w.\-]{2,}@[a-zA-Z]{2,}$/.test(upiId.trim())) return "Invalid UPI ID";
     }
     return null;
   };
+
+  const refundFormReady = refundMethod === "original"
+    || refundMethod === "upi"
+    || (refundMethod === "bank" && !!bankName && !!accountHolder.trim() && accountsMatch && (!isIndia || !!ifsc.trim()));
 
   const submit = async () => {
     setSubmitting(true);
@@ -108,7 +168,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
         payload.bank_name = bankName;
         payload.account_holder = accountHolder;
         payload.account_number = accountNumber;
-        payload.ifsc = ifsc.toUpperCase();
+        payload.ifsc = ifsc ? ifsc.toUpperCase() : null;
       }
       if (refundMethod === "upi") {
         payload.upi_id = upiId;
@@ -180,11 +240,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
                 className="mt-1.5"
               />
             </div>
-            <Button
-              className="w-full"
-              disabled={!reason}
-              onClick={() => setStep("type")}
-            >
+            <Button className="w-full" disabled={!reason} onClick={() => setStep("type")}>
               Continue
             </Button>
           </div>
@@ -242,34 +298,106 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
             {refundMethod === "bank" && (
               <div className="space-y-3">
                 <div>
-                  <Label className="text-xs">Account holder name</Label>
-                  <Input value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} className="mt-1.5" />
+                  <Label className="text-xs">Bank name <span className="text-destructive">*</span></Label>
+                  <Popover open={bankPickerOpen} onOpenChange={setBankPickerOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        role="combobox"
+                        className="w-full justify-between mt-1.5 font-normal"
+                      >
+                        <span className={cn("truncate", !bankName && "text-muted-foreground")}>
+                          {bankName || `Select your bank (${country})`}
+                        </span>
+                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search bank..." className="h-9" />
+                        <CommandList>
+                          <CommandEmpty>
+                            <div className="p-2 space-y-2">
+                              <p className="text-xs text-muted-foreground">No matches. Enter manually:</p>
+                              <Input
+                                placeholder="Type bank name"
+                                value={bankName}
+                                onChange={(e) => setBankName(e.target.value)}
+                                className="h-8"
+                              />
+                              <Button size="sm" className="w-full h-7" onClick={() => setBankPickerOpen(false)}>
+                                Use this name
+                              </Button>
+                            </div>
+                          </CommandEmpty>
+                          <CommandGroup>
+                            {banks.map((b) => (
+                              <CommandItem
+                                key={b}
+                                value={b}
+                                onSelect={() => { setBankName(b); setBankPickerOpen(false); }}
+                              >
+                                <Check className={cn("mr-2 h-4 w-4", bankName === b ? "opacity-100" : "opacity-0")} />
+                                {b}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 <div>
-                  <Label className="text-xs">Account number</Label>
-                  <Input value={accountNumber} onChange={(e) => setAccountNumber(e.target.value)} className="mt-1.5" />
+                  <Label className="text-xs">Account holder name <span className="text-destructive">*</span></Label>
+                  <Input value={accountHolder} onChange={(e) => setAccountHolder(e.target.value)} className="mt-1.5" required />
                 </div>
                 <div>
-                  <Label className="text-xs">IFSC code</Label>
-                  <Input value={ifsc} onChange={(e) => setIfsc(e.target.value.toUpperCase())} className="mt-1.5" />
+                  <Label className="text-xs">Account number <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={accountNumber}
+                    onChange={(e) => setAccountNumber(e.target.value.replace(/\s/g, ""))}
+                    className="mt-1.5"
+                    autoComplete="off"
+                    required
+                  />
                 </div>
                 <div>
-                  <Label className="text-xs">Bank name</Label>
-                  <Input value={bankName} onChange={(e) => setBankName(e.target.value)} className="mt-1.5" />
+                  <Label className="text-xs">Re-enter account number <span className="text-destructive">*</span></Label>
+                  <Input
+                    value={accountNumberConfirm}
+                    onChange={(e) => setAccountNumberConfirm(e.target.value.replace(/\s/g, ""))}
+                    onPaste={(e) => e.preventDefault()}
+                    className={cn("mt-1.5", accountNumberConfirm && !accountsMatch && "border-destructive focus-visible:ring-destructive")}
+                    autoComplete="off"
+                    required
+                  />
+                  {accountNumberConfirm && !accountsMatch && (
+                    <p className="text-xs text-destructive mt-1">Account numbers do not match</p>
+                  )}
+                  {accountsMatch && (
+                    <p className="text-xs text-green-600 mt-1">Account numbers match ✓</p>
+                  )}
                 </div>
+                {isIndia && (
+                  <div>
+                    <Label className="text-xs">IFSC code <span className="text-destructive">*</span></Label>
+                    <Input value={ifsc} onChange={(e) => setIfsc(e.target.value.toUpperCase())} className="mt-1.5" required />
+                  </div>
+                )}
               </div>
             )}
 
             {refundMethod === "upi" && (
               <div>
-                <Label className="text-xs">UPI ID</Label>
-                <Input value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="name@bank" className="mt-1.5" />
+                <Label className="text-xs">UPI ID <span className="text-destructive">*</span></Label>
+                <Input value={upiId} onChange={(e) => setUpiId(e.target.value)} placeholder="name@bank" className="mt-1.5" required />
               </div>
             )}
 
             <Button
               className="w-full"
-              disabled={submitting}
+              disabled={submitting || !refundFormReady}
               onClick={() => {
                 const err = validateRefund();
                 if (err) { toast.error(err); return; }
