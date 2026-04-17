@@ -28,6 +28,8 @@ interface Props {
   orderId: string;
   userId: string;
   paymentMethod: string | null;
+  paymentStatus?: string | null;
+  orderStatus?: string | null;
   items: OrderItemLite[];
   onSubmitted: () => void;
 }
@@ -52,11 +54,11 @@ const INDIAN_STATES = new Set([
 
 type Step = "reason" | "type" | "refund" | "replacement";
 
-const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items, onSubmitted }: Props) => {
+const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, paymentStatus, orderStatus, items, onSubmitted }: Props) => {
   const [step, setStep] = useState<Step>("reason");
   const [reason, setReason] = useState("");
   const [reasonNote, setReasonNote] = useState("");
-  const [requestType, setRequestType] = useState<"refund" | "replacement" | "">("");
+  const [requestType, setRequestType] = useState<"refund" | "replacement" | "direct_cancel" | "">("");
 
   // refund
   const [refundMethod, setRefundMethod] = useState<"original" | "bank" | "upi" | "">("");
@@ -80,6 +82,13 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
   const isCOD = (paymentMethod || "").toLowerCase().includes("cod");
   const isOnline = !isCOD;
   const isIndia = country === "IN";
+
+  // Direct-cancel eligibility: COD, not delivered, not paid → no money has changed hands, just cancel.
+  const status = (orderStatus || "").toLowerCase();
+  const payStatus = (paymentStatus || "").toLowerCase();
+  const isDeliveredOrShipped = ["delivered", "shipped", "out_for_delivery"].includes(status);
+  const isPaid = ["paid", "completed", "success"].includes(payStatus);
+  const directCancelEligible = isCOD && !isDeliveredOrShipped && !isPaid;
 
   // Detect country from saved address → fallback IP
   useEffect(() => {
@@ -151,18 +160,19 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
     || refundMethod === "upi"
     || (refundMethod === "bank" && !!bankName && !!accountHolder.trim() && accountsMatch && (!isIndia || !!ifsc.trim()));
 
-  const submit = async () => {
+  const submit = async (overrideType?: "direct_cancel") => {
     setSubmitting(true);
+    const effectiveType = overrideType || requestType;
     const payload: any = {
       order_id: orderId,
       user_id: userId,
       reason,
       reason_note: reasonNote || null,
-      request_type: requestType,
+      request_type: effectiveType,
       payment_method: paymentMethod,
-      status: "pending",
+      status: effectiveType === "direct_cancel" ? "approved" : "pending",
     };
-    if (requestType === "refund") {
+    if (effectiveType === "refund") {
       payload.refund_method = refundMethod;
       if (refundMethod === "bank") {
         payload.bank_name = bankName;
@@ -173,7 +183,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
       if (refundMethod === "upi") {
         payload.upi_id = upiId;
       }
-    } else {
+    } else if (effectiveType === "replacement") {
       payload.replacement_size = rSize || null;
       payload.replacement_color = rColor || null;
       payload.replacement_variant = rVariant || null;
@@ -187,9 +197,12 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
       return;
     }
 
-    await supabase.from("orders").update({ status: "cancellation_requested" }).eq("id", orderId);
+    // For direct cancel (unpaid COD): immediately mark the order as cancelled.
+    // Otherwise mark it as cancellation_requested awaiting admin review.
+    const newOrderStatus = effectiveType === "direct_cancel" ? "cancelled" : "cancellation_requested";
+    await supabase.from("orders").update({ status: newOrderStatus }).eq("id", orderId);
 
-    toast.success("Cancellation request submitted");
+    toast.success(effectiveType === "direct_cancel" ? "Order cancelled" : "Cancellation request submitted");
     setSubmitting(false);
     reset();
     onSubmitted();
@@ -240,9 +253,24 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
                 className="mt-1.5"
               />
             </div>
-            <Button className="w-full" disabled={!reason} onClick={() => setStep("type")}>
-              Continue
-            </Button>
+            {directCancelEligible ? (
+              <>
+                <p className="text-xs text-muted-foreground bg-muted/40 rounded-md p-2.5 leading-relaxed">
+                  This is a Cash on Delivery order and no payment has been collected yet. We'll cancel it right away — no refund or replacement steps needed.
+                </p>
+                <Button
+                  className="w-full"
+                  disabled={!reason || submitting}
+                  onClick={() => submit("direct_cancel")}
+                >
+                  {submitting ? "Cancelling..." : "Cancel Order"}
+                </Button>
+              </>
+            ) : (
+              <Button className="w-full" disabled={!reason} onClick={() => setStep("type")}>
+                Continue
+              </Button>
+            )}
           </div>
         )}
 
@@ -456,7 +484,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
                 className="mt-1.5"
               />
             </div>
-            <Button className="w-full" disabled={submitting} onClick={submit}>
+            <Button className="w-full" disabled={submitting} onClick={() => submit()}>
               {submitting ? "Submitting..." : "Submit Request"}
             </Button>
           </div>
