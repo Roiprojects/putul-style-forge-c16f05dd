@@ -54,11 +54,11 @@ const INDIAN_STATES = new Set([
 
 type Step = "reason" | "type" | "refund" | "replacement";
 
-const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items, onSubmitted }: Props) => {
+const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, paymentStatus, orderStatus, items, onSubmitted }: Props) => {
   const [step, setStep] = useState<Step>("reason");
   const [reason, setReason] = useState("");
   const [reasonNote, setReasonNote] = useState("");
-  const [requestType, setRequestType] = useState<"refund" | "replacement" | "">("");
+  const [requestType, setRequestType] = useState<"refund" | "replacement" | "direct_cancel" | "">("");
 
   // refund
   const [refundMethod, setRefundMethod] = useState<"original" | "bank" | "upi" | "">("");
@@ -82,6 +82,13 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
   const isCOD = (paymentMethod || "").toLowerCase().includes("cod");
   const isOnline = !isCOD;
   const isIndia = country === "IN";
+
+  // Direct-cancel eligibility: COD, not delivered, not paid → no money has changed hands, just cancel.
+  const status = (orderStatus || "").toLowerCase();
+  const payStatus = (paymentStatus || "").toLowerCase();
+  const isDeliveredOrShipped = ["delivered", "shipped", "out_for_delivery"].includes(status);
+  const isPaid = ["paid", "completed", "success"].includes(payStatus);
+  const directCancelEligible = isCOD && !isDeliveredOrShipped && !isPaid;
 
   // Detect country from saved address → fallback IP
   useEffect(() => {
