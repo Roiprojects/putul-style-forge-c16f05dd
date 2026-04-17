@@ -376,7 +376,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, items
                     <p className="text-xs text-destructive mt-1">Account numbers do not match</p>
                   )}
                   {accountsMatch && (
-                    <p className="text-xs text-green-600 mt-1">Account numbers match ✓</p>
+                    <p className="text-xs text-primary mt-1">Account numbers match ✓</p>
                   )}
                 </div>
                 {isIndia && (
