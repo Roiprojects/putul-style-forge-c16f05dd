@@ -198,6 +198,78 @@ export type Database = {
         }
         Relationships: []
       }
+      cancellation_requests: {
+        Row: {
+          account_holder: string | null
+          account_number: string | null
+          admin_notes: string | null
+          bank_name: string | null
+          created_at: string
+          id: string
+          ifsc: string | null
+          order_id: string
+          payment_method: string | null
+          reason: string
+          reason_note: string | null
+          refund_method: string | null
+          replacement_color: string | null
+          replacement_note: string | null
+          replacement_size: string | null
+          replacement_variant: string | null
+          request_type: string
+          status: string
+          updated_at: string
+          upi_id: string | null
+          user_id: string
+        }
+        Insert: {
+          account_holder?: string | null
+          account_number?: string | null
+          admin_notes?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc?: string | null
+          order_id: string
+          payment_method?: string | null
+          reason: string
+          reason_note?: string | null
+          refund_method?: string | null
+          replacement_color?: string | null
+          replacement_note?: string | null
+          replacement_size?: string | null
+          replacement_variant?: string | null
+          request_type: string
+          status?: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id: string
+        }
+        Update: {
+          account_holder?: string | null
+          account_number?: string | null
+          admin_notes?: string | null
+          bank_name?: string | null
+          created_at?: string
+          id?: string
+          ifsc?: string | null
+          order_id?: string
+          payment_method?: string | null
+          reason?: string
+          reason_note?: string | null
+          refund_method?: string | null
+          replacement_color?: string | null
+          replacement_note?: string | null
+          replacement_size?: string | null
+          replacement_variant?: string | null
+          request_type?: string
+          status?: string
+          updated_at?: string
+          upi_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cms_pages: {
         Row: {
           content: string | null

@@ -7,6 +7,8 @@ import {
 import ReturnRequestModal from "@/components/ReturnRequestModal";
 import HelpChatbox from "@/components/HelpChatbox";
 import RazorpayCheckout from "@/components/RazorpayCheckout";
+import CancelOrderModal from "@/components/CancelOrderModal";
+import { XCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
@@ -80,6 +82,9 @@ const OrderDetailPage = () => {
   const [showReturnModal, setShowReturnModal] = useState(false);
   const [showHelpChat, setShowHelpChat] = useState(false);
   const [returnRequest, setReturnRequest] = useState<ReturnRequest | null>(null);
+  const [cancellationRequest, setCancellationRequest] = useState<any | null>(null);
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [userId, setUserId] = useState<string>("");
   const [showPayNow, setShowPayNow] = useState(false);
   const [payingNow, setPayingNow] = useState(false);
   const [trackingActivities, setTrackingActivities] = useState<TrackingActivity[]>([]);
@@ -139,6 +144,23 @@ const OrderDetailPage = () => {
     if (returnData && returnData.length > 0) {
       setReturnRequest(returnData[0] as ReturnRequest);
     }
+
+    // Fetch cancellation request if any
+    const { data: cancelData } = await supabase
+      .from("cancellation_requests")
+      .select("*")
+      .eq("order_id", id!)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (cancelData && cancelData.length > 0) {
+      setCancellationRequest(cancelData[0]);
+    } else {
+      setCancellationRequest(null);
+    }
+
+    // Get auth user id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
 
     setLoading(false);
   };
@@ -587,10 +609,50 @@ const OrderDetailPage = () => {
                     <ChevronRight size={12} />
                   </button>
                 )}
+                {!cancellationRequest &&
+                  ["pending", "confirmed", "processing"].includes(order.status.toLowerCase()) && (
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      className="flex items-center justify-between text-xs text-destructive hover:text-destructive/80 transition-colors py-1.5 w-full border-t border-border pt-3 mt-2"
+                    >
+                      <span className="flex items-center gap-2"><XCircle size={12} /> Cancel Order</span>
+                      <ChevronRight size={12} />
+                    </button>
+                  )}
+                {cancellationRequest && (
+                  <div className="border-t border-border pt-3 mt-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        cancellationRequest.status === "approved" ? "bg-green-50 text-green-700" :
+                        cancellationRequest.status === "rejected" ? "bg-red-50 text-red-700" :
+                        "bg-amber-50 text-amber-700"
+                      }`}>
+                        Cancellation {cancellationRequest.status}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {cancellationRequest.request_type === "refund" ? "Refund" : "Replacement"} requested · {cancellationRequest.reason}
+                    </p>
+                    {cancellationRequest.admin_notes && (
+                      <p className="text-[11px] mt-1.5 italic">"{cancellationRequest.admin_notes}"</p>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
         </div>
+
+        {/* Cancel Order Modal */}
+        <CancelOrderModal
+          open={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          orderId={order.id}
+          userId={userId}
+          paymentMethod={order.payment_method}
+          items={items}
+          onSubmitted={fetchOrder}
+        />
 
         {/* Return Request Modal */}
         <ReturnRequestModal
