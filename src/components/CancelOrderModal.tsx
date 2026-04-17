@@ -253,9 +253,24 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
                 className="mt-1.5"
               />
             </div>
-            <Button className="w-full" disabled={!reason} onClick={() => setStep("type")}>
-              Continue
-            </Button>
+            {directCancelEligible ? (
+              <>
+                <p className="text-xs text-muted-foreground bg-muted/40 rounded-md p-2.5 leading-relaxed">
+                  This is a Cash on Delivery order and no payment has been collected yet. We'll cancel it right away — no refund or replacement steps needed.
+                </p>
+                <Button
+                  className="w-full"
+                  disabled={!reason || submitting}
+                  onClick={() => submit("direct_cancel")}
+                >
+                  {submitting ? "Cancelling..." : "Cancel Order"}
+                </Button>
+              </>
+            ) : (
+              <Button className="w-full" disabled={!reason} onClick={() => setStep("type")}>
+                Continue
+              </Button>
+            )}
           </div>
         )}
 
