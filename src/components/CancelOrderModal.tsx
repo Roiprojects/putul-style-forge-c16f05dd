@@ -160,18 +160,19 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
     || refundMethod === "upi"
     || (refundMethod === "bank" && !!bankName && !!accountHolder.trim() && accountsMatch && (!isIndia || !!ifsc.trim()));
 
-  const submit = async () => {
+  const submit = async (overrideType?: "direct_cancel") => {
     setSubmitting(true);
+    const effectiveType = overrideType || requestType;
     const payload: any = {
       order_id: orderId,
       user_id: userId,
       reason,
       reason_note: reasonNote || null,
-      request_type: requestType,
+      request_type: effectiveType,
       payment_method: paymentMethod,
-      status: "pending",
+      status: effectiveType === "direct_cancel" ? "approved" : "pending",
     };
-    if (requestType === "refund") {
+    if (effectiveType === "refund") {
       payload.refund_method = refundMethod;
       if (refundMethod === "bank") {
         payload.bank_name = bankName;
@@ -182,7 +183,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
       if (refundMethod === "upi") {
         payload.upi_id = upiId;
       }
-    } else {
+    } else if (effectiveType === "replacement") {
       payload.replacement_size = rSize || null;
       payload.replacement_color = rColor || null;
       payload.replacement_variant = rVariant || null;
@@ -196,9 +197,12 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
       return;
     }
 
-    await supabase.from("orders").update({ status: "cancellation_requested" }).eq("id", orderId);
+    // For direct cancel (unpaid COD): immediately mark the order as cancelled.
+    // Otherwise mark it as cancellation_requested awaiting admin review.
+    const newOrderStatus = effectiveType === "direct_cancel" ? "cancelled" : "cancellation_requested";
+    await supabase.from("orders").update({ status: newOrderStatus }).eq("id", orderId);
 
-    toast.success("Cancellation request submitted");
+    toast.success(effectiveType === "direct_cancel" ? "Order cancelled" : "Cancellation request submitted");
     setSubmitting(false);
     reset();
     onSubmitted();
