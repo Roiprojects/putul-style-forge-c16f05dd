@@ -609,6 +609,35 @@ const OrderDetailPage = () => {
                     <ChevronRight size={12} />
                   </button>
                 )}
+                {!cancellationRequest &&
+                  ["pending", "confirmed", "processing"].includes(order.status.toLowerCase()) && (
+                    <button
+                      onClick={() => setShowCancelModal(true)}
+                      className="flex items-center justify-between text-xs text-destructive hover:text-destructive/80 transition-colors py-1.5 w-full border-t border-border pt-3 mt-2"
+                    >
+                      <span className="flex items-center gap-2"><XCircle size={12} /> Cancel Order</span>
+                      <ChevronRight size={12} />
+                    </button>
+                  )}
+                {cancellationRequest && (
+                  <div className="border-t border-border pt-3 mt-2">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                        cancellationRequest.status === "approved" ? "bg-green-50 text-green-700" :
+                        cancellationRequest.status === "rejected" ? "bg-red-50 text-red-700" :
+                        "bg-amber-50 text-amber-700"
+                      }`}>
+                        Cancellation {cancellationRequest.status}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      {cancellationRequest.request_type === "refund" ? "Refund" : "Replacement"} requested · {cancellationRequest.reason}
+                    </p>
+                    {cancellationRequest.admin_notes && (
+                      <p className="text-[11px] mt-1.5 italic">"{cancellationRequest.admin_notes}"</p>
+                    )}
+                  </div>
+                )}
               </div>
             </motion.div>
           </div>
