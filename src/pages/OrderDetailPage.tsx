@@ -145,10 +145,25 @@ const OrderDetailPage = () => {
       setReturnRequest(returnData[0] as ReturnRequest);
     }
 
+    // Fetch cancellation request if any
+    const { data: cancelData } = await supabase
+      .from("cancellation_requests")
+      .select("*")
+      .eq("order_id", id!)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (cancelData && cancelData.length > 0) {
+      setCancellationRequest(cancelData[0]);
+    } else {
+      setCancellationRequest(null);
+    }
+
+    // Get auth user id
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) setUserId(user.id);
+
     setLoading(false);
   };
-
-  const fetchTracking = async () => {
     if (!id) return;
     // First get order to check if it has AWB
     const { data: ord } = await supabase.from("orders").select("awb_code, shiprocket_shipment_id").eq("id", id).single();
