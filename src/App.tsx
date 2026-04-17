@@ -70,7 +70,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <InactivityTimer />
+          
           <RealtimeSync />
           <Routes>
             {/* Admin login - hidden route */}
