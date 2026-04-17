@@ -643,6 +643,17 @@ const OrderDetailPage = () => {
           </div>
         </div>
 
+        {/* Cancel Order Modal */}
+        <CancelOrderModal
+          open={showCancelModal}
+          onClose={() => setShowCancelModal(false)}
+          orderId={order.id}
+          userId={userId}
+          paymentMethod={order.payment_method}
+          items={items}
+          onSubmitted={fetchOrder}
+        />
+
         {/* Return Request Modal */}
         <ReturnRequestModal
           open={showReturnModal}
