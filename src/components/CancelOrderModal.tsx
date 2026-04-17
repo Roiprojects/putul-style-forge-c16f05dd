@@ -484,7 +484,7 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
                 className="mt-1.5"
               />
             </div>
-            <Button className="w-full" disabled={submitting} onClick={submit}>
+            <Button className="w-full" disabled={submitting} onClick={() => submit()}>
               {submitting ? "Submitting..." : "Submit Request"}
             </Button>
           </div>
