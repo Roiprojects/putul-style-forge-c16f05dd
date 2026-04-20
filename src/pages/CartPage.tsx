@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import AuthModal from "@/components/AuthModal";
 import { useAreaSearch, usePincodeSearch } from "@/hooks/useAreaSearch";
 import RazorpayCheckout from "@/components/RazorpayCheckout";
+import PayPalCheckout from "@/components/PayPalCheckout";
+import { useCurrency } from "@/contexts/CurrencyContext";
+import { getPayPalCurrency } from "@/lib/paypalCurrency";
 
 type CheckoutStep = "cart" | "details" | "pay";
 
