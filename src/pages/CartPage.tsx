@@ -328,6 +328,10 @@ const CartPage = () => {
   const finalTotal = cartTotal - couponDiscount + codSurcharge;
 
   const handleProceedToPay = async () => {
+    if (paymentMethod === "paypal") {
+      setShowPaypal(true);
+      return;
+    }
     if (paymentMethod === "cod") {
       // Direct COD order
       const { data: orderData, error: orderError } = await supabase
@@ -384,6 +388,69 @@ const CartPage = () => {
     } else {
       setShowRazorpay(true);
     }
+  };
+
+  // PayPal amount in PayPal-supported currency
+  const paypalCurrency = getPayPalCurrency(currencyCode);
+  const paypalAmount = (() => {
+    if (paypalCurrency === currencyCode) return convertPrice(finalTotal);
+    // Currency not supported by PayPal → fall back to USD via existing rate logic
+    // Approximate: use INR→USD rate hardcoded as 0.012 (matches CurrencyContext default)
+    return Math.round(finalTotal * 0.012 * 100) / 100;
+  })();
+
+  const handlePaypalSuccess = async (captureId: string) => {
+    setShowPaypal(false);
+
+    const { data: orderData, error: orderError } = await supabase
+      .from("orders")
+      .insert({
+        user_id: user?.id || null,
+        customer_name: form.name,
+        customer_email: user?.email || `${form.phone}@phone.putul.app`,
+        customer_phone: form.phone,
+        shipping_address: fullAddress,
+        subtotal: cartTotal,
+        discount: couponDiscount,
+        total: finalTotal,
+        payment_method: "paypal",
+        payment_status: "paid",
+        status: "confirmed",
+        notes: `PayPal Capture ID: ${captureId} | Charged: ${paypalCurrency} ${paypalAmount.toFixed(2)} (≈ ₹${finalTotal})`,
+      })
+      .select()
+      .single();
+
+    if (orderError || !orderData) {
+      toast.error("Order saved failed. Please contact support with capture ID: " + captureId);
+      return;
+    }
+
+    const orderItems = cart.map(item => ({
+      order_id: orderData.id,
+      product_id: item.product.id,
+      product_name: item.product.name,
+      size: item.size,
+      color: item.color || null,
+      quantity: item.quantity,
+      unit_price: item.product.price,
+      total_price: item.product.price * item.quantity,
+    }));
+
+    await supabase.from("order_items").insert(orderItems);
+    syncToShiprocket(orderData.id);
+    clearCart();
+
+    navigate("/order-confirmation", {
+      state: {
+        orderId: orderData.id,
+        paymentId: captureId,
+        amount: finalTotal,
+        items: cart.map(i => ({ name: i.product.name, size: i.size, quantity: i.quantity, price: i.product.price })),
+        address: fullAddress,
+        customerName: form.name,
+      },
+    });
   };
 
   const syncToShiprocket = async (orderId: string) => {
@@ -829,38 +896,61 @@ const CartPage = () => {
                   <div className="mb-6">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Payment Method</p>
                     <div className="space-y-2">
-                      <label
-                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-secondary bg-secondary/5" : "border-border"}`}
-                      >
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="razorpay"
-                          checked={paymentMethod === "razorpay"}
-                          onChange={() => setPaymentMethod("razorpay")}
-                          className="accent-secondary"
-                        />
-                        <div>
-                          <p className="text-sm font-medium">Online Payment</p>
-                          <p className="text-[10px] text-muted-foreground">UPI, Cards, Net Banking</p>
-                        </div>
-                      </label>
-                      <label
-                        className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "cod" ? "border-secondary bg-secondary/5" : "border-border"}`}
-                      >
-                        <input
-                          type="radio"
-                          name="paymentMethod"
-                          value="cod"
-                          checked={paymentMethod === "cod"}
-                          onChange={() => setPaymentMethod("cod")}
-                          className="accent-secondary"
-                        />
-                        <div>
-                          <p className="text-sm font-medium">Cash on Delivery</p>
-                          <p className="text-[10px] text-muted-foreground">+10% COD surcharge applied</p>
-                        </div>
-                      </label>
+                      {isInternational ? (
+                        <label
+                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "paypal" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="paymentMethod"
+                            value="paypal"
+                            checked={paymentMethod === "paypal"}
+                            onChange={() => setPaymentMethod("paypal")}
+                            className="accent-secondary"
+                          />
+                          <div className="flex-1">
+                            <p className="text-sm font-medium">PayPal</p>
+                            <p className="text-[10px] text-muted-foreground">
+                              Charged in {paypalCurrency} {paypalAmount.toFixed(2)} (≈ ₹{finalTotal.toLocaleString()})
+                            </p>
+                          </div>
+                        </label>
+                      ) : (
+                        <>
+                          <label
+                            className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "razorpay" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                          >
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value="razorpay"
+                              checked={paymentMethod === "razorpay"}
+                              onChange={() => setPaymentMethod("razorpay")}
+                              className="accent-secondary"
+                            />
+                            <div>
+                              <p className="text-sm font-medium">Online Payment</p>
+                              <p className="text-[10px] text-muted-foreground">UPI, Cards, Net Banking</p>
+                            </div>
+                          </label>
+                          <label
+                            className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === "cod" ? "border-secondary bg-secondary/5" : "border-border"}`}
+                          >
+                            <input
+                              type="radio"
+                              name="paymentMethod"
+                              value="cod"
+                              checked={paymentMethod === "cod"}
+                              onChange={() => setPaymentMethod("cod")}
+                              className="accent-secondary"
+                            />
+                            <div>
+                              <p className="text-sm font-medium">Cash on Delivery</p>
+                              <p className="text-[10px] text-muted-foreground">+10% COD surcharge applied</p>
+                            </div>
+                          </label>
+                        </>
+                      )}
                     </div>
                   </div>
 
@@ -868,7 +958,11 @@ const CartPage = () => {
                     onClick={handleProceedToPay}
                     className="btn-primary w-full py-4 text-center text-sm font-semibold tracking-widest uppercase"
                   >
-                    {paymentMethod === "cod" ? "Place Order (COD)" : "Proceed to Pay"} — ₹{finalTotal.toLocaleString()}
+                    {paymentMethod === "cod"
+                      ? `Place Order (COD) — ₹${finalTotal.toLocaleString()}`
+                      : paymentMethod === "paypal"
+                        ? `Pay with PayPal — ${paypalCurrency} ${paypalAmount.toFixed(2)}`
+                        : `Proceed to Pay — ₹${finalTotal.toLocaleString()}`}
                   </button>
 
                   <button
@@ -1031,6 +1125,14 @@ const CartPage = () => {
           customerPhone={form.phone}
           onSuccess={handlePaymentSuccess}
           onClose={() => setShowRazorpay(false)}
+        />
+      )}
+      {showPaypal && (
+        <PayPalCheckout
+          amount={paypalAmount}
+          currency={paypalCurrency}
+          onSuccess={handlePaypalSuccess}
+          onClose={() => setShowPaypal(false)}
         />
       )}
     </div>
