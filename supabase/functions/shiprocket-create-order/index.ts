@@ -6,15 +6,21 @@ const corsHeaders = {
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 async function getToken(): Promise<string> {
-  const url = Deno.env.get("SUPABASE_URL")!;
-  const key = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const res = await fetch(`${url}/functions/v1/shiprocket-auth`, {
+  const email = Deno.env.get("SHIPROCKET_EMAIL");
+  const password = Deno.env.get("SHIPROCKET_PASSWORD");
+  if (!email || !password) {
+    throw new Error("Shiprocket credentials not configured (SHIPROCKET_EMAIL / SHIPROCKET_PASSWORD)");
+  }
+  const res = await fetch("https://apiv2.shiprocket.in/v1/external/auth/login", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
   });
   const data = await res.json();
-  if (!data.token) throw new Error("Failed to get Shiprocket token");
-  return data.token;
+  if (!res.ok || !data.token) {
+    throw new Error(`Shiprocket auth failed: ${JSON.stringify(data)}`);
+  }
+  return data.token as string;
 }
 
 serve(async (req) => {
