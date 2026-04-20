@@ -96,7 +96,18 @@ const CartPage = () => {
   const [couponError, setCouponError] = useState("");
   const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [showRazorpay, setShowRazorpay] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod">("razorpay");
+  const [showPaypal, setShowPaypal] = useState(false);
+  const { currencyCode, isINR, convertPrice } = useCurrency();
+  const isInternational = !isINR;
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | "paypal">(
+    isInternational ? "paypal" : "razorpay"
+  );
+
+  // If currency switches mid-session, snap the method to a valid one
+  useEffect(() => {
+    if (isInternational && paymentMethod !== "paypal") setPaymentMethod("paypal");
+    if (!isInternational && paymentMethod === "paypal") setPaymentMethod("razorpay");
+  }, [isInternational]);
 
   // Fetch available coupons
   useEffect(() => {
