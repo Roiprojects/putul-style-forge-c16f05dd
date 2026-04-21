@@ -104,12 +104,18 @@ const ContactPage = () => {
           </motion.form>
         </div>
 
-        {/* Map placeholder */}
-        <div className="mt-16 bg-accent h-64 md:h-96 flex items-center justify-center">
-          <div className="text-center">
-            <MapPin size={32} className="mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">Nanakpuri Colony, Khatipura Road, Jaipur, Rajasthan 302006</p>
-          </div>
+        {/* Map */}
+        <div className="mt-16 h-64 md:h-96 overflow-hidden rounded-2xl border border-border">
+          <iframe
+            title="Putul Fashions location"
+            src="https://www.google.com/maps?q=Nanakpuri+Colony+Khatipura+Road+Jaipur+Rajasthan+302006&output=embed"
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
         </div>
       </div>
     </div>
