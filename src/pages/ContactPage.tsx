@@ -35,7 +35,7 @@ const ContactPage = () => {
                 { icon: Phone, label: "Phone", value: "+91 98765 43210" },
                 { icon: Mail, label: "Email", value: "support@putulfashions.com" },
                 { icon: MessageCircle, label: "WhatsApp", value: "+91 98765 43210" },
-                { icon: MapPin, label: "Address", value: "Nanakpuri Colony, Khatipura Road, Jaipur, Rajasthan 302006" },
+                { icon: MapPin, label: "Address", value: "Plot No. 0A41, Nanakpuri Colony, Khatipura Road, Jaipur - 302006, Rajasthan" },
               ].map(c => (
                 <div key={c.label} className="flex items-start gap-4">
                   <div className="w-10 h-10 border border-secondary flex items-center justify-center flex-shrink-0">
@@ -108,7 +108,7 @@ const ContactPage = () => {
         <div className="mt-16 h-64 md:h-96 overflow-hidden rounded-2xl border border-border">
           <iframe
             title="Putul Fashions location"
-            src="https://www.google.com/maps?q=Nanakpuri+Colony+Khatipura+Road+Jaipur+Rajasthan+302006&output=embed"
+            src="https://www.google.com/maps?q=Plot+No+0A41+Nanakpuri+Colony+Khatipura+Road+Jaipur+302006+Rajasthan&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0 }}
