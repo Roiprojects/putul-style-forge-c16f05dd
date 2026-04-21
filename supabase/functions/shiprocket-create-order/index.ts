@@ -83,7 +83,8 @@ serve(async (req) => {
         selling_price: Number(item.unit_price),
         discount: 0,
         tax: 0,
-      })),
+      });
+      }),
       payment_method: order.payment_method?.toLowerCase().includes("cod") ? "COD" : "Prepaid",
       sub_total: Number(order.total),
       length: 25,
