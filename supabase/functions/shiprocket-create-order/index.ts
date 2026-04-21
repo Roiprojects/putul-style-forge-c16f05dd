@@ -72,14 +72,19 @@ serve(async (req) => {
       billing_email: order.customer_email,
       billing_phone: order.customer_phone || "",
       shipping_is_billing: true,
-      order_items: (items || []).map((item: any) => ({
+      order_items: (items || []).map((item: any) => {
+        const variantSuffix = [item.size, item.color].filter(Boolean).join("-");
+        const baseSku = item.product_id ? `${item.product_id.slice(0, 12)}` : `SKU-${item.id.slice(0, 8)}`;
+        const sku = variantSuffix ? `${baseSku}-${variantSuffix}` : `${baseSku}-${item.id.slice(0, 6)}`;
+        return ({
         name: item.product_name,
-        sku: item.product_id || `SKU-${item.id.slice(0, 8)}`,
+        sku,
         units: item.quantity,
         selling_price: Number(item.unit_price),
         discount: 0,
         tax: 0,
-      })),
+      });
+      }),
       payment_method: order.payment_method?.toLowerCase().includes("cod") ? "COD" : "Prepaid",
       sub_total: Number(order.total),
       length: 25,
