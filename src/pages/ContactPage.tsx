@@ -35,7 +35,7 @@ const ContactPage = () => {
                 { icon: Phone, label: "Phone", value: "+91 98765 43210" },
                 { icon: Mail, label: "Email", value: "support@putulfashions.com" },
                 { icon: MessageCircle, label: "WhatsApp", value: "+91 98765 43210" },
-                { icon: MapPin, label: "Address", value: "123 Fashion Street, Mumbai, MH 400001" },
+                { icon: MapPin, label: "Address", value: "Nanakpuri Colony, Khatipura Road, Jaipur, Rajasthan 302006" },
               ].map(c => (
                 <div key={c.label} className="flex items-start gap-4">
                   <div className="w-10 h-10 border border-secondary flex items-center justify-center flex-shrink-0">
@@ -108,7 +108,7 @@ const ContactPage = () => {
         <div className="mt-16 bg-accent h-64 md:h-96 flex items-center justify-center">
           <div className="text-center">
             <MapPin size={32} className="mx-auto text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">123 Fashion Street, Mumbai, Maharashtra</p>
+            <p className="text-sm text-muted-foreground">Nanakpuri Colony, Khatipura Road, Jaipur, Rajasthan 302006</p>
           </div>
         </div>
       </div>
