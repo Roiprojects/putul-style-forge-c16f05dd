@@ -148,9 +148,14 @@ const AdminCancellations = () => {
               <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">Loading...</td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No requests found.</td></tr>
-            ) : filtered.map((r) => (
-              <tr key={r.id} className="border-t border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">#{r.order_id.slice(0, 8).toUpperCase()}</td>
+            ) : filtered.map((r) => {
+              const urgent = isUrgent(r);
+              return (
+              <tr key={r.id} className={`border-t border-border hover:bg-muted/30 ${urgent ? "bg-red-50/40" : ""}`}>
+                <td className="px-4 py-3 font-mono text-xs">
+                  {urgent && <span className="mr-1.5 inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" title="Urgent" />}
+                  #{r.order_id.slice(0, 8).toUpperCase()}
+                </td>
                 <td className="px-4 py-3">{r.orders?.customer_name || "—"}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs ${
@@ -164,7 +169,13 @@ const AdminCancellations = () => {
                 <td className="px-4 py-3 max-w-[180px] truncate" title={r.reason}>{r.reason}</td>
                 <td className="px-4 py-3 text-xs">{r.payment_method || "—"}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${STATUS_BADGE[r.status] || ""}`}>{r.status}</span>
+                  {r.request_type === "direct_cancel" && r.status === "approved" ? (
+                    <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700" title="Auto-approved: unshipped order, no payment collected">
+                      auto-approved
+                    </span>
+                  ) : (
+                    <span className={`px-2 py-0.5 rounded text-xs ${STATUS_BADGE[r.status] || ""}`}>{r.status}</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
@@ -178,7 +189,8 @@ const AdminCancellations = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
