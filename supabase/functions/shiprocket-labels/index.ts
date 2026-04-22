@@ -22,27 +22,31 @@ serve(async (req) => {
   }
 
   try {
-    const { shipment_id, type = "label" } = await req.json();
+    const { shipment_id, order_id, type = "label" } = await req.json();
 
-    if (!shipment_id) {
-      return new Response(JSON.stringify({ error: "shipment_id required" }), {
+    const isInvoice = type === "invoice";
+    const requiredId = isInvoice ? order_id : shipment_id;
+
+    if (!requiredId) {
+      return new Response(JSON.stringify({ error: isInvoice ? "order_id required" : "shipment_id required" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     const token = await getToken();
 
-    let url: string;
-    if (type === "invoice") {
-      url = `https://apiv2.shiprocket.in/v1/external/orders/print/invoice`;
-    } else {
-      url = `https://apiv2.shiprocket.in/v1/external/courier/generate/label`;
-    }
+    const url = isInvoice
+      ? `https://apiv2.shiprocket.in/v1/external/orders/print/invoice`
+      : `https://apiv2.shiprocket.in/v1/external/courier/generate/label`;
+
+    const body = isInvoice
+      ? { ids: [Number(order_id)] }
+      : { shipment_id: [Number(shipment_id)] };
 
     const res = await fetch(url, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ shipment_id: [Number(shipment_id)] }),
+      body: JSON.stringify(body),
     });
 
     const data = await res.json();
