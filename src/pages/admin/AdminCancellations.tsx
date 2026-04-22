@@ -100,6 +100,9 @@ const AdminCancellations = () => {
   };
 
   const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  // Urgent = pending requests that are NOT direct cancels (i.e. shipped/delivered orders awaiting admin action)
+  const isUrgent = (r: Req) => r.status === "pending" && r.request_type !== "direct_cancel";
+  const urgentCount = rows.filter(isUrgent).length;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
