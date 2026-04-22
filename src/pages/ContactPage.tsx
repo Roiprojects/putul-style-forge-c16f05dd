@@ -32,9 +32,9 @@ const ContactPage = () => {
             </p>
             <div className="space-y-6">
               {[
-                { icon: Phone, label: "Phone", value: "+91 98765 43210" },
+                { icon: Phone, label: "Phone", value: "+91 80006 85588" },
                 { icon: Mail, label: "Email", value: "support@putulfashions.com" },
-                { icon: MessageCircle, label: "WhatsApp", value: "+91 98765 43210" },
+                { icon: MessageCircle, label: "WhatsApp", value: "+91 80006 85588" },
                 { icon: MapPin, label: "Address", value: "Plot No. 0A41, Nanakpuri Colony, Khatipura Road, Jaipur - 302006, Rajasthan" },
               ].map(c => (
                 <div key={c.label} className="flex items-start gap-4">
