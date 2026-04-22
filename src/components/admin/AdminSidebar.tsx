@@ -12,7 +12,6 @@ import {
   Truck,
   CreditCard,
   Layout,
-  Image,
   FileText,
   Star,
   BarChart2,
@@ -21,6 +20,9 @@ import {
   RotateCcw,
   Sparkles,
   XCircle,
+  TrendingUp,
+  AlertTriangle,
+  Activity,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -29,6 +31,9 @@ import { useState } from "react";
 
 const navItems = [
   { label: "Dashboard", icon: LayoutDashboard, to: "/admin" },
+  { label: "Insights", icon: TrendingUp, to: "/admin/insights" },
+  { label: "Alerts", icon: AlertTriangle, to: "/admin/alerts" },
+  { label: "Activity log", icon: Activity, to: "/admin/activity" },
   { label: "Homepage", icon: Layout, to: "/admin/homepage" },
   { label: "Products", icon: Package, to: "/admin/products" },
   { label: "Categories", icon: FolderTree, to: "/admin/categories" },
@@ -36,7 +41,6 @@ const navItems = [
   { label: "Customers", icon: Users, to: "/admin/customers" },
   { label: "Inventory", icon: BarChart3, to: "/admin/inventory" },
   { label: "Coupons", icon: Tag, to: "/admin/coupons" },
-  
   { label: "CMS", icon: FileText, to: "/admin/cms" },
   { label: "Reviews", icon: Star, to: "/admin/reviews" },
   { label: "Analytics", icon: BarChart2, to: "/admin/analytics" },
@@ -65,7 +69,6 @@ const AdminSidebar = () => {
         collapsed ? "w-16" : "w-60"
       )}
     >
-      {/* Header */}
       <div className="h-14 flex items-center justify-between px-4 border-b border-sidebar-border">
         {!collapsed && (
           <span className="text-sm font-semibold tracking-wide text-sidebar-foreground">
@@ -83,7 +86,6 @@ const AdminSidebar = () => {
         </button>
       </div>
 
-      {/* Nav */}
       <nav className="flex-1 py-3 px-2 space-y-1 overflow-y-auto">
         {navItems.map((item) => {
           const isActive =
@@ -108,7 +110,6 @@ const AdminSidebar = () => {
         })}
       </nav>
 
-      {/* Footer */}
       <div className="p-2 border-t border-sidebar-border">
         <Link
           to="/"
