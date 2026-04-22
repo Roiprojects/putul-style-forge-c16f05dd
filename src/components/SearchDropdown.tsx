@@ -33,6 +33,22 @@ const SearchDropdown = ({ query, onSelect }: SearchDropdownProps) => {
       .slice(0, 6);
   }, [q, products]);
 
+  // Debounced search logging — fires 800ms after user stops typing
+  const lastLogged = useRef<string>("");
+  useEffect(() => {
+    if (!q || q.length < 2 || lastLogged.current === q) return;
+    const t = setTimeout(async () => {
+      lastLogged.current = q;
+      const { data: { user } } = await supabase.auth.getUser();
+      supabase.from("search_log").insert({
+        query: q,
+        results_count: matchedCategories.length + matchedProducts.length,
+        user_id: user?.id ?? null,
+      }).then(() => {});
+    }, 800);
+    return () => clearTimeout(t);
+  }, [q, matchedCategories.length, matchedProducts.length]);
+
   if (!q || (matchedCategories.length === 0 && matchedProducts.length === 0)) return null;
 
   return (
