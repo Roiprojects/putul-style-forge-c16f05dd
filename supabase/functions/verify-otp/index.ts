@@ -37,8 +37,6 @@ Deno.serve(async (req) => {
     const serviceClient = createClient(supabaseUrl, serviceRoleKey);
     const authClient = createClient(supabaseUrl, anonKey);
 
-    const adminDevOtp = "123456";
-
     const { data: adminPhoneRecord } = is_admin
       ? await serviceClient
           .from("admin_phones")
@@ -48,7 +46,6 @@ Deno.serve(async (req) => {
       : { data: null };
 
     const isAdminPhoneAuthorized = Boolean(adminPhoneRecord);
-    const isFixedAdminOtpLogin = Boolean(is_admin && isAdminPhoneAuthorized && otp_code === adminDevOtp);
 
     const assignAdminRole = async (userId: string) => {
       const { data: existingRole, error: roleLookupError } = await serviceClient
