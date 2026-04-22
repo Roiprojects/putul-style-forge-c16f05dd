@@ -102,7 +102,7 @@ Deno.serve(async (req) => {
       return expectedError("Access denied. Admin privileges required.");
     }
 
-    if (!isFixedAdminOtpLogin) {
+    {
       const now = new Date().toISOString();
       const { data: otpRecord, error: otpError } = await serviceClient
         .from("otp_requests")
