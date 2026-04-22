@@ -124,6 +124,7 @@ async function handleCancel(order_id: string): Promise<Response> {
   });
   const { token } = await authRes.json();
   if (!token) {
+    await finalize("failed", null, "Shiprocket auth failed");
     return new Response(JSON.stringify({ success: false, error: "Shiprocket auth failed" }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -150,6 +151,7 @@ async function handleCancel(order_id: string): Promise<Response> {
 
   if (remoteAlreadyCancelled) {
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", order_id);
+    await finalize("already_cancelled", { message: "Already cancelled in Shiprocket" });
     return new Response(
       JSON.stringify({ success: true, idempotent: true, message: "Already cancelled in Shiprocket; local status synced" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -215,6 +217,10 @@ async function handleCancel(order_id: string): Promise<Response> {
 
   // Update local order (covers both fresh cancel and "already cancelled" cases)
   await supabase.from("orders").update({ status: "cancelled" }).eq("id", order_id);
+
+  const wasAlreadyCancelled = orderCancelData?._already_cancelled || srResponse?._already_cancelled;
+  const finalResponse = { order_cancel: orderCancelData, awb_cancel: srResponse };
+  await finalize(wasAlreadyCancelled ? "already_cancelled" : "success", finalResponse);
 
   return new Response(
     JSON.stringify({
