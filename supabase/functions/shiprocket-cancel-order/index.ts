@@ -41,8 +41,65 @@ async function handleCancel(order_id: string): Promise<Response> {
     });
   }
 
+  // Cross-restart dedup: check persisted attempt record
+  const { data: existingAttempt } = await supabase
+    .from("shiprocket_cancel_attempts")
+    .select("id, status, attempt_count, shiprocket_response, started_at, completed_at")
+    .eq("order_id", order_id)
+    .maybeSingle();
+
+  if (existingAttempt) {
+    if (existingAttempt.status === "success" || existingAttempt.status === "already_cancelled") {
+      return new Response(
+        JSON.stringify({
+          success: true,
+          idempotent: true,
+          message: `Cancellation already processed (${existingAttempt.status})`,
+          previous: existingAttempt,
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
+    // Pending row younger than 30s — another invocation is processing
+    if (existingAttempt.status === "pending" && !existingAttempt.completed_at) {
+      const startedAt = existingAttempt.started_at ? new Date(existingAttempt.started_at).getTime() : 0;
+      if (Date.now() - startedAt < 30_000) {
+        return new Response(
+          JSON.stringify({ success: true, idempotent: true, message: "Cancellation already in progress" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+    }
+  }
+
+  const nextAttempt = (existingAttempt?.attempt_count ?? 0) + 1;
+  await supabase.from("shiprocket_cancel_attempts").upsert(
+    {
+      order_id,
+      status: "pending",
+      attempt_count: nextAttempt,
+      started_at: new Date().toISOString(),
+      completed_at: null,
+      error_message: null,
+    },
+    { onConflict: "order_id" }
+  );
+
+  const finalize = async (status: string, response: any, errorMessage: string | null = null) => {
+    await supabase
+      .from("shiprocket_cancel_attempts")
+      .update({
+        status,
+        shiprocket_response: response ?? null,
+        error_message: errorMessage,
+        completed_at: new Date().toISOString(),
+      })
+      .eq("order_id", order_id);
+  };
+
   // Idempotency: already cancelled locally — short-circuit
   if (order.status === "cancelled") {
+    await finalize("already_cancelled", { message: "Order already cancelled locally" });
     return new Response(
       JSON.stringify({ success: true, idempotent: true, message: "Order already cancelled" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -51,6 +108,7 @@ async function handleCancel(order_id: string): Promise<Response> {
 
   if (!order.shiprocket_order_id) {
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", order_id);
+    await finalize("success", { message: "No Shiprocket shipment to cancel" });
     return new Response(JSON.stringify({ success: true, message: "No Shiprocket shipment to cancel" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -66,6 +124,7 @@ async function handleCancel(order_id: string): Promise<Response> {
   });
   const { token } = await authRes.json();
   if (!token) {
+    await finalize("failed", null, "Shiprocket auth failed");
     return new Response(JSON.stringify({ success: false, error: "Shiprocket auth failed" }), {
       status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -92,6 +151,7 @@ async function handleCancel(order_id: string): Promise<Response> {
 
   if (remoteAlreadyCancelled) {
     await supabase.from("orders").update({ status: "cancelled" }).eq("id", order_id);
+    await finalize("already_cancelled", { message: "Already cancelled in Shiprocket" });
     return new Response(
       JSON.stringify({ success: true, idempotent: true, message: "Already cancelled in Shiprocket; local status synced" }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -157,6 +217,10 @@ async function handleCancel(order_id: string): Promise<Response> {
 
   // Update local order (covers both fresh cancel and "already cancelled" cases)
   await supabase.from("orders").update({ status: "cancelled" }).eq("id", order_id);
+
+  const wasAlreadyCancelled = orderCancelData?._already_cancelled || srResponse?._already_cancelled;
+  const finalResponse = { order_cancel: orderCancelData, awb_cancel: srResponse };
+  await finalize(wasAlreadyCancelled ? "already_cancelled" : "success", finalResponse);
 
   return new Response(
     JSON.stringify({

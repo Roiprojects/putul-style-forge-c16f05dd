@@ -864,6 +864,45 @@ export type Database = {
         }
         Relationships: []
       }
+      shiprocket_cancel_attempts: {
+        Row: {
+          attempt_count: number
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          order_id: string
+          shiprocket_response: Json | null
+          started_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          order_id: string
+          shiprocket_response?: Json | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          order_id?: string
+          shiprocket_response?: Json | null
+          started_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       site_settings: {
         Row: {
           id: string
