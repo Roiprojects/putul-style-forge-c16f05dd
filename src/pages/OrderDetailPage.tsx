@@ -94,6 +94,29 @@ const OrderDetailPage = () => {
     if (!id) return;
     fetchOrder();
     fetchTracking();
+
+    // Realtime: refresh order whenever its row changes (e.g. status sync from Shiprocket)
+    const channel = supabase
+      .channel(`order-${id}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "orders", filter: `id=eq.${id}` },
+        () => {
+          fetchOrder();
+          fetchTracking();
+        }
+      )
+      .subscribe();
+
+    // Auto-poll tracking activities every 60s while page is open
+    const trackingInterval = setInterval(() => {
+      fetchTracking();
+    }, 60_000);
+
+    return () => {
+      supabase.removeChannel(channel);
+      clearInterval(trackingInterval);
+    };
   }, [id]);
 
   const fetchOrder = async () => {
