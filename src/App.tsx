@@ -52,6 +52,9 @@ import AdminRefunds from "@/pages/admin/AdminRefunds";
 import AdminLogin from "@/pages/admin/AdminLogin";
 import AdminAIUpload from "@/pages/admin/AdminAIUpload";
 import AdminCancellations from "@/pages/admin/AdminCancellations";
+import AdminInsights from "@/pages/admin/AdminInsights";
+import AdminAlerts from "@/pages/admin/AdminAlerts";
+import AdminActivity from "@/pages/admin/AdminActivity";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +100,9 @@ const App = () => (
               <Route path="settings" element={<AdminSettings />} />
               <Route path="ai-upload" element={<AdminAIUpload />} />
               <Route path="cancellations" element={<AdminCancellations />} />
+              <Route path="insights" element={<AdminInsights />} />
+              <Route path="alerts" element={<AdminAlerts />} />
+              <Route path="activity" element={<AdminActivity />} />
             </Route>
 
             {/* Store routes */}
