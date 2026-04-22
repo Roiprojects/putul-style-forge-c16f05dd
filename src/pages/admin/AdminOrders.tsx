@@ -385,13 +385,13 @@ const AdminOrders = () => {
                     {selectedOrder.shiprocket_shipment_id && (
                       <div className="flex gap-2">
                         <button
-                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "label")}
+                          onClick={() => handleDownloadLabel("label", selectedOrder.shiprocket_shipment_id, selectedOrder.shiprocket_order_id)}
                           className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
                         >
                           <Download size={12} /> Label
                         </button>
                         <button
-                          onClick={() => handleDownloadLabel(selectedOrder.shiprocket_shipment_id, "invoice")}
+                          onClick={() => handleDownloadLabel("invoice", selectedOrder.shiprocket_shipment_id, selectedOrder.shiprocket_order_id)}
                           className="flex items-center gap-1 text-[11px] px-3 py-1.5 border border-border rounded-lg hover:bg-accent transition-colors"
                         >
                           <Download size={12} /> Invoice
