@@ -1,8 +1,9 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Search, Tag } from "lucide-react";
 import { motion } from "framer-motion";
 import { useProducts, useCategories } from "@/hooks/useProducts";
+import { supabase } from "@/integrations/supabase/client";
 
 interface SearchDropdownProps {
   query: string;
