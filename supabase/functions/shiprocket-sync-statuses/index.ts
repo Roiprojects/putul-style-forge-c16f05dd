@@ -114,12 +114,14 @@ serve(async (req) => {
           "";
         const trackUrl = td?.track_url || order.tracking_url;
         const courier = td?.shipment_track?.[0]?.courier_name || order.courier_name;
+        const awb = td?.shipment_track?.[0]?.awb_code || td?.awb || order.awb_code;
 
         const mapped = mapStatus(String(srStatus));
         const update: Record<string, any> = {};
         if (mapped && mapped !== order.status) update.status = mapped;
         if (trackUrl && trackUrl !== order.tracking_url) update.tracking_url = trackUrl;
         if (courier && courier !== order.courier_name) update.courier_name = courier;
+        if (awb && awb !== order.awb_code) update.awb_code = awb;
 
         if (Object.keys(update).length > 0) {
           await supabase.from("orders").update(update).eq("id", order.id);
