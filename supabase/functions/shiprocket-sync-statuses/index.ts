@@ -96,7 +96,16 @@ serve(async (req) => {
         });
         const data = await r.json().catch(() => ({}));
 
-        const td = data?.tracking_data || data;
+        // Shiprocket wraps shipment-tracking responses as { "<shipment_id>": { tracking_data: {...} } }
+        // AWB-tracking responses come back as { tracking_data: {...} }
+        let td: any = data?.tracking_data;
+        if (!td && data && typeof data === "object") {
+          const firstKey = Object.keys(data)[0];
+          if (firstKey && data[firstKey]?.tracking_data) {
+            td = data[firstKey].tracking_data;
+          }
+        }
+        td = td || data;
         const srStatus =
           td?.shipment_status_text ||
           td?.shipment_status ||
@@ -105,12 +114,14 @@ serve(async (req) => {
           "";
         const trackUrl = td?.track_url || order.tracking_url;
         const courier = td?.shipment_track?.[0]?.courier_name || order.courier_name;
+        const awb = td?.shipment_track?.[0]?.awb_code || td?.awb || order.awb_code;
 
         const mapped = mapStatus(String(srStatus));
         const update: Record<string, any> = {};
         if (mapped && mapped !== order.status) update.status = mapped;
         if (trackUrl && trackUrl !== order.tracking_url) update.tracking_url = trackUrl;
         if (courier && courier !== order.courier_name) update.courier_name = courier;
+        if (awb && awb !== order.awb_code) update.awb_code = awb;
 
         if (Object.keys(update).length > 0) {
           await supabase.from("orders").update(update).eq("id", order.id);
