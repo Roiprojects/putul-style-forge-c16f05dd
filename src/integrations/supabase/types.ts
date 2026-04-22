@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_activity_log: {
+        Row: {
+          action_type: string
+          admin_user_id: string
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+        }
+        Insert: {
+          action_type: string
+          admin_user_id: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+        }
+        Relationships: []
+      }
       admin_categories: {
         Row: {
           created_at: string
@@ -480,6 +510,7 @@ export type Database = {
       orders: {
         Row: {
           awb_code: string | null
+          coupon_code: string | null
           courier_name: string | null
           created_at: string
           customer_email: string
@@ -507,6 +538,7 @@ export type Database = {
         }
         Insert: {
           awb_code?: string | null
+          coupon_code?: string | null
           courier_name?: string | null
           created_at?: string
           customer_email: string
@@ -534,6 +566,7 @@ export type Database = {
         }
         Update: {
           awb_code?: string | null
+          coupon_code?: string | null
           courier_name?: string | null
           created_at?: string
           customer_email?: string
@@ -828,6 +861,30 @@ export type Database = {
         }
         Relationships: []
       }
+      search_log: {
+        Row: {
+          created_at: string
+          id: string
+          query: string
+          results_count: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: string
+          results_count?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       shipping_zones: {
         Row: {
           base_charge: number
@@ -938,6 +995,27 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wishlist_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
           user_id?: string
         }
         Relationships: []
