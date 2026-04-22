@@ -56,17 +56,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if admin phone (use fixed OTP for testing)
-    const { data: isAdminPhone } = await supabase
-      .from("admin_phones")
-      .select("id")
-      .eq("phone", phone)
-      .maybeSingle();
-
-    // Generate random 6-digit OTP (fixed for admin phones in dev)
-    const otpCode = isAdminPhone
-      ? "123456"
-      : String(Math.floor(100000 + Math.random() * 900000));
+    // Generate random 6-digit OTP for all users (admins included)
+    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
 
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
@@ -85,8 +76,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Send SMS via SMSAlert (skip for admin test numbers)
-    if (!isAdminPhone) {
+    // Send SMS via SMSAlert (for all users including admins)
+    {
       const smsAlertApiKey = Deno.env.get("SMSALERT_API_KEY");
       if (!smsAlertApiKey) {
         console.error("SMSALERT_API_KEY not configured");
@@ -96,7 +87,6 @@ Deno.serve(async (req) => {
         );
       }
 
-      // Strip the '+' and send full number with country code (e.g. 919876543210)
       const cleanPhone = phone.replace(/^\+/, "");
       const smsMessage = `Your Account verification code is ${otpCode} for PUTUL`;
 
@@ -111,7 +101,6 @@ Deno.serve(async (req) => {
         const smsResult = await smsResponse.text();
         console.log(`[SMSAlert] Phone: ${cleanPhone}, Response: ${smsResult}`);
 
-        // Parse response to check status
         try {
           const parsed = JSON.parse(smsResult);
           if (parsed.status !== "success") {
@@ -137,8 +126,6 @@ Deno.serve(async (req) => {
           { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-    } else {
-      console.log(`[OTP] Admin test phone: ${phone}, Code: ${otpCode}`);
     }
 
     return new Response(
