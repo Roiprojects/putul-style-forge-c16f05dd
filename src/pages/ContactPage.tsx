@@ -108,7 +108,7 @@ const ContactPage = () => {
         <div className="mt-16 h-64 md:h-96 overflow-hidden rounded-2xl border border-border">
           <iframe
             title="Putul Fashions location"
-            src="https://www.google.com/maps?q=Plot+No+0A41+Nanakpuri+Colony+Khatipura+Road+Jaipur+302006+Rajasthan&output=embed"
+            src="https://maps.google.com/maps?q=Plot%20No.%200A41%2C%20Nanakpuri%20Colony%2C%20Khatipura%20Road%2C%20Jaipur%20302006%2C%20Rajasthan&t=m&z=17&output=embed&iwloc=near"
             width="100%"
             height="100%"
             style={{ border: 0 }}
