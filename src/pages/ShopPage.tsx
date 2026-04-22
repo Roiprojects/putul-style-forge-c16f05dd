@@ -5,7 +5,26 @@ import { SlidersHorizontal, X, ChevronDown } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { useProducts, useCategories } from "@/hooks/useProducts";
 
-const sizes = ["6", "7", "8", "9", "10"];
+const SIZE_ORDER = ["XXS", "XS", "S", "M", "L", "XL", "XXL", "3XL", "4XL", "5XL"];
+const sortSizes = (arr: string[]) => {
+  const numeric: string[] = [];
+  const alpha: string[] = [];
+  for (const s of arr) {
+    if (/^\d+(\.\d+)?$/.test(s)) numeric.push(s);
+    else alpha.push(s.toUpperCase());
+  }
+  numeric.sort((a, b) => Number(a) - Number(b));
+  alpha.sort((a, b) => {
+    const ia = SIZE_ORDER.indexOf(a);
+    const ib = SIZE_ORDER.indexOf(b);
+    if (ia === -1 && ib === -1) return a.localeCompare(b);
+    if (ia === -1) return 1;
+    if (ib === -1) return -1;
+    return ia - ib;
+  });
+  return [...numeric, ...alpha];
+};
+
 const sortOptions = [
   { label: "Popularity", value: "popularity" },
   { label: "Price: Low to High", value: "price-asc" },
@@ -14,18 +33,41 @@ const sortOptions = [
   { label: "Discount", value: "discount" },
 ];
 
+const PRICE_FLOOR = 3000;
+
 const ShopPage = () => {
   const [searchParams] = useSearchParams();
   const initialCategory = searchParams.get("category") || "all";
   const searchQuery = searchParams.get("search") || "";
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedSize, setSelectedSize] = useState<string>("");
-  const [maxPrice, setMaxPrice] = useState<number>(3000);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [sortBy, setSortBy] = useState("popularity");
   const [showFilters, setShowFilters] = useState(false);
 
   const { data: products = [], isLoading } = useProducts();
   const { data: dbCategories = [] } = useCategories();
+
+  // Dynamic price cap based on actual inventory, rounded up to nearest 500
+  const priceCap = useMemo(() => {
+    const maxFromProducts = products.reduce((m, p) => Math.max(m, p.price || 0), 0);
+    const raw = Math.max(PRICE_FLOOR, maxFromProducts);
+    return Math.ceil(raw / 500) * 500;
+  }, [products]);
+
+  // Initialize maxPrice once products load (so filter is a no-op until user moves slider)
+  useEffect(() => {
+    if (maxPrice === null && products.length > 0) {
+      setMaxPrice(priceCap);
+    }
+  }, [priceCap, products.length, maxPrice]);
+
+  // Dynamic size list from real product data
+  const sizes = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => (p.sizes || []).forEach((s) => s && set.add(String(s))));
+    return sortSizes(Array.from(set));
+  }, [products]);
 
   // Sync category from URL
   useEffect(() => {
@@ -38,6 +80,8 @@ const ShopPage = () => {
     image: c.image_url || "",
     productCount: 0,
   }));
+
+  const effectiveMax = maxPrice ?? priceCap;
 
   const filtered = useMemo(() => {
     let items = [...products];
@@ -55,7 +99,7 @@ const ShopPage = () => {
     }
     if (selectedCategory !== "all") items = items.filter((p) => p.category === selectedCategory);
     if (selectedSize) items = items.filter((p) => p.sizes.includes(selectedSize));
-    items = items.filter((p) => p.price <= maxPrice);
+    items = items.filter((p) => p.price <= effectiveMax);
     switch (sortBy) {
       case "price-asc": items.sort((a, b) => a.price - b.price); break;
       case "price-desc": items.sort((a, b) => b.price - a.price); break;
@@ -68,9 +112,9 @@ const ShopPage = () => {
       default: items.sort((a, b) => b.reviews - a.reviews); break;
     }
     return items;
-  }, [products, selectedCategory, selectedSize, maxPrice, sortBy, searchQuery]);
+  }, [products, selectedCategory, selectedSize, effectiveMax, sortBy, searchQuery]);
 
-  const hasActiveFilters = selectedCategory !== "all" || selectedSize || maxPrice < 3000;
+  const hasActiveFilters = selectedCategory !== "all" || !!selectedSize || effectiveMax < priceCap;
 
   if (isLoading) {
     return (
@@ -159,7 +203,7 @@ const ShopPage = () => {
               </span>
             )}
             <button
-              onClick={() => { setSelectedCategory("all"); setSelectedSize(""); setMaxPrice(3000); }}
+              onClick={() => { setSelectedCategory("all"); setSelectedSize(""); setMaxPrice(priceCap); }}
               className="text-[11px] text-secondary hover:underline"
             >
               Clear all
@@ -179,36 +223,38 @@ const ShopPage = () => {
                 className="hidden md:block overflow-hidden flex-shrink-0"
               >
                 <div className="w-[240px] space-y-6 border-r border-border pr-6">
-                  <div>
-                    <h3 className="text-sm font-semibold mb-3">Size</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {sizes.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
-                          className={`w-10 h-10 text-xs border rounded transition-all ${
-                            selectedSize === s
-                              ? "bg-foreground text-background border-foreground"
-                              : "border-border text-foreground hover:border-foreground"
-                          }`}
-                        >
-                          {s}
-                        </button>
-                      ))}
+                  {sizes.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold mb-3">Size</h3>
+                      <div className="flex flex-wrap gap-2">
+                        {sizes.map((s) => (
+                          <button
+                            key={s}
+                            onClick={() => setSelectedSize(selectedSize === s ? "" : s)}
+                            className={`min-w-10 h-10 px-2 text-xs border rounded transition-all ${
+                              selectedSize === s
+                                ? "bg-foreground text-background border-foreground"
+                                : "border-border text-foreground hover:border-foreground"
+                            }`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                   <div>
                     <h3 className="text-sm font-semibold mb-3">Max Price</h3>
                     <input
                       type="range"
                       min={200}
-                      max={3000}
+                      max={priceCap}
                       step={50}
-                      value={maxPrice}
+                      value={effectiveMax}
                       onChange={(e) => setMaxPrice(Number(e.target.value))}
                       className="w-full accent-secondary"
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Up to ₹{maxPrice.toLocaleString()}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Up to ₹{effectiveMax.toLocaleString()}</p>
                   </div>
                 </div>
               </motion.aside>
