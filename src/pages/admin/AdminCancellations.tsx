@@ -109,7 +109,14 @@ const AdminCancellations = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Cancellation Requests</h1>
-          <p className="text-sm text-muted-foreground mt-1">Review and process customer cancellation, refund, and replacement requests.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Review and process customer cancellation, refund, and replacement requests.
+            {urgentCount > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 text-xs font-medium">
+                ⚠ {urgentCount} urgent {urgentCount === 1 ? "request" : "requests"} (shipped orders)
+              </span>
+            )}
+          </p>
         </div>
         <Select value={filter} onValueChange={setFilter}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
