@@ -56,17 +56,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Check if admin phone (use fixed OTP for testing)
-    const { data: isAdminPhone } = await supabase
-      .from("admin_phones")
-      .select("id")
-      .eq("phone", phone)
-      .maybeSingle();
-
-    // Generate random 6-digit OTP (fixed for admin phones in dev)
-    const otpCode = isAdminPhone
-      ? "123456"
-      : String(Math.floor(100000 + Math.random() * 900000));
+    // Generate random 6-digit OTP for all users (admins included)
+    const otpCode = String(Math.floor(100000 + Math.random() * 900000));
 
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
 
