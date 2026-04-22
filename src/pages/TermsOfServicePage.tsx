@@ -1,6 +1,9 @@
+import BackButton from "@/components/BackButton";
+
 const TermsOfServicePage = () => (
   <div className="min-h-screen bg-background">
-    <div className="container mx-auto px-4 md:px-8 py-12 md:py-20 max-w-3xl">
+    <div className="container mx-auto px-4 md:px-8 py-8 md:py-12 max-w-3xl">
+      <BackButton />
       <h1 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-2">Terms of Service</h1>
       <p className="text-xs text-muted-foreground mb-10">Last updated: 22 April 2026</p>
 
