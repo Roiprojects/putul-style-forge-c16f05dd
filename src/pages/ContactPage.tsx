@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, MessageCircle } from "lucide-react";
+import { Mail, Phone, MapPin, MessageCircle, ArrowLeft } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const ContactPage = () => {
   const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const navigate = useNavigate();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -12,10 +14,23 @@ const ContactPage = () => {
     setForm({ name: "", email: "", subject: "", message: "" });
   };
 
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/");
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <div className="bg-primary text-primary-foreground py-12 md:py-16">
+      <div className="bg-primary text-primary-foreground py-12 md:py-16 relative">
+        <button
+          onClick={handleBack}
+          className="absolute top-4 left-4 md:top-6 md:left-8 inline-flex items-center gap-2 text-sm text-primary-foreground/80 hover:text-primary-foreground transition-colors group"
+          aria-label="Go back"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          <span>Back</span>
+        </button>
         <div className="container mx-auto px-4 md:px-8 text-center">
           <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-2">Get in Touch</p>
           <h1 className="font-heading text-3xl md:text-5xl font-semibold">Contact Us</h1>

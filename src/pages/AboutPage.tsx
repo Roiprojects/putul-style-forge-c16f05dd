@@ -1,4 +1,6 @@
 import { motion } from "framer-motion";
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import gallery6 from "@/assets/gallery-6.jpg";
 import aboutLifestyle1 from "@/assets/about-lifestyle-1.jpg";
 import aboutLifestyle2 from "@/assets/about-lifestyle-2.jpg";
@@ -17,12 +19,27 @@ const floatDown = {
   },
 };
 
-const AboutPage = () => (
+const AboutPage = () => {
+  const navigate = useNavigate();
+  const handleBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate("/");
+  };
+
+  return (
   <div className="min-h-screen">
     {/* Hero */}
     <div className="relative h-[50vh] overflow-hidden">
       <img src={gallery6} alt="About Putul Fashions" className="w-full h-full object-cover" />
       <div className="absolute inset-0 bg-foreground/60" />
+      <button
+        onClick={handleBack}
+        className="absolute top-4 left-4 md:top-6 md:left-8 z-10 inline-flex items-center gap-2 text-sm text-background/90 hover:text-background transition-colors group"
+        aria-label="Go back"
+      >
+        <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <span>Back</span>
+      </button>
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
           <p className="text-secondary tracking-[0.3em] uppercase text-xs mb-2">Our Story</p>
@@ -130,6 +147,7 @@ const AboutPage = () => (
       </div>
     </div>
   </div>
-);
+  );
+};
 
 export default AboutPage;
