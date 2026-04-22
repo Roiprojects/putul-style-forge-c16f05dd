@@ -96,7 +96,16 @@ serve(async (req) => {
         });
         const data = await r.json().catch(() => ({}));
 
-        const td = data?.tracking_data || data;
+        // Shiprocket wraps shipment-tracking responses as { "<shipment_id>": { tracking_data: {...} } }
+        // AWB-tracking responses come back as { tracking_data: {...} }
+        let td: any = data?.tracking_data;
+        if (!td && data && typeof data === "object") {
+          const firstKey = Object.keys(data)[0];
+          if (firstKey && data[firstKey]?.tracking_data) {
+            td = data[firstKey].tracking_data;
+          }
+        }
+        td = td || data;
         const srStatus =
           td?.shipment_status_text ||
           td?.shipment_status ||
