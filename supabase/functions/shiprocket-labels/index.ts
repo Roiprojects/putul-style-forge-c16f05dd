@@ -58,6 +58,8 @@ serve(async (req) => {
     }
 
     const labelUrl = data.label_url || data.invoice_url || data.label_created || null;
+    const isInvoiceResp = type === "invoice";
+    const finalUrl = isInvoiceResp ? (data.invoice_url || labelUrl) : labelUrl;
 
     return new Response(JSON.stringify({ url: labelUrl, data }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
