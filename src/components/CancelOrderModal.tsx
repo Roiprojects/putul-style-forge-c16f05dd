@@ -202,7 +202,11 @@ const CancelOrderModal = ({ open, onClose, orderId, userId, paymentMethod, payme
     const newOrderStatus = effectiveType === "direct_cancel" ? "cancelled" : "cancellation_requested";
     await supabase.from("orders").update({ status: newOrderStatus }).eq("id", orderId);
 
-    toast.success(effectiveType === "direct_cancel" ? "Order cancelled" : "Cancellation request submitted");
+    if (effectiveType === "direct_cancel") {
+      toast.success("Order cancelled");
+    } else {
+      toast.success("Cancellation requested — our team will review and contact you shortly", { duration: 6000 });
+    }
     setSubmitting(false);
     reset();
     onSubmitted();

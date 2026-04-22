@@ -100,13 +100,23 @@ const AdminCancellations = () => {
   };
 
   const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  // Urgent = pending requests that are NOT direct cancels (i.e. shipped/delivered orders awaiting admin action)
+  const isUrgent = (r: Req) => r.status === "pending" && r.request_type !== "direct_cancel";
+  const urgentCount = rows.filter(isUrgent).length;
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold">Cancellation Requests</h1>
-          <p className="text-sm text-muted-foreground mt-1">Review and process customer cancellation, refund, and replacement requests.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Review and process customer cancellation, refund, and replacement requests.
+            {urgentCount > 0 && (
+              <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded bg-red-50 text-red-700 text-xs font-medium">
+                ⚠ {urgentCount} urgent {urgentCount === 1 ? "request" : "requests"} (shipped orders)
+              </span>
+            )}
+          </p>
         </div>
         <Select value={filter} onValueChange={setFilter}>
           <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
@@ -138,9 +148,14 @@ const AdminCancellations = () => {
               <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">Loading...</td></tr>
             ) : filtered.length === 0 ? (
               <tr><td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">No requests found.</td></tr>
-            ) : filtered.map((r) => (
-              <tr key={r.id} className="border-t border-border hover:bg-muted/30">
-                <td className="px-4 py-3 font-mono text-xs">#{r.order_id.slice(0, 8).toUpperCase()}</td>
+            ) : filtered.map((r) => {
+              const urgent = isUrgent(r);
+              return (
+              <tr key={r.id} className={`border-t border-border hover:bg-muted/30 ${urgent ? "bg-red-50/40" : ""}`}>
+                <td className="px-4 py-3 font-mono text-xs">
+                  {urgent && <span className="mr-1.5 inline-block w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" title="Urgent" />}
+                  #{r.order_id.slice(0, 8).toUpperCase()}
+                </td>
                 <td className="px-4 py-3">{r.orders?.customer_name || "—"}</td>
                 <td className="px-4 py-3">
                   <span className={`px-2 py-0.5 rounded text-xs ${
@@ -154,7 +169,13 @@ const AdminCancellations = () => {
                 <td className="px-4 py-3 max-w-[180px] truncate" title={r.reason}>{r.reason}</td>
                 <td className="px-4 py-3 text-xs">{r.payment_method || "—"}</td>
                 <td className="px-4 py-3">
-                  <span className={`px-2 py-0.5 rounded text-xs ${STATUS_BADGE[r.status] || ""}`}>{r.status}</span>
+                  {r.request_type === "direct_cancel" && r.status === "approved" ? (
+                    <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700" title="Auto-approved: unshipped order, no payment collected">
+                      auto-approved
+                    </span>
+                  ) : (
+                    <span className={`px-2 py-0.5 rounded text-xs ${STATUS_BADGE[r.status] || ""}`}>{r.status}</span>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
@@ -168,7 +189,8 @@ const AdminCancellations = () => {
                   </button>
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -222,12 +244,21 @@ const AdminCancellations = () => {
                 <Textarea value={adminNote} onChange={(e) => setAdminNote(e.target.value)} rows={3} className="mt-1" />
               </div>
 
-              {selected.status === "pending" && (
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" className="flex-1" onClick={() => updateStatus(selected.id, "rejected")}>Reject</Button>
-                  <Button className="flex-1" onClick={() => updateStatus(selected.id, "approved")}>Approve</Button>
+              {selected.request_type === "direct_cancel" ? (
+                <div className="text-xs bg-slate-50 border border-border rounded-md p-3 leading-relaxed text-muted-foreground">
+                  <strong className="text-foreground">Auto-approved:</strong> This was an unshipped Cash on Delivery order with no payment collected. The order was cancelled instantly when the customer requested it — no further action is required.
                 </div>
-              )}
+              ) : selected.status === "pending" ? (
+                <>
+                  <div className="text-xs bg-amber-50 border border-amber-200 rounded-md p-3 leading-relaxed text-amber-900">
+                    ⚠ This order has already been shipped or paid for. Approving will cancel it in Shiprocket and trigger refund processing. Please review carefully.
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" className="flex-1" onClick={() => updateStatus(selected.id, "rejected")}>Reject</Button>
+                    <Button className="flex-1" onClick={() => updateStatus(selected.id, "approved")}>Approve</Button>
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
         </DialogContent>
