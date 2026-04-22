@@ -64,9 +64,18 @@ const AdminCancellations = () => {
       .eq("id", id);
     if (error) { toast.error(error.message); return; }
     if (status === "approved") {
-      await supabase.from("orders").update({ status: "cancelled" }).eq("id", selected!.order_id);
+      const { data: cancelData, error: cancelErr } = await supabase.functions.invoke(
+        "shiprocket-cancel-order",
+        { body: { order_id: selected!.order_id } }
+      );
+      if (cancelErr || cancelData?.success === false) {
+        toast.error("Shiprocket cancel failed: " + (cancelErr?.message || cancelData?.error || "Unknown"));
+      } else {
+        toast.success("Order cancelled & synced to Shiprocket");
+      }
+    } else {
+      toast.success(`Request ${status}`);
     }
-    toast.success(`Request ${status}`);
     setSelected(null);
     setAdminNote("");
     load();

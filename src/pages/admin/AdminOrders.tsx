@@ -60,6 +60,18 @@ const AdminOrders = () => {
   }, []);
 
   const updateStatus = async (orderId: string, status: string) => {
+    if (status === "cancelled") {
+      const { data, error } = await supabase.functions.invoke("shiprocket-cancel-order", {
+        body: { order_id: orderId },
+      });
+      if (error || data?.success === false) {
+        toast.error("Cancel failed: " + (error?.message || data?.error || "Unknown"));
+        return;
+      }
+      toast.success("Order cancelled & synced to Shiprocket");
+      fetchOrders();
+      return;
+    }
     const { error } = await supabase.from("orders").update({ status }).eq("id", orderId);
     if (error) toast.error(error.message);
     else { toast.success(`Order ${status}`); fetchOrders(); }
