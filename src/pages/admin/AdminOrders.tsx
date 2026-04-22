@@ -115,18 +115,20 @@ const AdminOrders = () => {
     setShiprocketLoading(false);
   };
 
-  const handleDownloadLabel = async (shipmentId: string, type: "label" | "invoice") => {
+  const handleDownloadLabel = async (type: "label" | "invoice", shipmentId?: string | null, orderId?: string | null) => {
     try {
-      const { data, error } = await supabase.functions.invoke("shiprocket-labels", {
-        body: { shipment_id: shipmentId, type },
-      });
+      const body: any = { type };
+      if (type === "invoice") body.order_id = orderId;
+      else body.shipment_id = shipmentId;
+      const { data, error } = await supabase.functions.invoke("shiprocket-labels", { body });
+      if (error) throw error;
       if (data?.url) {
         window.open(data.url, "_blank");
       } else {
-        toast.error("Label not available yet");
+        toast.error(type === "invoice" ? "Invoice not available yet" : "Label not available yet");
       }
-    } catch {
-      toast.error("Failed to fetch " + type);
+    } catch (e: any) {
+      toast.error("Failed to fetch " + type + (e?.message ? ": " + e.message : ""));
     }
   };
 
