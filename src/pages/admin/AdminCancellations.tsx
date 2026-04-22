@@ -48,10 +48,28 @@ const AdminCancellations = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("cancellation_requests")
-      .select("*, orders(customer_name, customer_email, total)")
+      .select("*")
       .order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setRows((data as any[]) || []);
+    if (error) {
+      toast.error(error.message);
+      setRows([]);
+      setLoading(false);
+      return;
+    }
+    const requests = (data as any[]) || [];
+    const orderIds = Array.from(new Set(requests.map((r) => r.order_id).filter(Boolean)));
+    const ordersMap: Record<string, { customer_name: string; customer_email: string; total: number }> = {};
+    if (orderIds.length > 0) {
+      const { data: orderData, error: orderErr } = await supabase
+        .from("orders")
+        .select("id, customer_name, customer_email, total")
+        .in("id", orderIds);
+      if (orderErr) toast.error(orderErr.message);
+      (orderData || []).forEach((o: any) => {
+        ordersMap[o.id] = { customer_name: o.customer_name, customer_email: o.customer_email, total: o.total };
+      });
+    }
+    setRows(requests.map((r) => ({ ...r, orders: ordersMap[r.order_id] || null })));
     setLoading(false);
   };
 
