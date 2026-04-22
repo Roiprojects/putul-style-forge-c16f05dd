@@ -244,12 +244,21 @@ const AdminCancellations = () => {
                 <Textarea value={adminNote} onChange={(e) => setAdminNote(e.target.value)} rows={3} className="mt-1" />
               </div>
 
-              {selected.status === "pending" && (
-                <div className="flex gap-2 pt-2">
-                  <Button variant="outline" className="flex-1" onClick={() => updateStatus(selected.id, "rejected")}>Reject</Button>
-                  <Button className="flex-1" onClick={() => updateStatus(selected.id, "approved")}>Approve</Button>
+              {selected.request_type === "direct_cancel" ? (
+                <div className="text-xs bg-slate-50 border border-border rounded-md p-3 leading-relaxed text-muted-foreground">
+                  <strong className="text-foreground">Auto-approved:</strong> This was an unshipped Cash on Delivery order with no payment collected. The order was cancelled instantly when the customer requested it — no further action is required.
                 </div>
-              )}
+              ) : selected.status === "pending" ? (
+                <>
+                  <div className="text-xs bg-amber-50 border border-amber-200 rounded-md p-3 leading-relaxed text-amber-900">
+                    ⚠ This order has already been shipped or paid for. Approving will cancel it in Shiprocket and trigger refund processing. Please review carefully.
+                  </div>
+                  <div className="flex gap-2 pt-2">
+                    <Button variant="outline" className="flex-1" onClick={() => updateStatus(selected.id, "rejected")}>Reject</Button>
+                    <Button className="flex-1" onClick={() => updateStatus(selected.id, "approved")}>Approve</Button>
+                  </div>
+                </>
+              ) : null}
             </div>
           )}
         </DialogContent>
