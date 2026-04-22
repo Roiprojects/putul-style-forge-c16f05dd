@@ -1,5 +1,5 @@
 import { ArrowLeft } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface BackButtonProps {
   className?: string;
@@ -9,12 +9,18 @@ interface BackButtonProps {
 
 const BackButton = ({ className = "", label = "Back", fallbackPath = "/" }: BackButtonProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    // idx > 0 means there's an in-app history entry to go back to
+    const idx = (location as { key?: string; state?: unknown } & { idx?: number }).idx
+      ?? (window.history.state && (window.history.state as { idx?: number }).idx)
+      ?? 0;
+
+    if (idx > 0) {
       navigate(-1);
     } else {
-      navigate(fallbackPath);
+      navigate(fallbackPath, { replace: true });
     }
   };
 
