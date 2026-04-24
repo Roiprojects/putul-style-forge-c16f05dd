@@ -23,11 +23,17 @@ const ProductPage = () => {
   const { data: siblings = [] } = useProductSiblings(product?.productGroup, id);
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
   const { formatPrice, isINR } = useCurrency();
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  // Track product view for "Recently Viewed"
+  useEffect(() => {
+    if (product?.id) addRecentlyViewed(product.id);
+  }, [product?.id, addRecentlyViewed]);
 
   const hasVariants = variants.length > 0;
 
