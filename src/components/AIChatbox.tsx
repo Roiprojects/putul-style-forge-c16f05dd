@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Bot, User } from "lucide-react";
+import { X, Send, Bot, User, Phone } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 
 interface AIChatboxProps {
