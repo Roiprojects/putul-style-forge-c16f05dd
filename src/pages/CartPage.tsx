@@ -208,7 +208,6 @@ const CartPage = () => {
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.phone.trim()) e.phone = "Phone number is required";
     else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter valid 10-digit number";
-    if (!form.houseNo.trim()) e.houseNo = "House/flat no. is required";
     if (!form.street.trim()) e.street = "Street is required";
     if (!form.city.trim()) e.city = "City is required";
     if (!form.state.trim()) e.state = "State is required";
