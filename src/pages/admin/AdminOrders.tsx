@@ -87,7 +87,19 @@ const AdminOrders = () => {
   const viewOrder = async (order: any) => {
     setSelectedOrder(order);
     const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
-    setOrderItems(data ?? []);
+    const items = data ?? [];
+    const productIds = Array.from(new Set(items.map((i: any) => i.product_id).filter(Boolean)));
+    let imageMap: Record<string, string> = {};
+    if (productIds.length > 0) {
+      const { data: products } = await supabase
+        .from("admin_products")
+        .select("id, images")
+        .in("id", productIds);
+      imageMap = Object.fromEntries(
+        (products ?? []).map((p: any) => [p.id, p.images?.[0] ?? ""])
+      );
+    }
+    setOrderItems(items.map((i: any) => ({ ...i, _image: imageMap[i.product_id] || "" })));
   };
 
   const updateTracking = async (orderId: string, tracking: string) => {
