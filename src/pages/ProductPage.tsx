@@ -500,6 +500,8 @@ const ProductPage = () => {
       {related.length > 0 && (
         <ProductCarousel title="You May Also Like" subtitle="Similar products" products={related} viewAllLink="/shop" />
       )}
+
+      <RecentlyViewed excludeId={product.id} />
     </div>
   );
 };
