@@ -29,7 +29,7 @@ const AbandonedCartReminder = () => {
   if (!show || cart.length === 0) return null;
 
   const itemCount = cart.reduce((s, i) => s + i.quantity, 0);
-  const total = cart.reduce((s, i) => s + i.price * i.quantity, 0);
+  const total = cart.reduce((s, i) => s + i.product.price * i.quantity, 0);
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-sm z-50 bg-card border border-border rounded-2xl shadow-2xl p-4 animate-in slide-in-from-bottom">
