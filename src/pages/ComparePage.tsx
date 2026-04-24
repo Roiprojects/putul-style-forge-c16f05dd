@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { X, ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import { useCompare } from "@/contexts/CompareContext";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/contexts/StoreContext";
@@ -90,7 +91,7 @@ const ComparePage = () => {
                     size="sm"
                     className="w-full"
                     onClick={() => {
-                      addToCart(p, p.sizes?.[0] || "M", p.colors?.[0] || "Default", 1);
+                      addToCart(p, p.sizes?.[0] || "M", p.colors?.[0] || "Default");
                       toast.success(`${p.name} added to cart`);
                     }}
                   >
@@ -107,5 +108,4 @@ const ComparePage = () => {
   );
 };
 
-import { toast } from "sonner";
 export default ComparePage;

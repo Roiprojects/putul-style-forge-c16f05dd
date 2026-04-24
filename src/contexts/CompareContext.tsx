@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import type { Product } from "@/contexts/StoreContext";
+import type { Product } from "@/data/products";
 import { toast } from "sonner";
 
 interface CompareContextValue {
