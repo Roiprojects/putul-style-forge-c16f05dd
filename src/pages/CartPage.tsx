@@ -242,7 +242,7 @@ const CartPage = () => {
       user_id: user.id,
       name: form.name,
       phone: form.phone,
-      house_no: form.houseNo,
+      house_no: form.houseNo || "-",
       street: form.street,
       landmark: form.landmark || null,
       city: form.city,
