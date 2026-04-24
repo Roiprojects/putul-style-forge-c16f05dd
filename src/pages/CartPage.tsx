@@ -667,17 +667,10 @@ const CartPage = () => {
                         <p className="text-sm font-semibold uppercase tracking-wider">Delivery Address</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="col-span-1">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">House / Flat No.</label>
-                          <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
-                          {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
-                        </div>
-                        <div className="col-span-1">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
-                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
-                          {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
-                        </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
+                        <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
+                        {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
                       </div>
 
                       <div className="mt-3 relative">
