@@ -101,7 +101,16 @@ const Navbar = () => {
         <div className="container mx-auto px-4 md:px-8">
           {/* Desktop layout */}
           <div className="hidden lg:flex items-center justify-between h-16">
-            <Link to="/" className="flex-shrink-0">
+            <Link
+              to="/"
+              className="flex-shrink-0"
+              onClick={(e) => {
+                if (location.pathname === "/") {
+                  e.preventDefault();
+                }
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
               <img src={putulLogo} alt="Putul Fashions" className="h-12 w-auto" />
             </Link>
             <div className="flex items-center gap-1">
@@ -190,7 +199,16 @@ const Navbar = () => {
           {/* Mobile layout */}
           <div className="flex lg:hidden items-center justify-between h-14 gap-2">
             {/* Left: Logo */}
-            <Link to="/" className="flex-shrink-0">
+            <Link
+              to="/"
+              className="flex-shrink-0"
+              onClick={(e) => {
+                if (location.pathname === "/") {
+                  e.preventDefault();
+                }
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
               <img src={putulLogo} alt="Putul Fashions" className="h-9 w-auto" />
             </Link>
 
