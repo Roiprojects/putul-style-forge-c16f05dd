@@ -103,9 +103,26 @@ const AdminOrders = () => {
   };
 
   const updateTracking = async (orderId: string, tracking: string) => {
-    const { error } = await supabase.from("orders").update({ tracking_number: tracking }).eq("id", orderId);
-    if (error) toast.error(error.message);
-    else toast.success("Tracking updated");
+    const trimmed = (tracking || "").trim();
+    const prev = orders.find((o) => o.id === orderId)?.tracking_number || "";
+    if (trimmed === prev) return;
+    const { error } = await supabase.from("orders").update({ tracking_number: trimmed || null }).eq("id", orderId);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Tracking updated");
+    if (trimmed) {
+      // Notify customer via SMS
+      const order = orders.find((o) => o.id === orderId);
+      supabase.functions.invoke("send-tracking-sms", {
+        body: {
+          order_id: orderId,
+          tracking_number: trimmed,
+          courier_name: order?.courier_name || null,
+          tracking_url: order?.tracking_url || null,
+        },
+      }).then(({ data }) => {
+        if (data?.success) toast.success("Customer notified via SMS");
+      });
+    }
   };
 
   const handleCreateShipment = async (orderId: string) => {
