@@ -39,8 +39,11 @@ const HomePage = () => {
                 </h2>
                 <p className="text-sm text-muted-foreground mt-1">Fresh drops you'll love</p>
               </div>
-              <Link to="/shop" className="text-xs tracking-wide text-secondary font-medium hover:underline">
-                View All
+              <Link
+                to="/shop"
+                className="text-xs tracking-wide font-semibold uppercase inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                View All →
               </Link>
             </div>
 
