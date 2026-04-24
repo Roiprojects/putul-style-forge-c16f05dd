@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import AuthModal from "@/components/AuthModal";
 import SearchDropdown from "@/components/SearchDropdown";
 import CurrencySelector from "@/components/CurrencySelector";
+import NotificationBell from "@/components/NotificationBell";
 import type { User as SupaUser } from "@supabase/supabase-js";
 import putulLogo from "@/assets/putul-logo.png";
 
@@ -147,6 +148,7 @@ const Navbar = () => {
             </form>
             <div className="flex items-center gap-0.5">
               <CurrencySelector />
+              {user && <NotificationBell />}
               <div className="relative" ref={userMenuRef}>
                 <button
                   onClick={() => user ? setShowUserMenu(!showUserMenu) : setAuthOpen(true)}
