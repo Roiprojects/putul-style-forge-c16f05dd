@@ -14,7 +14,7 @@ import CustomCursor from "@/components/CustomCursor";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
-import RecentSalesToast from "@/components/RecentSalesToast";
+
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 import AbandonedCartReminder from "@/components/AbandonedCartReminder";
@@ -148,7 +148,7 @@ const App = () => (
                   <FloatingButtons />
                   <ScrollToTopButton />
                   <ExitIntentPopup />
-                  <RecentSalesToast />
+                  
                   <PWAInstallPrompt />
                   
                   <AbandonedCartReminder />
