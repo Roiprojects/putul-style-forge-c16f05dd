@@ -5,6 +5,7 @@ import {
   FileText, Download, Phone, Mail, ShoppingBag, Star, ChevronRight, MessageCircle, RotateCcw, Wallet
 } from "lucide-react";
 import ReturnRequestModal from "@/components/ReturnRequestModal";
+import OrderTimeline from "@/components/OrderTimeline";
 import HelpChatbox from "@/components/HelpChatbox";
 import RazorpayCheckout from "@/components/RazorpayCheckout";
 import CancelOrderModal from "@/components/CancelOrderModal";
@@ -313,59 +314,7 @@ const OrderDetailPage = () => {
               className="border border-border rounded-xl p-5 md:p-6"
             >
               <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-5">Order Tracking</p>
-              
-              {isCancelled ? (
-                <div className="flex items-center gap-3 py-4">
-                  <div className="w-8 h-8 rounded-full bg-destructive/10 flex items-center justify-center">
-                    <Package size={16} className="text-destructive" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-destructive">Order Cancelled</p>
-                    <p className="text-xs text-muted-foreground">This order has been cancelled</p>
-                  </div>
-                </div>
-              ) : (
-                <div className="relative">
-                  {STATUS_STEPS.map((step, i) => {
-                    const isCompleted = i <= currentStep;
-                    const isCurrent = i === currentStep;
-                    const StepIcon = step.icon;
-
-                    return (
-                      <div key={step.key} className="flex gap-4 relative">
-                        {/* Line */}
-                        {i < STATUS_STEPS.length - 1 && (
-                          <div className={`absolute left-4 top-8 w-0.5 h-8 ${i < currentStep ? "bg-green-500" : "bg-border"}`} />
-                        )}
-                        {/* Dot */}
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
-                          isCompleted ? "bg-green-100" : "bg-accent"
-                        }`}>
-                          <StepIcon size={14} className={isCompleted ? "text-green-600" : "text-muted-foreground"} />
-                        </div>
-                        {/* Text */}
-                        <div className="pb-8">
-                          <p className={`text-sm font-medium ${isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
-                            {step.label}
-                          </p>
-                          {isCurrent && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              {order.updated_at
-                                ? new Date(order.updated_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })
-                                : ""}
-                            </p>
-                          )}
-                          {i === 4 && !isCompleted && (
-                            <p className="text-[10px] text-muted-foreground mt-0.5">
-                              Expected by {estimatedDelivery.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+              <OrderTimeline status={order.status} createdAt={order.created_at} updatedAt={order.updated_at} />
 
               {(order.awb_code || order.tracking_number || (order as any).courier_name) && (
                 <div className="mt-2 pt-4 border-t border-border space-y-2">
