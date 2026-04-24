@@ -1,7 +1,8 @@
 import { Link } from "react-router-dom";
-import { Heart, Star, ArrowRight, Check } from "lucide-react";
+import { Heart, Star, ArrowRight, Check, GitCompareArrows } from "lucide-react";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
+import { useCompare } from "@/contexts/CompareContext";
 import type { Product } from "@/data/products";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -16,7 +17,9 @@ interface ProductCardProps {
 const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardProps) => {
   const { addToCart, toggleWishlist, isInWishlist } = useStore();
   const { formatPrice, isINR } = useCurrency();
+  const { toggle: toggleCompare, isCompared } = useCompare();
   const wishlisted = isInWishlist(product.id);
+  const compared = isCompared(product.id);
   const [isHovered, setIsHovered] = useState(false);
   const [phase, setPhase] = useState<"idle" | "sizes" | "added">("idle");
   const [addedSize, setAddedSize] = useState<string | null>(null);
@@ -48,6 +51,12 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
     e.preventDefault();
     e.stopPropagation();
     toggleWishlist(product.id);
+  };
+
+  const handleCompare = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleCompare(product);
   };
 
   return (
@@ -122,6 +131,17 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
                   : "text-foreground/70 hover:scale-110"
               }`}
             />
+          </button>
+
+          {/* Compare — below wishlist */}
+          <button
+            onClick={handleCompare}
+            aria-label="Compare"
+            className={`absolute top-12 right-2.5 z-10 w-8 h-8 rounded-full backdrop-blur-sm flex items-center justify-center shadow-sm transition-all duration-300 active:scale-95 ${
+              compared ? "bg-foreground text-background" : "bg-background/80 hover:bg-background text-foreground/70"
+            }`}
+          >
+            <GitCompareArrows size={13} strokeWidth={1.75} />
           </button>
 
           {/* Bottom action bar — over the gradient */}

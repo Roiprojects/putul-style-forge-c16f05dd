@@ -18,6 +18,7 @@ import RecentSalesToast from "@/components/RecentSalesToast";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
 
 import AbandonedCartReminder from "@/components/AbandonedCartReminder";
+import CompareBar from "@/components/CompareBar";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -151,6 +152,7 @@ const App = () => (
                   <PWAInstallPrompt />
                   
                   <AbandonedCartReminder />
+                  <CompareBar />
                 </>
               }
             />
