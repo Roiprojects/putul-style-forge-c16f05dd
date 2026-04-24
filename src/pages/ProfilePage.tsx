@@ -5,6 +5,8 @@ import {
   Edit2, Trash2, ShoppingBag, Clock, CheckCircle, Truck, X, Mail, Save
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import LoyaltyCard from "@/components/LoyaltyCard";
+import ReferralCard from "@/components/ReferralCard";
 import { useStore } from "@/contexts/StoreContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { Input } from "@/components/ui/input";
@@ -274,6 +276,8 @@ const ProfilePage = () => {
             {/* OVERVIEW */}
             {activeTab === "overview" && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <LoyaltyCard />
+                <ReferralCard />
                 {/* Quick Stats */}
                 <div className="border border-border rounded-xl p-5">
                   <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-3">Account</p>
