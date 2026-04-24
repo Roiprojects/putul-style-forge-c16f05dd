@@ -4,10 +4,12 @@ import { toast } from "sonner";
 import { useCompare } from "@/contexts/CompareContext";
 import { Button } from "@/components/ui/button";
 import { useStore } from "@/contexts/StoreContext";
+import { useCurrency } from "@/contexts/CurrencyContext";
 
 const ComparePage = () => {
   const { items, remove, clear } = useCompare();
   const { addToCart } = useStore();
+  const { formatPrice } = useCurrency();
 
   if (items.length === 0) {
     return (
@@ -24,8 +26,8 @@ const ComparePage = () => {
   }
 
   const rows = [
-    { label: "Price", value: (p: any) => `₹${p.price.toLocaleString()}` },
-    { label: "Original Price", value: (p: any) => p.originalPrice ? `₹${p.originalPrice.toLocaleString()}` : "-" },
+    { label: "Price", value: (p: any) => formatPrice(p.price) },
+    { label: "Original Price", value: (p: any) => p.originalPrice ? formatPrice(p.originalPrice) : "-" },
     { label: "Rating", value: (p: any) => `${p.rating ?? 0} ★` },
     { label: "Reviews", value: (p: any) => p.reviewCount ?? 0 },
     { label: "Colors", value: (p: any) => p.colors?.length ? p.colors.join(", ") : "-" },
