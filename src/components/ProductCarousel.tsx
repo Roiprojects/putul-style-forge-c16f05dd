@@ -72,8 +72,11 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
           </div>
           <div className="flex items-center gap-2">
             {viewAllLink && (
-              <a href={viewAllLink} className="text-xs tracking-wide text-secondary font-medium hover:underline mr-3 hidden md:block">
-                View All
+              <a
+                href={viewAllLink}
+                className="text-xs tracking-wide font-semibold uppercase mr-3 hidden md:inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+              >
+                View All →
               </a>
             )}
             <button
