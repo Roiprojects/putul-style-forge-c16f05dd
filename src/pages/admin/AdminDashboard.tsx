@@ -26,6 +26,11 @@ const AdminDashboard = () => {
         <OrderStatusFunnel />
       </div>
 
+      <div className="grid lg:grid-cols-2 gap-6">
+        <LowStockAlert />
+        <TopProducts />
+      </div>
+
       <ActionQueue />
     </div>
   );
