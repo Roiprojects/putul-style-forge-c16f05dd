@@ -680,7 +680,7 @@ const CartPage = () => {
                           onChange={(e) => { updateField("area", e.target.value); setShowAreaSuggestions(true); }}
                           onFocus={() => form.area.length >= 1 && setShowAreaSuggestions(true)}
                           onBlur={() => setTimeout(() => setShowAreaSuggestions(false), 200)}
-                          placeholder="Type area name e.g. Yelahanka, Malleswaram..."
+                          placeholder="Type area name..."
                           className="border-border"
                           maxLength={100}
                         />
