@@ -199,7 +199,16 @@ const Navbar = () => {
           {/* Mobile layout */}
           <div className="flex lg:hidden items-center justify-between h-14 gap-2">
             {/* Left: Logo */}
-            <Link to="/" className="flex-shrink-0">
+            <Link
+              to="/"
+              className="flex-shrink-0"
+              onClick={(e) => {
+                if (location.pathname === "/") {
+                  e.preventDefault();
+                }
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }}
+            >
               <img src={putulLogo} alt="Putul Fashions" className="h-9 w-auto" />
             </Link>
 
