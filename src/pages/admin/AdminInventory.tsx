@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search, Save, AlertTriangle } from "lucide-react";
+import { resolveCatalogImage } from "@/lib/catalogImage";
 
 const AdminInventory = () => {
   const [products, setProducts] = useState<any[]>([]);
@@ -150,7 +151,7 @@ const AdminInventory = () => {
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           {product.images?.[0] ? (
-                            <img src={product.images[0]} alt="" className="w-8 h-8 rounded object-cover bg-accent" />
+                            <img src={resolveCatalogImage(product.images[0], 80)} alt="" className="w-8 h-8 rounded object-cover bg-accent" />
                           ) : (
                             <div className="w-8 h-8 rounded bg-accent" />
                           )}
