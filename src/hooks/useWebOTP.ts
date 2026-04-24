@@ -13,10 +13,11 @@ export const useWebOTP = (enabled: boolean, onCode: (code: string) => void) => {
 
     const ac = new AbortController();
 
-    // @ts-expect-error - OTPCredential is not in TS lib yet
-    navigator.credentials
+    (navigator.credentials as unknown as {
+      get: (opts: Record<string, unknown>) => Promise<{ code?: string } | null>;
+    })
       .get({ otp: { transport: ["sms"] }, signal: ac.signal })
-      .then((otp: any) => {
+      .then((otp) => {
         if (otp?.code) onCode(otp.code);
       })
       .catch(() => {
