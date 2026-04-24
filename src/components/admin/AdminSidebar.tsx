@@ -50,7 +50,7 @@ const navItems = [
   { label: "Cancellations", icon: XCircle, to: "/admin/cancellations" },
   { label: "Roles", icon: Shield, to: "/admin/roles" },
   { label: "Settings", icon: Settings, to: "/admin/settings" },
-  { label: "AI Upload", icon: Sparkles, to: "/admin/ai-upload" },
+  // { label: "AI Upload", icon: Sparkles, to: "/admin/ai-upload" }, // hidden for now
 ];
 
 const AdminSidebar = () => {
