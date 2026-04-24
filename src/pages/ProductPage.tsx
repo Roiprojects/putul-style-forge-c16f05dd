@@ -385,7 +385,10 @@ const ProductPage = () => {
 
             {/* Size Selection */}
             <div className="mb-6">
-              <p className="text-sm font-semibold mb-3">Select Size</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold">Select Size</p>
+                <SizeGuideModal category={product.category} />
+              </div>
               <div className="flex flex-wrap gap-2">
                 {sizesToShow.map((s) => {
                   const available = isSizeAvailable(s);
@@ -414,6 +417,16 @@ const ProductPage = () => {
               </div>
               {isOutOfStock && (
                 <p className="text-xs text-destructive mt-2 font-medium">This combination is out of stock</p>
+              )}
+              {!isOutOfStock && selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
+                <p className="text-xs text-destructive mt-2 font-semibold flex items-center gap-1">
+                  <Flame size={12} /> Hurry — only {selectedVariant.stock} left in this size!
+                </p>
+              )}
+              {!hasVariants && typeof product.stock === "number" && product.stock > 0 && product.stock <= (product.lowStockThreshold ?? 5) && (
+                <p className="text-xs text-destructive mt-2 font-semibold flex items-center gap-1">
+                  <Flame size={12} /> Hurry — only {product.stock} left in stock!
+                </p>
               )}
             </div>
 
