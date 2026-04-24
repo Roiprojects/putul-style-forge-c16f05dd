@@ -81,6 +81,9 @@ const Footer = () => (
             <Link to="/shipping-policy" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
               Shipping Policy
             </Link>
+            <Link to="/track-order" className="text-[10px] text-background/25 hover:text-secondary transition-colors">
+              Track Order
+            </Link>
           </div>
         </div>
         <a
