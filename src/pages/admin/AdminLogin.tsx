@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Loader2, ShieldCheck, Phone, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
+import { useWebOTP } from "@/hooks/useWebOTP";
 
 type Step = "phone" | "otp";
 
@@ -97,6 +98,15 @@ const AdminLogin = () => {
     toast.success("Welcome, Admin!");
     navigate("/admin", { replace: true });
   }, [fullPhone, navigate]);
+
+  // WebOTP API: Android Chrome auto-reads SMS containing "@domain #123456"
+  useWebOTP(step === "otp", useCallback((code: string) => {
+    const digits = code.replace(/\D/g, "").slice(0, 6);
+    if (digits.length === 6) {
+      setOtp(digits.split(""));
+      handleVerifyOTP(digits);
+    }
+  }, [handleVerifyOTP]));
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
@@ -231,6 +241,7 @@ const AdminLogin = () => {
                         ref={(el) => { otpRefs.current[i] = el; }}
                         type="text"
                         inputMode="numeric"
+                        autoComplete={i === 0 ? "one-time-code" : "off"}
                         maxLength={1}
                         value={digit}
                         onChange={(e) => handleOtpChange(i, e.target.value)}
