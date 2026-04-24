@@ -4,6 +4,8 @@ import OrderStatusFunnel from "@/components/admin/dashboard/OrderStatusFunnel";
 import StuckOrdersAlert from "@/components/admin/dashboard/StuckOrdersAlert";
 import RevenueChart from "@/components/admin/dashboard/RevenueChart";
 import QuickActionsBar from "@/components/admin/dashboard/QuickActionsBar";
+import LowStockAlert from "@/components/admin/dashboard/LowStockAlert";
+import TopProducts from "@/components/admin/dashboard/TopProducts";
 
 const AdminDashboard = () => {
   return (
