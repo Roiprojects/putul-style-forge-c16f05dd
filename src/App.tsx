@@ -12,6 +12,8 @@ import MobileBottomNav from "@/components/MobileBottomNav";
 import CustomCursor from "@/components/CustomCursor";
 import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
+import ExitIntentPopup from "@/components/ExitIntentPopup";
+import RecentSalesToast from "@/components/RecentSalesToast";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -137,6 +139,8 @@ const App = () => (
                   <MobileBottomNav />
                   <FloatingButtons />
                   <ScrollToTopButton />
+                  <ExitIntentPopup />
+                  <RecentSalesToast />
                 </>
               }
             />

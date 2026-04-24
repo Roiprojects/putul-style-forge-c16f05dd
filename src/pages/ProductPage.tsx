@@ -9,6 +9,7 @@ import ProductCarousel from "@/components/ProductCarousel";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import SizeGuideModal from "@/components/SizeGuideModal";
 import ProductReviews from "@/components/ProductReviews";
+import CompleteTheLook from "@/components/CompleteTheLook";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -497,6 +498,8 @@ const ProductPage = () => {
           </motion.div>
         </div>
       </div>
+
+      <CompleteTheLook currentProduct={product} />
 
       <ProductReviews productId={product.id} />
 
