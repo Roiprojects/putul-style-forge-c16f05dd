@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Search, Eye, X, Printer, RotateCcw, Truck, Download, Package } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { resolveCatalogImage } from "@/lib/catalogImage";
 
 const statusOptions = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
 const returnStatuses = ["requested", "approved", "refunded", "rejected"];
@@ -86,7 +87,19 @@ const AdminOrders = () => {
   const viewOrder = async (order: any) => {
     setSelectedOrder(order);
     const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
-    setOrderItems(data ?? []);
+    const items = data ?? [];
+    const productIds = Array.from(new Set(items.map((i: any) => i.product_id).filter(Boolean)));
+    let imageMap: Record<string, string> = {};
+    if (productIds.length > 0) {
+      const { data: products } = await supabase
+        .from("admin_products")
+        .select("id, images")
+        .in("id", productIds);
+      imageMap = Object.fromEntries(
+        (products ?? []).map((p: any) => [p.id, p.images?.[0] ?? ""])
+      );
+    }
+    setOrderItems(items.map((i: any) => ({ ...i, _image: imageMap[i.product_id] || "" })));
   };
 
   const updateTracking = async (orderId: string, tracking: string) => {
@@ -340,14 +353,21 @@ const AdminOrders = () => {
                 ) : (
                   <div className="space-y-2">
                     {orderItems.map((item) => (
-                      <div key={item.id} className="flex justify-between items-center py-2 border-b border-border last:border-0">
-                        <div>
-                          <p className="font-medium">{item.product_name}</p>
-                          <p className="text-[11px] text-muted-foreground">
-                            {item.size && `Size: ${item.size}`} {item.color && `• Color: ${item.color}`} • Qty: {item.quantity}
-                          </p>
+                      <div key={item.id} className="flex justify-between items-center py-2 border-b border-border last:border-0 gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          {item._image ? (
+                            <img src={resolveCatalogImage(item._image, 80)} alt="" className="w-10 h-10 rounded object-cover bg-accent flex-shrink-0" />
+                          ) : (
+                            <div className="w-10 h-10 rounded bg-accent flex-shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <p className="font-medium truncate">{item.product_name}</p>
+                            <p className="text-[11px] text-muted-foreground">
+                              {item.size && `Size: ${item.size}`} {item.color && `• Color: ${item.color}`} • Qty: {item.quantity}
+                            </p>
+                          </div>
                         </div>
-                        <p className="font-medium">₹{Number(item.total_price).toLocaleString()}</p>
+                        <p className="font-medium flex-shrink-0">₹{Number(item.total_price).toLocaleString()}</p>
                       </div>
                     ))}
                   </div>
