@@ -15,6 +15,8 @@ import ScrollToTopButton from "@/components/ScrollToTopButton";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 import RecentSalesToast from "@/components/RecentSalesToast";
 import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
+import AbandonedCartReminder from "@/components/AbandonedCartReminder";
 import HomePage from "./pages/HomePage";
 import ShopPage from "./pages/ShopPage";
 import ProductPage from "./pages/ProductPage";
@@ -143,6 +145,8 @@ const App = () => (
                   <ExitIntentPopup />
                   <RecentSalesToast />
                   <PWAInstallPrompt />
+                  <WhatsAppWidget />
+                  <AbandonedCartReminder />
                 </>
               }
             />
