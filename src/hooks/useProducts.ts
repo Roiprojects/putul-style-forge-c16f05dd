@@ -20,6 +20,8 @@ interface DbProduct {
   category_id: string | null;
   product_group: string | null;
   color_code: string | null;
+  stock: number | null;
+  low_stock_threshold: number | null;
   admin_categories: { slug: string; name: string } | null;
 }
 
@@ -96,6 +98,8 @@ const mapToProduct = (p: DbProduct): Product => {
     badge,
     productGroup: p.product_group || undefined,
     colorCode: p.color_code || undefined,
+    stock: p.stock ?? undefined,
+    lowStockThreshold: p.low_stock_threshold ?? undefined,
   };
 };
 
