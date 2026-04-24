@@ -53,8 +53,11 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
+    setIsPaused(true);
     const amount = scrollRef.current.clientWidth * 0.75;
     scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    // Resume auto-scroll after the smooth scroll finishes
+    window.setTimeout(() => setIsPaused(false), 1200);
   };
 
   return (
@@ -81,19 +84,15 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
             )}
             <button
               onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                canScrollLeft ? "border-foreground/20 hover:bg-foreground hover:text-background" : "border-border text-muted-foreground/30 cursor-not-allowed"
-              }`}
+              className="w-9 h-9 rounded-full border border-foreground/20 flex items-center justify-center transition-all hover:bg-foreground hover:text-background"
+              aria-label="Scroll left"
             >
               <ChevronLeft size={18} />
             </button>
             <button
               onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-              className={`w-9 h-9 rounded-full border flex items-center justify-center transition-all ${
-                canScrollRight ? "border-foreground/20 hover:bg-foreground hover:text-background" : "border-border text-muted-foreground/30 cursor-not-allowed"
-              }`}
+              className="w-9 h-9 rounded-full border border-foreground/20 flex items-center justify-center transition-all hover:bg-foreground hover:text-background"
+              aria-label="Scroll right"
             >
               <ChevronRight size={18} />
             </button>
