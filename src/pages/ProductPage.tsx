@@ -1,11 +1,14 @@
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote, Flame } from "lucide-react";
 import { useProduct, useProducts, useProductVariants, useProductSiblings } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import SizeGuideModal from "@/components/SizeGuideModal";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ProductVariant } from "@/data/products";
@@ -20,11 +23,17 @@ const ProductPage = () => {
   const { data: siblings = [] } = useProductSiblings(product?.productGroup, id);
   const { addToCart, toggleWishlist, isInWishlist, cart, updateQuantity, removeFromCart } = useStore();
   const { formatPrice, isINR } = useCurrency();
+  const { addRecentlyViewed } = useRecentlyViewed();
 
   const [selectedColor, setSelectedColor] = useState("");
   const [selectedSize, setSelectedSize] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+
+  // Track product view for "Recently Viewed"
+  useEffect(() => {
+    if (product?.id) addRecentlyViewed(product.id);
+  }, [product?.id, addRecentlyViewed]);
 
   const hasVariants = variants.length > 0;
 
@@ -376,7 +385,10 @@ const ProductPage = () => {
 
             {/* Size Selection */}
             <div className="mb-6">
-              <p className="text-sm font-semibold mb-3">Select Size</p>
+              <div className="flex items-center justify-between mb-3">
+                <p className="text-sm font-semibold">Select Size</p>
+                <SizeGuideModal category={product.category} />
+              </div>
               <div className="flex flex-wrap gap-2">
                 {sizesToShow.map((s) => {
                   const available = isSizeAvailable(s);
@@ -405,6 +417,16 @@ const ProductPage = () => {
               </div>
               {isOutOfStock && (
                 <p className="text-xs text-destructive mt-2 font-medium">This combination is out of stock</p>
+              )}
+              {!isOutOfStock && selectedVariant && selectedVariant.stock > 0 && selectedVariant.stock <= 5 && (
+                <p className="text-xs text-destructive mt-2 font-semibold flex items-center gap-1">
+                  <Flame size={12} /> Hurry — only {selectedVariant.stock} left in this size!
+                </p>
+              )}
+              {!hasVariants && typeof product.stock === "number" && product.stock > 0 && product.stock <= (product.lowStockThreshold ?? 5) && (
+                <p className="text-xs text-destructive mt-2 font-semibold flex items-center gap-1">
+                  <Flame size={12} /> Hurry — only {product.stock} left in stock!
+                </p>
               )}
             </div>
 
@@ -478,6 +500,8 @@ const ProductPage = () => {
       {related.length > 0 && (
         <ProductCarousel title="You May Also Like" subtitle="Similar products" products={related} viewAllLink="/shop" />
       )}
+
+      <RecentlyViewed excludeId={product.id} />
     </div>
   );
 };

@@ -45,6 +45,8 @@ export interface Product {
   variants?: ProductVariant[];
   productGroup?: string;
   colorCode?: string;
+  stock?: number;
+  lowStockThreshold?: number;
 }
 
 export interface Category {
