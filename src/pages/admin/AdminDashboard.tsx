@@ -6,6 +6,8 @@ import RevenueChart from "@/components/admin/dashboard/RevenueChart";
 import QuickActionsBar from "@/components/admin/dashboard/QuickActionsBar";
 import LowStockAlert from "@/components/admin/dashboard/LowStockAlert";
 import TopProducts from "@/components/admin/dashboard/TopProducts";
+import SalesByCategory from "@/components/admin/dashboard/SalesByCategory";
+import CustomerInsights from "@/components/admin/dashboard/CustomerInsights";
 
 const AdminDashboard = () => {
   return (
@@ -29,6 +31,11 @@ const AdminDashboard = () => {
       <div className="grid lg:grid-cols-2 gap-6">
         <LowStockAlert />
         <TopProducts />
+      </div>
+
+      <div className="grid lg:grid-cols-2 gap-6">
+        <SalesByCategory />
+        <CustomerInsights />
       </div>
 
       <ActionQueue />
