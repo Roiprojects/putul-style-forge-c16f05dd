@@ -5,6 +5,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { StoreProvider } from "@/contexts/StoreContext";
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
+import { CompareProvider } from "@/contexts/CompareContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import FloatingButtons from "@/components/FloatingButtons";
@@ -34,6 +35,7 @@ import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import TermsOfServicePage from "./pages/TermsOfServicePage";
 import ShippingPolicyPage from "./pages/ShippingPolicyPage";
 import TrackOrderPage from "./pages/TrackOrderPage";
+import ComparePage from "./pages/ComparePage";
 
 // Admin
 import AdminLayout from "@/components/admin/AdminLayout";
@@ -74,6 +76,7 @@ const App = () => (
     <TooltipProvider>
       <StoreProvider>
         <CurrencyProvider>
+        <CompareProvider>
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
@@ -135,6 +138,7 @@ const App = () => (
                     <Route path="/terms-of-service" element={<TermsOfServicePage />} />
                     <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
                     <Route path="/track-order" element={<TrackOrderPage />} />
+                    <Route path="/compare" element={<ComparePage />} />
                     <Route path="*" element={<NotFound />} />
                     <Route path="*" element={<NotFound />} />
                   </Routes>
@@ -152,6 +156,7 @@ const App = () => (
             />
           </Routes>
         </BrowserRouter>
+        </CompareProvider>
         </CurrencyProvider>
       </StoreProvider>
     </TooltipProvider>
