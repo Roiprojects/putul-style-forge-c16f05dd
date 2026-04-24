@@ -208,7 +208,6 @@ const CartPage = () => {
     if (!form.name.trim()) e.name = "Name is required";
     if (!form.phone.trim()) e.phone = "Phone number is required";
     else if (!/^[6-9]\d{9}$/.test(form.phone.trim())) e.phone = "Enter valid 10-digit number";
-    if (!form.houseNo.trim()) e.houseNo = "House/flat no. is required";
     if (!form.street.trim()) e.street = "Street is required";
     if (!form.city.trim()) e.city = "City is required";
     if (!form.state.trim()) e.state = "State is required";
@@ -243,7 +242,7 @@ const CartPage = () => {
       user_id: user.id,
       name: form.name,
       phone: form.phone,
-      house_no: form.houseNo,
+      house_no: form.houseNo || "-",
       street: form.street,
       landmark: form.landmark || null,
       city: form.city,
@@ -668,17 +667,10 @@ const CartPage = () => {
                         <p className="text-sm font-semibold uppercase tracking-wider">Delivery Address</p>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3">
-                        <div className="col-span-1">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">House / Flat No.</label>
-                          <Input value={form.houseNo} onChange={(e) => updateField("houseNo", e.target.value)} placeholder="e.g. 12-A" className="border-border" maxLength={50} />
-                          {errors.houseNo && <p className="text-[11px] text-destructive mt-1">{errors.houseNo}</p>}
-                        </div>
-                        <div className="col-span-1">
-                          <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
-                          <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
-                          {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
-                        </div>
+                      <div>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
+                        <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
+                        {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
                       </div>
 
                       <div className="mt-3 relative">
