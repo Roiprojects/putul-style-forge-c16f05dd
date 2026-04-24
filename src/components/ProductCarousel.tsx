@@ -53,8 +53,11 @@ const ProductCarousel = ({ title, subtitle, products, viewAllLink }: ProductCaro
 
   const scroll = (dir: "left" | "right") => {
     if (!scrollRef.current) return;
+    setIsPaused(true);
     const amount = scrollRef.current.clientWidth * 0.75;
     scrollRef.current.scrollBy({ left: dir === "left" ? -amount : amount, behavior: "smooth" });
+    // Resume auto-scroll after the smooth scroll finishes
+    window.setTimeout(() => setIsPaused(false), 1200);
   };
 
   return (
