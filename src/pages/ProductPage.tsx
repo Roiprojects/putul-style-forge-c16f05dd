@@ -8,6 +8,7 @@ import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
 import RecentlyViewed from "@/components/RecentlyViewed";
 import SizeGuideModal from "@/components/SizeGuideModal";
+import ProductReviews from "@/components/ProductReviews";
 import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -496,6 +497,8 @@ const ProductPage = () => {
           </motion.div>
         </div>
       </div>
+
+      <ProductReviews productId={product.id} />
 
       {related.length > 0 && (
         <ProductCarousel title="You May Also Like" subtitle="Similar products" products={related} viewAllLink="/shop" />

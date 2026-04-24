@@ -779,6 +779,7 @@ export type Database = {
           created_at: string
           id: string
           is_featured: boolean
+          photos: string[] | null
           product_id: string | null
           rating: number
           status: string
@@ -790,6 +791,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_featured?: boolean
+          photos?: string[] | null
           product_id?: string | null
           rating?: number
           status?: string
@@ -801,6 +803,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_featured?: boolean
+          photos?: string[] | null
           product_id?: string | null
           rating?: number
           status?: string
