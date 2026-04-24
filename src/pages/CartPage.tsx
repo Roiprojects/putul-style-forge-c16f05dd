@@ -668,7 +668,7 @@ const CartPage = () => {
                       </div>
 
                       <div>
-                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Street / Road</label>
+                        <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5 block">Address</label>
                         <Input value={form.street} onChange={(e) => updateField("street", e.target.value)} placeholder="e.g. 4th A Main Road" className="border-border" maxLength={100} />
                         {errors.street && <p className="text-[11px] text-destructive mt-1">{errors.street}</p>}
                       </div>
