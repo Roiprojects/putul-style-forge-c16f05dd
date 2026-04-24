@@ -121,13 +121,38 @@ serve(async (req) => {
         if (mapped && mapped !== order.status) update.status = mapped;
         if (trackUrl && trackUrl !== order.tracking_url) update.tracking_url = trackUrl;
         if (courier && courier !== order.courier_name) update.courier_name = courier;
-        if (awb && awb !== order.awb_code) update.awb_code = awb;
+        const awbChanged = awb && awb !== order.awb_code;
+        if (awbChanged) {
+          update.awb_code = awb;
+          update.tracking_number = awb;
+        }
 
         if (Object.keys(update).length > 0) {
           await supabase.from("orders").update(update).eq("id", order.id);
           updatedCount++;
           results.push({ order_id: order.id, sr_status: srStatus, mapped, update });
           console.log(`Synced order ${order.id}: ${order.status} -> ${mapped} (${srStatus})`);
+
+          // Notify customer when AWB is newly assigned
+          if (awbChanged) {
+            try {
+              await fetch(`${supabaseUrl}/functions/v1/send-tracking-sms`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${serviceKey}`,
+                },
+                body: JSON.stringify({
+                  order_id: order.id,
+                  tracking_number: awb,
+                  courier_name: courier || null,
+                  tracking_url: trackUrl || null,
+                }),
+              });
+            } catch (e) {
+              console.error("tracking SMS failed:", e instanceof Error ? e.message : e);
+            }
+          }
         }
       } catch (e) {
         console.error(`Sync failed for order ${order.id}:`, e instanceof Error ? e.message : e);

@@ -114,13 +114,34 @@ serve(async (req) => {
       shiprocket_shipment_id: createData.shipment_id ? String(createData.shipment_id) : null,
     };
 
-    // If AWB is assigned directly
+    // If AWB is assigned directly, also use it as the user-facing tracking number
     if (createData.awb_code) {
       updateData.awb_code = createData.awb_code;
       updateData.courier_name = createData.courier_name || null;
+      updateData.tracking_number = createData.awb_code;
     }
 
     await supabase.from("orders").update(updateData).eq("id", order_id);
+
+    // Notify customer via SMS if AWB is ready
+    if (createData.awb_code) {
+      try {
+        await fetch(`${supabaseUrl}/functions/v1/send-tracking-sms`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${serviceKey}`,
+          },
+          body: JSON.stringify({
+            order_id,
+            tracking_number: createData.awb_code,
+            courier_name: createData.courier_name || null,
+          }),
+        });
+      } catch (e) {
+        console.error("tracking SMS failed:", e instanceof Error ? e.message : e);
+      }
+    }
 
     return new Response(JSON.stringify({
       success: true,
