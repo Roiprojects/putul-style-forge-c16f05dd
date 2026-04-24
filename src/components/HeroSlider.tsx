@@ -60,11 +60,11 @@ const HeroSlider = () => {
   }, [next, slides.length]);
 
   if (slides.length === 0) {
-    return <section className="relative w-full aspect-[16/9] md:aspect-[16/7] bg-muted" />;
+    return <section className="relative w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] mx-auto mt-2 md:mt-3 aspect-[16/9] md:aspect-[16/7] bg-muted rounded-2xl md:rounded-3xl" />;
   }
 
   return (
-    <section className="relative w-full aspect-[16/9] md:aspect-[16/7] overflow-hidden bg-foreground/5">
+    <section className="relative w-[calc(100%-1rem)] md:w-[calc(100%-2rem)] mx-auto mt-2 md:mt-3 aspect-[16/9] md:aspect-[16/7] overflow-hidden bg-foreground/5 rounded-2xl md:rounded-3xl">
       {/* Background: show current image as blurred backdrop to avoid white flash */}
       <div
         className="absolute inset-0 transition-opacity duration-700"
