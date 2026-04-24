@@ -5,6 +5,7 @@ import PromoBanners from "@/components/PromoBanners";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import TestimonialSection from "@/components/TestimonialSection";
 import RecentlyViewed from "@/components/RecentlyViewed";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import { useProducts } from "@/hooks/useProducts";
 import { Link } from "react-router-dom";
 import ProductCard from "@/components/ProductCard";
@@ -105,6 +106,8 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+      <NewsletterSignup />
     </div>
   );
 };
