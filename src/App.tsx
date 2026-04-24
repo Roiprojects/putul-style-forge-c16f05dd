@@ -15,7 +15,7 @@ import ScrollToTop from "@/components/ScrollToTop";
 import ScrollToTopButton from "@/components/ScrollToTopButton";
 import ExitIntentPopup from "@/components/ExitIntentPopup";
 
-import PWAInstallPrompt from "@/components/PWAInstallPrompt";
+// import PWAInstallPrompt from "@/components/PWAInstallPrompt"; // hidden for now
 
 import AbandonedCartReminder from "@/components/AbandonedCartReminder";
 import CompareBar from "@/components/CompareBar";
@@ -149,7 +149,7 @@ const App = () => (
                   <ScrollToTopButton />
                   <ExitIntentPopup />
                   
-                  <PWAInstallPrompt />
+                  {/* <PWAInstallPrompt /> hidden for now */}
                   
                   <AbandonedCartReminder />
                   <CompareBar />
