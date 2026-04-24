@@ -1,11 +1,14 @@
 import { useParams, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion } from "framer-motion";
-import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote } from "lucide-react";
+import { Heart, ShoppingBag, Star, Minus, Plus, ChevronRight, Truck, Shield, RefreshCcw, Zap, Banknote, Flame } from "lucide-react";
 import { useProduct, useProducts, useProductVariants, useProductSiblings } from "@/hooks/useProducts";
 import { useStore } from "@/contexts/StoreContext";
 import { useCurrency } from "@/contexts/CurrencyContext";
 import ProductCarousel from "@/components/ProductCarousel";
+import RecentlyViewed from "@/components/RecentlyViewed";
+import SizeGuideModal from "@/components/SizeGuideModal";
+import { useRecentlyViewed } from "@/hooks/useRecentlyViewed";
 import { toast } from "sonner";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import type { ProductVariant } from "@/data/products";

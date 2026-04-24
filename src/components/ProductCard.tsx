@@ -101,6 +101,13 @@ const ProductCard = ({ product, index = 0, variant = "default" }: ProductCardPro
             </span>
           )}
 
+          {/* Low stock urgency badge */}
+          {typeof product.stock === "number" && product.stock > 0 && product.stock <= (product.lowStockThreshold ?? 5) && (
+            <span className="absolute bottom-2 left-2 z-10 bg-destructive/90 text-destructive-foreground text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded backdrop-blur-sm">
+              Only {product.stock} left
+            </span>
+          )}
+
           {/* Wishlist — top right, always visible */}
           <button
             onClick={handleWishlist}
