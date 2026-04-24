@@ -5,25 +5,9 @@ import { useEffect } from "react";
  * Requires the SMS to end with: "@yourdomain.com #123456"
  * iOS Safari uses native autoComplete="one-time-code" suggestion bar (no JS needed).
  */
-export const useWebOTP = (enabled: boolean, onCode: (code: string) => void) => {
+export const useWebOTP = (_enabled: boolean, _onCode: (code: string) => void) => {
+  // Auto-read OTP via WebOTP API is disabled for now.
   useEffect(() => {
-    if (!enabled) return;
-    if (typeof window === "undefined") return;
-    if (!("OTPCredential" in window)) return;
-
-    const ac = new AbortController();
-
-    (navigator.credentials as unknown as {
-      get: (opts: Record<string, unknown>) => Promise<{ code?: string } | null>;
-    })
-      .get({ otp: { transport: ["sms"] }, signal: ac.signal })
-      .then((otp) => {
-        if (otp?.code) onCode(otp.code);
-      })
-      .catch(() => {
-        // user dismissed or timeout — silent
-      });
-
-    return () => ac.abort();
-  }, [enabled, onCode]);
+    return;
+  }, []);
 };
