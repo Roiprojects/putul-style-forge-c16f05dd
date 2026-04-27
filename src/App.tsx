@@ -147,7 +147,7 @@ const App = () => (
                   <MobileBottomNav />
                   <FloatingButtons />
                   <ScrollToTopButton />
-                  <ExitIntentPopup />
+                  {/* <ExitIntentPopup /> hidden for now */}
                   
                   {/* <PWAInstallPrompt /> hidden for now */}
                   
